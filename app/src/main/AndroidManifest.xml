@@ -18,32 +18,81 @@
         android:theme="@style/Theme.MyApplication"
         tools:targetApi="31">
 
-        <!-- Main Activity -->
+        <!-- Login Activity (Launcher) -->
         <activity
-            android:name=".MainActivity"
+            android:name=".ui.auth.LoginActivity"
             android:exported="true"
-            android:theme="@style/Theme.MyApplication">
+            android:theme="@style/Theme.MyApplication.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
-        <!-- Quiz Activity -->
+        <!-- Register Activity -->
         <activity
-            android:name=".ui.QuizActivity"
+            android:name=".ui.auth.RegisterActivity"
+            android:exported="false"
+            android:theme="@style/Theme.MyApplication.NoActionBar" />
+
+        <!-- Student Dashboard -->
+        <activity
+            android:name=".ui.student.StudentDashboardActivity"
             android:exported="false"
             android:theme="@style/Theme.MyApplication" />
 
-        <!-- Results Activity -->
+        <!-- Professor Dashboard -->
+        <activity
+            android:name=".ui.professor.ProfessorDashboardActivity"
+            android:exported="false"
+            android:theme="@style/Theme.MyApplication" />
+
+        <!-- Quiz Creation Activity -->
+        <activity
+            android:name=".ui.quiz.QuizCreationActivity"
+            android:exported="false"
+            android:theme="@style/Theme.MyApplication" />
+
+        <!-- Quiz Activity (Enhanced) -->
+        <activity
+            android:name=".ui.QuizActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.MyApplication" />
+
+        <!-- Results Activity (Enhanced) -->
         <activity
             android:name=".ui.ResultsActivity"
+            android:exported="false"
+            android:theme="@style/Theme.MyApplication" />
+
+        <!-- Leaderboard Activity -->
+        <activity
+            android:name=".ui.leaderboard.LeaderboardActivity"
+            android:exported="false"
+            android:theme="@style/Theme.MyApplication" />
+
+        <!-- Professor Approval Activity -->
+        <activity
+            android:name=".ui.professor.ApprovalActivity"
+            android:exported="false"
+            android:theme="@style/Theme.MyApplication" />
+
+        <!-- Profile Activity -->
+        <activity
+            android:name=".ui.profile.ProfileActivity"
             android:exported="false"
             android:theme="@style/Theme.MyApplication" />
 
         <!-- History Activity -->
         <activity
             android:name=".ui.HistoryActivity"
+            android:exported="false"
+            android:theme="@style/Theme.MyApplication" />
+
+        <!-- Main Activity (Legacy) -->
+        <activity
+            android:name=".MainActivity"
             android:exported="false"
             android:theme="@style/Theme.MyApplication" />
 
