@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import com.example.quizmaster.MainActivity
 import com.example.quizmaster.R
 import com.example.quizmaster.data.QuizCategory
 import com.example.quizmaster.data.QuizDifficulty
@@ -76,10 +75,18 @@ class ResultsActivity : AppCompatActivity() {
         val category = QuizCategory.valueOf(categoryName)
         val difficulty = QuizDifficulty.valueOf(difficultyName)
         
-        val percentage = if (totalQuestions > 0) (score * 100) / totalQuestions else 0
-        
+        // Le score passé depuis QuizActivity est la somme des points gagnés par question
+        // Chaque question a un score maximal de 100, donc le score maximal total = totalQuestions * 100
+        val maxTotalScore = totalQuestions * 100
+        val percentage = if (maxTotalScore > 0) {
+            // calculer en flottant pour éviter les erreurs d'arrondi entiers
+            ((score.toFloat() / maxTotalScore.toFloat()) * 100f).toInt()
+        } else {
+            0
+        }
+
         textViewScorePercentage.text = "$percentage%"
-        textViewScoreFraction.text = "$score / $totalQuestions"
+        textViewScoreFraction.text = "$score / $maxTotalScore"
         textViewCategory.text = "${category.displayName} - ${difficulty.displayName}"
         textViewTimeSpent.text = formatTime(timeTaken)
         
@@ -131,8 +138,9 @@ class ResultsActivity : AppCompatActivity() {
         }
         
         buttonHome.setOnClickListener {
-            val intent = Intent(this, MainActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
+            // Navigate back to the student's dashboard (clearing the activity stack to avoid returning to old pages)
+            val intent = Intent(this, com.example.quizmaster.ui.student.StudentDashboardActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             startActivity(intent)
             finish()
         }

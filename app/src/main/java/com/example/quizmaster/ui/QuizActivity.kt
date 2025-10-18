@@ -25,6 +25,7 @@ class QuizActivity : AppCompatActivity() {
         const val EXTRA_DIFFICULTY = "extra_difficulty"
         private const val TIMER_DURATION = 15000L // 15 seconds
         private const val FEEDBACK_DELAY = 2000L // 2 seconds
+        private const val KEY_TOTAL_SCORE = "key_total_score"
     }
     
     private lateinit var viewModel: QuizViewModel
@@ -52,6 +53,11 @@ class QuizActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_quiz)
 
+        // Restore totalScore if activity recreated
+        if (savedInstanceState != null) {
+            totalScore = savedInstanceState.getInt(KEY_TOTAL_SCORE, 0)
+        }
+
         // Initialize ViewModel
         viewModel = ViewModelProvider(
             this,
@@ -62,6 +68,14 @@ class QuizActivity : AppCompatActivity() {
         setupAnswerButtons()
         setupQuiz()
         observeViewModel()
+
+        // update UI score after views have been initialized
+        textViewScore.text = "Score: $totalScore"
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putInt(KEY_TOTAL_SCORE, totalScore)
     }
     
     private fun initializeViews() {
@@ -117,7 +131,8 @@ class QuizActivity : AppCompatActivity() {
                         displayQuestion(state.question, state.currentQuestionNumber, state.totalQuestions)
                     }
                     is QuizUiState.QuizCompleted -> {
-                        navigateToResults(state.score, state.totalQuestions, state.category, state.difficulty)
+                        // Use the local totalScore (points accumulated) to show in results
+                        navigateToResults(totalScore, state.totalQuestions, state.category, state.difficulty)
                     }
                     is QuizUiState.Error -> {
                         // Handle error
@@ -161,6 +176,9 @@ class QuizActivity : AppCompatActivity() {
         val isCorrect = selectedAnswer == question.correctAnswer
         val timeToAnswer = ((System.currentTimeMillis() - questionStartTime) / 1000).toInt()
         
+        // Inform ViewModel about the submitted answer (to keep repository results consistent)
+        viewModel.submitAnswer(selectedAnswer)
+
         // Calculate score based on time
         val pointsEarned = if (isCorrect) {
             val multiplier = ScoreCalculator.getScoreMultiplier(timeToAnswer)
