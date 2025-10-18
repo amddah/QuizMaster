@@ -42,4 +42,5 @@
     <color name="orange_500">#FF9800</color>
     <color name="error_red">#F44336</color>
     <color name="input_background">#F8F9FA</color>
+    <color name="gray_stroke">#D1D5DB</color>
 </resources>
