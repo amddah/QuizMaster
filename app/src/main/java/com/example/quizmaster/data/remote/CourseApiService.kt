@@ -18,7 +18,7 @@ interface CourseApiService {
     /**
      * Check if a student has completed a specific course
      */
-    @POST("api/courses/check-completion")
+    @POST("courses/check-completion")
     suspend fun checkCourseCompletion(
         @Body request: CourseCompletionRequest
     ): Response<CourseCompletionResponse>
@@ -26,7 +26,7 @@ interface CourseApiService {
     /**
      * Get list of courses completed by a student
      */
-    @GET("api/students/{studentId}/completed-courses")
+    @GET("students/{studentId}/completed-courses")
     suspend fun getCompletedCourses(
         @Path("studentId") studentId: String
     ): Response<List<Course>>
@@ -34,7 +34,7 @@ interface CourseApiService {
     /**
      * Get course details by ID
      */
-    @GET("api/courses/{courseId}")
+    @GET("courses/{courseId}")
     suspend fun getCourseById(
         @Path("courseId") courseId: String
     ): Response<Course>
@@ -42,7 +42,7 @@ interface CourseApiService {
     /**
      * Get all available courses
      */
-    @GET("api/courses")
+    @GET("courses")
     suspend fun getAllCourses(
         @Query("page") page: Int = 1,
         @Query("limit") limit: Int = 20

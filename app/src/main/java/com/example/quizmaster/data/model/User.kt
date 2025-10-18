@@ -3,7 +3,7 @@ package com.example.quizmaster.data.model
 import com.google.gson.annotations.SerializedName
 
 /**
- * Base user model
+ * User model matching the API specification
  */
 data class User(
     @SerializedName("id")
@@ -12,50 +12,63 @@ data class User(
     @SerializedName("email")
     val email: String,
     
-    @SerializedName("username")
-    val username: String,
+    @SerializedName("first_name")
+    val firstName: String,
+    
+    @SerializedName("last_name")
+    val lastName: String,
     
     @SerializedName("role")
-    val role: UserRole,
-    
-    @SerializedName("profile_image")
-    val profileImage: String? = null,
-    
+    val role: UserRole,  // Now properly deserialized from lowercase strings
+
     @SerializedName("created_at")
-    val createdAt: Long = System.currentTimeMillis(),
+    val createdAt: String? = null,
     
-    // Student-specific fields
+    @SerializedName("updated_at")
+    val updatedAt: String? = null,
+    
+    // Extended fields for gamification (not in base API)
     @SerializedName("level")
     val level: Int = 1,
     
-    @SerializedName("experience_points")
-    val experiencePoints: Int = 0,
+    @SerializedName("xp")
+    val xp: Int = 0,
     
     @SerializedName("total_quizzes_completed")
     val totalQuizzesCompleted: Int = 0,
     
-    @SerializedName("total_score")
-    val totalScore: Int = 0,
-    
     @SerializedName("badges")
     val badges: List<String> = emptyList(),
     
-    // Professor-specific fields
     @SerializedName("department")
-    val department: String? = null,
-    
-    @SerializedName("quizzes_created")
-    val quizzesCreated: Int = 0
+    val department: String? = null
 ) {
     fun isStudent(): Boolean = role == UserRole.STUDENT
     fun isProfessor(): Boolean = role == UserRole.PROFESSOR
+    
+    val fullName: String
+        get() = "$firstName $lastName"
     
     /**
      * Calculate progress to next level (0-100)
      */
     fun getProgressToNextLevel(): Int {
+        val pointsForCurrentLevel = (level - 1) * 100
         val pointsForNextLevel = level * 100
-        val pointsInCurrentLevel = experiencePoints % 100
-        return (pointsInCurrentLevel * 100) / pointsForNextLevel
+        val pointsInCurrentLevel = xp - pointsForCurrentLevel
+        
+        return if (pointsForNextLevel > pointsForCurrentLevel) {
+            (pointsInCurrentLevel * 100) / (pointsForNextLevel - pointsForCurrentLevel)
+        } else {
+            0
+        }
+    }
+    
+    /**
+     * Calculate XP needed for next level
+     */
+    fun getXpToNextLevel(): Int {
+        val pointsForNextLevel = level * 100
+        return maxOf(0, pointsForNextLevel - xp)
     }
 }

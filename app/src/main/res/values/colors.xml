@@ -25,4 +25,21 @@
     <color name="selected_answer">#2196F3</color>
     
     <color name="progress_background">#E0E0E0</color>
+    
+    <!-- Green Colors -->
+    <color name="green_primary">#4CAF50</color>
+    <color name="primary_green">#4CAF50</color>
+    <color name="green_500">#4CAF50</color>
+    <color name="green_100">#C8E6C9</color>
+    
+    <!-- Gray Colors -->
+    <color name="gray">#9E9E9E</color>
+    <color name="gray_text">#757575</color>
+    <color name="gray_600">#757575</color>
+    <color name="light_gray">#F5F5F5</color>
+    
+    <!-- Other Colors -->
+    <color name="orange_500">#FF9800</color>
+    <color name="error_red">#F44336</color>
+    <color name="input_background">#F8F9FA</color>
 </resources>

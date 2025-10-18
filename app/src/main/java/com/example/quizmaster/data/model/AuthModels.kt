@@ -20,32 +20,26 @@ data class RegisterRequest(
     @SerializedName("email")
     val email: String,
     
-    @SerializedName("username")
-    val username: String,
+    @SerializedName("first_name")
+    val firstName: String,
+    
+    @SerializedName("last_name") 
+    val lastName: String,
     
     @SerializedName("password")
     val password: String,
     
     @SerializedName("role")
-    val role: UserRole,
-    
-    @SerializedName("department")
-    val department: String? = null  // Only for professors
+    val role: UserRole
 )
 
 /**
  * Response model for authentication
  */
 data class AuthResponse(
-    @SerializedName("success")
-    val success: Boolean,
-    
-    @SerializedName("message")
-    val message: String,
-    
     @SerializedName("token")
-    val token: String? = null,
+    val token: String,
     
     @SerializedName("user")
-    val user: User? = null
+    val user: User
 )

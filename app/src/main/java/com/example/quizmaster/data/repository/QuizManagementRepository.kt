@@ -2,7 +2,6 @@ package com.example.quizmaster.data.repository
 
 import com.example.quizmaster.data.model.*
 import com.example.quizmaster.data.remote.QuizApiService
-import com.example.quizmaster.data.remote.QuizAttemptApiService
 import com.example.quizmaster.data.remote.CourseApiService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -12,7 +11,6 @@ import kotlinx.coroutines.withContext
  */
 class QuizManagementRepository(
     private val quizApiService: QuizApiService,
-    private val attemptApiService: QuizAttemptApiService,
     private val courseApiService: CourseApiService
 ) {
     
@@ -24,7 +22,8 @@ class QuizManagementRepository(
         status: ApprovalStatus? = null
     ): Result<List<QuizModel>> = withContext(Dispatchers.IO) {
         try {
-            val response = quizApiService.getAllQuizzes(category, difficulty, status)
+            val statusString = status?.name?.lowercase()
+            val response = quizApiService.getAllQuizzes(category, difficulty, statusString)
             if (response.isSuccessful && response.body() != null) {
                 Result.success(response.body()!!)
             } else {
@@ -48,10 +47,10 @@ class QuizManagementRepository(
         }
     }
     
-    suspend fun createQuiz(token: String, quiz: QuizModel): Result<QuizModel> = 
+    suspend fun createQuiz(quiz: QuizModel): Result<QuizModel> = 
         withContext(Dispatchers.IO) {
             try {
-                val response = quizApiService.createQuiz(token, quiz)
+                val response = quizApiService.createQuiz(quiz)
                 if (response.isSuccessful && response.body() != null) {
                     Result.success(response.body()!!)
                 } else {
@@ -62,24 +61,10 @@ class QuizManagementRepository(
             }
         }
     
-    suspend fun updateQuiz(quizId: String, token: String, quiz: QuizModel): Result<QuizModel> = 
+    suspend fun deleteQuiz(quizId: String): Result<Unit> = 
         withContext(Dispatchers.IO) {
             try {
-                val response = quizApiService.updateQuiz(quizId, token, quiz)
-                if (response.isSuccessful && response.body() != null) {
-                    Result.success(response.body()!!)
-                } else {
-                    Result.failure(Exception("Failed to update quiz: ${response.message()}"))
-                }
-            } catch (e: Exception) {
-                Result.failure(e)
-            }
-        }
-    
-    suspend fun deleteQuiz(quizId: String, token: String): Result<Unit> = 
-        withContext(Dispatchers.IO) {
-            try {
-                val response = quizApiService.deleteQuiz(quizId, token)
+                val response = quizApiService.deleteQuiz(quizId)
                 if (response.isSuccessful) {
                     Result.success(Unit)
                 } else {
@@ -92,24 +77,10 @@ class QuizManagementRepository(
     
     // Professor operations
     
-    suspend fun getPendingQuizzes(token: String): Result<List<QuizModel>> = 
+    suspend fun approveQuiz(quizId: String): Result<QuizModel> = 
         withContext(Dispatchers.IO) {
             try {
-                val response = quizApiService.getPendingQuizzes(token)
-                if (response.isSuccessful && response.body() != null) {
-                    Result.success(response.body()!!)
-                } else {
-                    Result.failure(Exception("Failed to fetch pending quizzes: ${response.message()}"))
-                }
-            } catch (e: Exception) {
-                Result.failure(e)
-            }
-        }
-    
-    suspend fun approveQuiz(quizId: String, token: String): Result<QuizModel> = 
-        withContext(Dispatchers.IO) {
-            try {
-                val response = quizApiService.approveQuiz(quizId, token)
+                val response = quizApiService.approveQuiz(quizId)
                 if (response.isSuccessful && response.body() != null) {
                     Result.success(response.body()!!)
                 } else {
@@ -119,38 +90,6 @@ class QuizManagementRepository(
                 Result.failure(e)
             }
         }
-    
-    suspend fun rejectQuiz(quizId: String, token: String, reason: String): Result<QuizModel> = 
-        withContext(Dispatchers.IO) {
-            try {
-                val response = quizApiService.rejectQuiz(quizId, token, mapOf("reason" to reason))
-                if (response.isSuccessful && response.body() != null) {
-                    Result.success(response.body()!!)
-                } else {
-                    Result.failure(Exception("Failed to reject quiz: ${response.message()}"))
-                }
-            } catch (e: Exception) {
-                Result.failure(e)
-            }
-        }
-    
-    // Student operations
-    
-    suspend fun getAvailableQuizzesForStudent(
-        studentId: String,
-        token: String
-    ): Result<List<QuizModel>> = withContext(Dispatchers.IO) {
-        try {
-            val response = quizApiService.getAvailableQuizzesForStudent(studentId, token)
-            if (response.isSuccessful && response.body() != null) {
-                Result.success(response.body()!!)
-            } else {
-                Result.failure(Exception("Failed to fetch available quizzes: ${response.message()}"))
-            }
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
-    }
     
     suspend fun checkCourseCompletion(
         studentId: String,
@@ -169,16 +108,32 @@ class QuizManagementRepository(
         }
     }
     
-    suspend fun getQuizzesCreatedByUser(
-        userId: String,
-        token: String
-    ): Result<List<QuizModel>> = withContext(Dispatchers.IO) {
+    /**
+     * Get available courses for selection
+     */
+    suspend fun getAllCourses(): Result<List<Course>> = withContext(Dispatchers.IO) {
         try {
-            val response = quizApiService.getQuizzesCreatedByUser(userId, token)
+            val response = courseApiService.getAllCourses()
             if (response.isSuccessful && response.body() != null) {
                 Result.success(response.body()!!)
             } else {
-                Result.failure(Exception("Failed to fetch user quizzes: ${response.message()}"))
+                Result.failure(Exception("Failed to fetch courses: ${response.message()}"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+    
+    /**
+     * Get course details by ID
+     */
+    suspend fun getCourseById(courseId: String): Result<Course> = withContext(Dispatchers.IO) {
+        try {
+            val response = courseApiService.getCourseById(courseId)
+            if (response.isSuccessful && response.body() != null) {
+                Result.success(response.body()!!)
+            } else {
+                Result.failure(Exception("Failed to fetch course: ${response.message()}"))
             }
         } catch (e: Exception) {
             Result.failure(e)

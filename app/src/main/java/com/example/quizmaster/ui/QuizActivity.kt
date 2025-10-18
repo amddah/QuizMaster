@@ -9,9 +9,11 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import com.example.quizmaster.R
 import com.example.quizmaster.data.Question
 import com.example.quizmaster.data.QuizCategory
 import com.example.quizmaster.data.QuizDifficulty
+import com.example.quizmaster.utils.ScoreCalculator
 import com.google.android.material.button.MaterialButton
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -31,12 +33,15 @@ class QuizActivity : AppCompatActivity() {
     private var currentQuestion: Question? = null
     private var answerButtons: List<MaterialButton> = emptyList()
     private var isAnswerSubmitted = false
+    private var questionStartTime = 0L
+    private var totalScore = 0
     
     // UI Elements
     private lateinit var textViewQuestion: TextView
     private lateinit var textViewCategory: TextView
     private lateinit var textViewProgress: TextView
     private lateinit var textViewTimer: TextView
+    private lateinit var textViewScore: TextView
     private lateinit var progressBar: ProgressBar
     private lateinit var buttonAnswer1: MaterialButton
     private lateinit var buttonAnswer2: MaterialButton
@@ -45,10 +50,7 @@ class QuizActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        // Use layout ID directly by name lookup
-        val layoutId = resources.getIdentifier("activity_quiz", "layout", packageName)
-        setContentView(layoutId)
+        setContentView(R.layout.activity_quiz)
 
         // Initialize ViewModel
         viewModel = ViewModelProvider(
@@ -63,15 +65,16 @@ class QuizActivity : AppCompatActivity() {
     }
     
     private fun initializeViews() {
-        textViewQuestion = findViewById(resources.getIdentifier("textViewQuestion", "id", packageName))
-        textViewCategory = findViewById(resources.getIdentifier("textViewCategory", "id", packageName))
-        textViewProgress = findViewById(resources.getIdentifier("textViewProgress", "id", packageName))
-        textViewTimer = findViewById(resources.getIdentifier("textViewTimer", "id", packageName))
-        progressBar = findViewById(resources.getIdentifier("progressBar", "id", packageName))
-        buttonAnswer1 = findViewById(resources.getIdentifier("buttonAnswer1", "id", packageName))
-        buttonAnswer2 = findViewById(resources.getIdentifier("buttonAnswer2", "id", packageName))
-        buttonAnswer3 = findViewById(resources.getIdentifier("buttonAnswer3", "id", packageName))
-        buttonAnswer4 = findViewById(resources.getIdentifier("buttonAnswer4", "id", packageName))
+        textViewQuestion = findViewById(R.id.textViewQuestion)
+        textViewCategory = findViewById(R.id.textViewCategory)
+        textViewProgress = findViewById(R.id.textViewProgress)
+        textViewTimer = findViewById(R.id.textViewTimer)
+        textViewScore = findViewById(R.id.textViewScore)
+        progressBar = findViewById(R.id.progressBar)
+        buttonAnswer1 = findViewById(R.id.buttonAnswer1)
+        buttonAnswer2 = findViewById(R.id.buttonAnswer2)
+        buttonAnswer3 = findViewById(R.id.buttonAnswer3)
+        buttonAnswer4 = findViewById(R.id.buttonAnswer4)
     }
 
     private fun setupAnswerButtons() {
@@ -127,9 +130,11 @@ class QuizActivity : AppCompatActivity() {
     private fun displayQuestion(question: Question, questionNumber: Int, totalQuestions: Int) {
         currentQuestion = question
         isAnswerSubmitted = false
+        questionStartTime = System.currentTimeMillis()
         
         textViewQuestion.text = question.question
         textViewProgress.text = "$questionNumber / $totalQuestions"
+        textViewScore.text = "Score: $totalScore"
 
         val progress = ((questionNumber - 1) * 100) / totalQuestions
         progressBar.progress = progress
@@ -153,33 +158,32 @@ class QuizActivity : AppCompatActivity() {
         countDownTimer?.cancel()
         
         val question = currentQuestion ?: return
-        val isCorrect = question.isCorrectAnswer(selectedAnswer)
+        val isCorrect = selectedAnswer == question.correctAnswer
+        val timeToAnswer = ((System.currentTimeMillis() - questionStartTime) / 1000).toInt()
         
-        // Show visual feedback
+        // Calculate score based on time
+        val pointsEarned = if (isCorrect) {
+            val multiplier = ScoreCalculator.getScoreMultiplier(timeToAnswer)
+            (100 * multiplier).toInt() // Assuming max score of 100 per question
+        } else {
+            0
+        }
+        
+        totalScore += pointsEarned
+        
+        // Highlight correct/incorrect answer
         answerButtons.forEachIndexed { index, button ->
             button.isEnabled = false
             when {
-                index == buttonIndex && isCorrect -> {
-                    // Selected answer is correct - use color lookup
-                    val colorId = resources.getIdentifier("correct_answer", "color", packageName)
-                    button.backgroundTintList = ContextCompat.getColorStateList(this, colorId)
-                }
-                index == buttonIndex && !isCorrect -> {
-                    // Selected answer is incorrect - use color lookup
-                    val colorId = resources.getIdentifier("incorrect_answer", "color", packageName)
-                    button.backgroundTintList = ContextCompat.getColorStateList(this, colorId)
-                }
                 button.text == question.correctAnswer -> {
-                    // Highlight correct answer - use color lookup
-                    val colorId = resources.getIdentifier("correct_answer", "color", packageName)
-                    button.backgroundTintList = ContextCompat.getColorStateList(this, colorId)
+                    button.setBackgroundColor(ContextCompat.getColor(this, android.R.color.holo_green_light))
+                }
+                button.text == selectedAnswer && !isCorrect -> {
+                    button.setBackgroundColor(ContextCompat.getColor(this, android.R.color.holo_red_light))
                 }
             }
         }
         
-        viewModel.submitAnswer(selectedAnswer)
-        
-        // Move to next question after delay
         lifecycleScope.launch {
             delay(FEEDBACK_DELAY)
             viewModel.nextQuestion()
@@ -187,35 +191,46 @@ class QuizActivity : AppCompatActivity() {
     }
     
     private fun startTimer() {
-        textViewTimer.text = "⏱️ 15"
-
-        countDownTimer = object : CountDownTimer(TIMER_DURATION, 1000) {
+        countDownTimer?.cancel()
+        countDownTimer = object : CountDownTimer(TIMER_DURATION, 100) {
             override fun onTick(millisUntilFinished: Long) {
-                val secondsRemaining = (millisUntilFinished / 1000).toInt()
-                textViewTimer.text = "⏱️ $secondsRemaining"
-            }
-            
-            override fun onFinish() {
-                if (!isAnswerSubmitted) {
-                    // Time's up, submit empty answer
-                    submitAnswer("", -1)
+                val secondsRemaining = millisUntilFinished / 1000
+                textViewTimer.text = "$secondsRemaining s"
+                
+                // Change color based on time remaining
+                when {
+                    secondsRemaining > 10 -> textViewTimer.setTextColor(ContextCompat.getColor(this@QuizActivity, android.R.color.holo_green_dark))
+                    secondsRemaining > 5 -> textViewTimer.setTextColor(ContextCompat.getColor(this@QuizActivity, android.R.color.holo_orange_dark))
+                    else -> textViewTimer.setTextColor(ContextCompat.getColor(this@QuizActivity, android.R.color.holo_red_dark))
                 }
             }
-        }
-        countDownTimer?.start()
+
+            override fun onFinish() {
+                if (!isAnswerSubmitted) {
+                    isAnswerSubmitted = true
+                    textViewTimer.text = "0 s"
+                    answerButtons.forEach { it.isEnabled = false }
+                    
+                    lifecycleScope.launch {
+                        delay(FEEDBACK_DELAY)
+                        viewModel.nextQuestion()
+                    }
+                }
+            }
+        }.start()
     }
     
     private fun resetButtonStyle(button: MaterialButton) {
-        val colorId = resources.getIdentifier("surface_color", "color", packageName)
-        button.backgroundTintList = ContextCompat.getColorStateList(this, colorId)
+        button.setBackgroundColor(ContextCompat.getColor(this, android.R.color.darker_gray))
     }
     
     private fun navigateToResults(score: Int, totalQuestions: Int, category: QuizCategory, difficulty: QuizDifficulty) {
-        val intent = Intent(this, ResultsActivity::class.java)
-        intent.putExtra(ResultsActivity.EXTRA_SCORE, score)
-        intent.putExtra(ResultsActivity.EXTRA_TOTAL_QUESTIONS, totalQuestions)
-        intent.putExtra(ResultsActivity.EXTRA_CATEGORY, category.name)
-        intent.putExtra(ResultsActivity.EXTRA_DIFFICULTY, difficulty.name)
+        val intent = Intent(this, ResultsActivity::class.java).apply {
+            putExtra(ResultsActivity.EXTRA_SCORE, score)
+            putExtra(ResultsActivity.EXTRA_TOTAL_QUESTIONS, totalQuestions)
+            putExtra(ResultsActivity.EXTRA_CATEGORY, category.name)
+            putExtra(ResultsActivity.EXTRA_DIFFICULTY, difficulty.name)
+        }
         startActivity(intent)
         finish()
     }

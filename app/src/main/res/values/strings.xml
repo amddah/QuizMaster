@@ -4,15 +4,22 @@
     <!-- Authentication -->
     <string name="login_title">Welcome Back!</string>
     <string name="register_title">Join QuizMaster</string>
+    <string name="register_subtitle">Create your account to start learning</string>
     <string name="email_hint">Email</string>
     <string name="password_hint">Password</string>
+    <string name="password">Password</string>
+    <string name="confirm_password">Confirm Password</string>
     <string name="username_hint">Username</string>
+    <string name="first_name">First Name</string>
+    <string name="last_name">Last Name</string>
     <string name="login_button">Login</string>
     <string name="register_button">Register</string>
+    <string name="register">Register</string>
     <string name="no_account">Don\'t have an account?</string>
     <string name="already_have_account">Already have an account?</string>
     <string name="register_link">Register</string>
     <string name="login_link">Login</string>
+    <string name="login_here">Login here</string>
     
     <!-- User Roles -->
     <string name="role_student">Student</string>
@@ -68,19 +75,25 @@
     
     <!-- Leaderboard -->
     <string name="leaderboard_title">Leaderboard</string>
+    <string name="leaderboard_subtitle">See how you rank</string>
     <string name="your_rank">Your Rank: #%d</string>
     <string name="better_than">Better than %d students</string>
     <string name="top_percentile">Top %.1f%%</string>
     <string name="global_rank">Global Rank: #%d</string>
+    <string name="no_leaderboard_data">No leaderboard data available</string>
     
     <!-- Quiz Creation -->
     <string name="create_quiz">Create Quiz</string>
     <string name="quiz_title">Quiz Title</string>
     <string name="quiz_description">Description (optional)</string>
     <string name="select_category">Select Category</string>
+    <string name="category">Category</string>
     <string name="select_difficulty">Select Difficulty</string>
+    <string name="difficulty">Difficulty</string>
     <string name="select_course">Select Linked Course</string>
+    <string name="linked_course">Linked Course</string>
     <string name="add_question">Add Question</string>
+    <string name="questions">Questions</string>
     <string name="question_text">Question Text</string>
     <string name="question_type">Question Type</string>
     <string name="correct_answer">Correct Answer</string>
@@ -89,12 +102,25 @@
     <string name="submit_for_approval">Submit for Approval</string>
     
     <!-- Professor -->
+    <string name="professor_dashboard_title">Professor Dashboard</string>
+    <string name="pending_quizzes">Pending Quizzes</string>
+    <string name="my_quizzes">My Quizzes</string>
+    <string name="statistics">Statistics</string>
     <string name="pending_approvals">Pending Approvals (%d)</string>
     <string name="approve">Approve</string>
     <string name="reject">Reject</string>
     <string name="quiz_approved">Quiz Approved!</string>
     <string name="quiz_rejected">Quiz Rejected</string>
     <string name="created_by">Created by: %s</string>
+    <string name="no_pending_quizzes">No pending quizzes to review</string>
+    
+    <!-- Profile -->
+    <string name="user_name">User Name</string>
+    <string name="email">Email</string>
+    <string name="role">Role</string>
+    <string name="badges">Badges</string>
+    <string name="quiz_history">Quiz History</string>
+    <string name="back">Back</string>
     
     <!-- Badges -->
     <string name="badge_first_quiz">🎓 First Steps</string>
@@ -118,5 +144,4 @@
     <string name="profile">Profile</string>
     <string name="settings">Settings</string>
     <string name="history">History</string>
-    
 </resources>

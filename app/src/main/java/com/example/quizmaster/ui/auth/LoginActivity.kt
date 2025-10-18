@@ -34,8 +34,8 @@ class LoginActivity : AppCompatActivity() {
         
         // Initialize services
         authApiService = ApiClient.authApiService
-        sessionManager = UserSessionManager(this)
-        
+        sessionManager = UserSessionManager.getInstance(this)
+
         // Check if already logged in
         checkExistingSession()
         
@@ -102,16 +102,12 @@ class LoginActivity : AppCompatActivity() {
                 if (response.isSuccessful && response.body() != null) {
                     val authResponse = response.body()!!
                     
-                    if (authResponse.success && authResponse.user != null && authResponse.token != null) {
-                        // Save session
-                        sessionManager.saveUserSession(authResponse.token, authResponse.user)
-                        ApiClient.setAuthToken(authResponse.token)
-                        
-                        // Navigate based on role
-                        navigateToDashboard(authResponse.user.role)
-                    } else {
-                        showError(authResponse.message)
-                    }
+                    // Save session
+                    sessionManager.saveUserSession(authResponse.token, authResponse.user)
+                    ApiClient.setAuthToken(authResponse.token)
+                    
+                    // Navigate based on role
+                    navigateToDashboard(authResponse.user.role)
                 } else {
                     showError("Login failed: ${response.message()}")
                 }
