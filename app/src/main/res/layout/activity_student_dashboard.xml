@@ -15,31 +15,33 @@
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="16dp"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="4dp"
+            android:layout_margin="8dp"
+            app:cardCornerRadius="8dp"
+            app:cardElevation="2dp"
             android:backgroundTint="@color/green_500">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="16dp">
+                android:padding="12dp">
 
                 <TextView
                     android:id="@+id/userNameText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Welcome, Student"
-                    android:textSize="20sp"
+                    android:textSize="18sp"
                     android:textStyle="bold"
-                    android:textColor="@color/white" />
+                    android:textColor="@color/white"
+                    android:ellipsize="end"
+                    android:maxLines="1" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:layout_marginTop="12dp"
+                    android:layout_marginTop="8dp"
                     android:gravity="center_horizontal">
 
                     <LinearLayout
@@ -52,16 +54,16 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Level"
-                            android:textSize="12sp"
+                            android:textSize="11sp"
                             android:textColor="@color/white"
-                            android:alpha="0.8" />
+                            android:alpha="0.85" />
 
                         <TextView
                             android:id="@+id/levelText"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="5"
-                            android:textSize="18sp"
+                            android:textSize="16sp"
                             android:textStyle="bold"
                             android:textColor="@color/white" />
                     </LinearLayout>
@@ -76,16 +78,16 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="XP"
-                            android:textSize="12sp"
+                            android:textSize="11sp"
                             android:textColor="@color/white"
-                            android:alpha="0.8" />
+                            android:alpha="0.85" />
 
                         <TextView
                             android:id="@+id/xpText"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="450/500"
-                            android:textSize="18sp"
+                            android:textSize="16sp"
                             android:textStyle="bold"
                             android:textColor="@color/white" />
                     </LinearLayout>
@@ -100,27 +102,27 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Quizzes"
-                            android:textSize="12sp"
+                            android:textSize="11sp"
                             android:textColor="@color/white"
-                            android:alpha="0.8" />
+                            android:alpha="0.85" />
 
                         <TextView
                             android:id="@+id/quizzesCompletedText"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="12"
-                            android:textSize="18sp"
+                            android:textSize="16sp"
                             android:textStyle="bold"
                             android:textColor="@color/white" />
                     </LinearLayout>
                 </LinearLayout>
 
-                <!-- Progress Bar -->
+                <!-- Progress Bar (reduced spacing) -->
                 <ProgressBar
                     android:id="@+id/xpProgressBar"
                     android:layout_width="match_parent"
                     android:layout_height="8dp"
-                    android:layout_marginTop="12dp"
+                    android:layout_marginTop="8dp"
                     android:progress="90"
                     android:progressDrawable="@drawable/bg_timer"
                     style="@style/Widget.AppCompat.ProgressBar.Horizontal" />
@@ -134,25 +136,31 @@
             android:text="Badges"
             android:textSize="16sp"
             android:textStyle="bold"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp" />
+            android:textColor="@color/text_primary"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="8dp"
+            android:paddingBottom="4dp" />
 
         <HorizontalScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="16dp"
-            android:scrollbars="none">
+            android:layout_height="64dp"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="12dp"
+            android:layout_marginTop="6dp"
+            android:scrollbars="none"
+            android:fillViewport="false">
 
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:spacing="8dp">
+                android:paddingStart="4dp"
+                android:paddingEnd="4dp">
 
                 <com.google.android.material.card.MaterialCardView
-                    android:layout_width="80dp"
-                    android:layout_height="80dp"
-                    android:layout_marginEnd="8dp"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_marginEnd="6dp"
                     app:cardCornerRadius="8dp">
 
                     <LinearLayout
@@ -166,21 +174,23 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="🎓"
-                            android:textSize="32sp" />
+                            android:textSize="20sp"
+                            android:textColor="@color/text_primary" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="First"
-                            android:textSize="10sp"
+                            android:textSize="11sp"
+                            android:textColor="@color/text_primary"
                             android:textAlignment="center" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
                 <com.google.android.material.card.MaterialCardView
-                    android:layout_width="80dp"
-                    android:layout_height="80dp"
-                    android:layout_marginEnd="8dp"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_marginEnd="6dp"
                     app:cardCornerRadius="8dp">
 
                     <LinearLayout
@@ -194,13 +204,15 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="⚡"
-                            android:textSize="32sp" />
+                            android:textSize="20sp"
+                            android:textColor="@color/text_primary" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Speed"
-                            android:textSize="10sp"
+                            android:textSize="11sp"
+                            android:textColor="@color/text_primary"
                             android:textAlignment="center" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
@@ -250,9 +262,9 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:layout_margin="16dp"
+            android:layout_margin="12dp"
             android:clipToPadding="false"
-            android:paddingBottom="76dp" />
+            android:paddingBottom="96dp" />
 
         <!-- Bottom Navigation stays inside the LinearLayout so it is positioned at the bottom -->
         <LinearLayout

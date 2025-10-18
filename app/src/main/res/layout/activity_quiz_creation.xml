@@ -43,8 +43,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
-            app:boxBackgroundColor="@color/white"
-            app:boxStrokeColor="@color/green_500">
+            app:boxBackgroundMode="outline"
+            app:boxBackgroundColor="@color/input_background"
+            app:boxStrokeColor="@color/green_500"
+            app:boxStrokeWidth="1dp"
+            app:boxCornerRadiusTopStart="8dp"
+            app:boxCornerRadiusTopEnd="8dp">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/quizTitleInput"
@@ -52,7 +56,9 @@
                 android:layout_height="wrap_content"
                 android:hint="@string/quiz_title"
                 android:inputType="text"
-                android:textColor="@color/black" />
+                android:textColor="@color/text_primary"
+                android:textColorHint="@color/text_secondary"
+                android:padding="12dp" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <!-- Quiz Description -->
@@ -60,8 +66,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
-            app:boxBackgroundColor="@color/white"
-            app:boxStrokeColor="@color/green_500">
+            app:boxBackgroundMode="outline"
+            app:boxBackgroundColor="@color/input_background"
+            app:boxStrokeColor="@color/green_500"
+            app:boxStrokeWidth="1dp"
+            app:boxCornerRadiusTopStart="8dp"
+            app:boxCornerRadiusTopEnd="8dp">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/quizDescriptionInput"
@@ -70,7 +80,9 @@
                 android:hint="@string/quiz_description"
                 android:inputType="textMultiLine"
                 android:minLines="3"
-                android:textColor="@color/black" />
+                android:textColor="@color/text_primary"
+                android:textColorHint="@color/text_secondary"
+                android:padding="12dp" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <!-- Category Spinner -->
@@ -89,9 +101,15 @@
             android:layout_width="match_parent"
             android:layout_height="56dp"
             android:layout_marginBottom="16dp"
-            android:padding="12dp"
-            android:background="@drawable/spinner_background"
-            android:popupBackground="@color/white" />
+            android:paddingStart="12dp"
+            android:paddingEnd="56dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:gravity="center_vertical"
+            android:clipToPadding="false"
+            android:background="@drawable/input_border"
+            android:popupBackground="@color/white"
+            android:spinnerMode="dropdown" />
 
         <!-- Difficulty Spinner -->
         <TextView
@@ -109,9 +127,15 @@
             android:layout_width="match_parent"
             android:layout_height="56dp"
             android:layout_marginBottom="16dp"
-            android:padding="12dp"
-            android:background="@drawable/spinner_background"
-            android:popupBackground="@color/white" />
+            android:paddingStart="12dp"
+            android:paddingEnd="56dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:gravity="center_vertical"
+            android:clipToPadding="false"
+            android:background="@drawable/input_border"
+            android:popupBackground="@color/white"
+            android:spinnerMode="dropdown" />
 
         <!-- Course Selection -->
         <TextView
@@ -129,9 +153,15 @@
             android:layout_width="match_parent"
             android:layout_height="56dp"
             android:layout_marginBottom="20dp"
-            android:padding="12dp"
-            android:background="@drawable/spinner_background"
-            android:popupBackground="@color/white" />
+            android:paddingStart="12dp"
+            android:paddingEnd="56dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:gravity="center_vertical"
+            android:clipToPadding="false"
+            android:background="@drawable/input_border"
+            android:popupBackground="@color/white"
+            android:spinnerMode="dropdown" />
 
         <!-- Questions Section -->
         <LinearLayout
@@ -167,10 +197,12 @@
             android:layout_width="match_parent"
             android:layout_height="300dp"
             android:layout_marginBottom="16dp"
-            android:background="@color/light_gray" />
+            android:background="@color/light_gray"
+            android:clipToPadding="false" />
 
         <!-- Action Buttons -->
         <LinearLayout
+            android:id="@+id/actionButtonsContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
@@ -180,6 +212,7 @@
 
             <Button
                 android:id="@+id/cancelButton"
+                style="?android:attr/buttonBarButtonStyle"
                 android:layout_width="0dp"
                 android:layout_height="48dp"
                 android:layout_weight="1"
@@ -190,6 +223,7 @@
 
             <Button
                 android:id="@+id/submitButton"
+                style="?android:attr/buttonBarButtonStyle"
                 android:layout_width="0dp"
                 android:layout_height="48dp"
                 android:layout_weight="1"

@@ -33,6 +33,7 @@ class QuizCreationActivity : AppCompatActivity() {
     private lateinit var questionsRecyclerView: RecyclerView
     private lateinit var addQuestionButton: Button
     private lateinit var submitButton: Button
+    private lateinit var actionButtonsContainer: LinearLayout
     private lateinit var progressBar: ProgressBar
 
     private lateinit var sessionManager: UserSessionManager
@@ -63,24 +64,18 @@ class QuizCreationActivity : AppCompatActivity() {
         questionsRecyclerView = findViewById(R.id.questionsRecyclerView)
         addQuestionButton = findViewById(R.id.addQuestionButton)
         submitButton = findViewById(R.id.submitButton)
+        actionButtonsContainer = findViewById(R.id.actionButtonsContainer)
         progressBar = findViewById(R.id.progressBar)
     }
     
     private fun setupSpinners() {
         // Category Spinner
         val categories = QuizCategory.entries.map { it.displayName }
-        val categoryAdapter = object : ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, categories) {
-            override fun getView(position: Int, convertView: android.view.View?, parent: android.view.ViewGroup): android.view.View {
-                val view = super.getView(position, convertView, parent) as TextView
-                view.setTextColor(getColor(R.color.text_primary))
-                view.textSize = 16f
-                view.setPadding(16, 16, 16, 16)
-                return view
-            }
-            
+        // Use custom spinner_item layout for the selected view (ensures padding + ellipsize)
+        val categoryAdapter = object : ArrayAdapter<String>(this, R.layout.spinner_item, categories) {
             override fun getDropDownView(position: Int, convertView: android.view.View?, parent: android.view.ViewGroup): android.view.View {
                 val view = super.getDropDownView(position, convertView, parent) as TextView
-                view.setTextColor(getColor(R.color.text_primary))
+                view.setTextColor(android.graphics.Color.BLACK)
                 view.setPadding(24, 16, 24, 16)
                 return view
             }
@@ -90,18 +85,10 @@ class QuizCreationActivity : AppCompatActivity() {
         
         // Difficulty Spinner
         val difficulties = QuizDifficulty.entries.map { it.displayName }
-        val difficultyAdapter = object : ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, difficulties) {
-            override fun getView(position: Int, convertView: android.view.View?, parent: android.view.ViewGroup): android.view.View {
-                val view = super.getView(position, convertView, parent) as TextView
-                view.setTextColor(getColor(R.color.text_primary))
-                view.textSize = 16f
-                view.setPadding(16, 16, 16, 16)
-                return view
-            }
-            
+        val difficultyAdapter = object : ArrayAdapter<String>(this, R.layout.spinner_item, difficulties) {
             override fun getDropDownView(position: Int, convertView: android.view.View?, parent: android.view.ViewGroup): android.view.View {
                 val view = super.getDropDownView(position, convertView, parent) as TextView
-                view.setTextColor(getColor(R.color.text_primary))
+                view.setTextColor(android.graphics.Color.BLACK)
                 view.setPadding(24, 16, 24, 16)
                 return view
             }
@@ -120,18 +107,10 @@ class QuizCreationActivity : AppCompatActivity() {
             "SE301 - Software Engineering",
             "NET401 - Computer Networks"
         )
-        val courseAdapter = object : ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, courses) {
-            override fun getView(position: Int, convertView: android.view.View?, parent: android.view.ViewGroup): android.view.View {
-                val view = super.getView(position, convertView, parent) as TextView
-                view.setTextColor(getColor(R.color.text_primary))
-                view.textSize = 16f
-                view.setPadding(16, 16, 16, 16)
-                return view
-            }
-            
+        val courseAdapter = object : ArrayAdapter<String>(this, R.layout.spinner_item, courses) {
             override fun getDropDownView(position: Int, convertView: android.view.View?, parent: android.view.ViewGroup): android.view.View {
                 val view = super.getDropDownView(position, convertView, parent) as TextView
-                view.setTextColor(getColor(R.color.text_primary))
+                view.setTextColor(android.graphics.Color.BLACK)
                 view.setPadding(24, 16, 24, 16)
                 return view
             }
@@ -160,19 +139,24 @@ class QuizCreationActivity : AppCompatActivity() {
     }
     
     private fun showAddQuestionDialog() {
-        val dialog = android.app.AlertDialog.Builder(this)
+        val builder = android.app.AlertDialog.Builder(this)
         val view = layoutInflater.inflate(R.layout.dialog_add_question, null)
         
         val questionTextInput = view.findViewById<EditText>(R.id.questionTextInput)
         val questionTypeSpinner = view.findViewById<Spinner>(R.id.questionTypeSpinner)
         val optionsContainer = view.findViewById<LinearLayout>(R.id.optionsContainer)
         val correctAnswerSpinner = view.findViewById<Spinner>(R.id.correctAnswerSpinner)
-        
-        val typeAdapter = ArrayAdapter(
-            this,
-            android.R.layout.simple_spinner_item,
-            listOf("True/False", "Multiple Choice")
-        )
+        val dialogCancelButton = view.findViewById<Button>(R.id.cancelButton)
+        val dialogAddButton = view.findViewById<Button>(R.id.addButton)
+
+        val typeAdapter = object : ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, listOf("True/False", "Multiple Choice")) {
+            override fun getDropDownView(position: Int, convertView: android.view.View?, parent: android.view.ViewGroup): android.view.View {
+                val view = super.getDropDownView(position, convertView, parent) as TextView
+                view.setTextColor(android.graphics.Color.BLACK)
+                view.setPadding(24, 16, 24, 16)
+                return view
+            }
+        }
         typeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         questionTypeSpinner.adapter = typeAdapter
         
@@ -182,7 +166,7 @@ class QuizCreationActivity : AppCompatActivity() {
             override fun onItemSelected(parent: AdapterView<*>?, view: android.view.View?, position: Int, id: Long) {
                 optionsContainer.removeAllViews()
                 optionInputs.clear()
-                
+
                 if (position == 1) { // Multiple Choice
                     repeat(4) { i ->
                         val optionInput = EditText(this@QuizCreationActivity).apply {
@@ -196,39 +180,79 @@ class QuizCreationActivity : AppCompatActivity() {
                                 LinearLayout.LayoutParams.WRAP_CONTENT
                             ).apply { setMargins(0, 8, 0, 8) }
                         }
+                        // Appliquer un fond arrondi blanc uniforme
+                        optionInput.setBackgroundResource(R.drawable.input_rounded_background)
                         optionsContainer.addView(optionInput)
                         optionInputs.add(optionInput)
                     }
-                    
+
                     // Update correct answer spinner for multiple choice
                     val answerOptions = listOf("Option 1", "Option 2", "Option 3", "Option 4")
-                    val answerAdapter = ArrayAdapter(this@QuizCreationActivity, android.R.layout.simple_spinner_item, answerOptions)
+                    val answerAdapter = object : ArrayAdapter<String>(this@QuizCreationActivity, android.R.layout.simple_spinner_item, answerOptions) {
+                        override fun getDropDownView(position: Int, convertView: android.view.View?, parent: android.view.ViewGroup): android.view.View {
+                            val view = super.getDropDownView(position, convertView, parent) as TextView
+                            view.setTextColor(android.graphics.Color.BLACK)
+                            view.setPadding(24, 16, 24, 16)
+                            return view
+                        }
+                    }
                     answerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
                     correctAnswerSpinner.adapter = answerAdapter
                 } else { // True/False
                     val answerOptions = listOf("True", "False")
-                    val answerAdapter = ArrayAdapter(this@QuizCreationActivity, android.R.layout.simple_spinner_item, answerOptions)
+                    val answerAdapter = object : ArrayAdapter<String>(this@QuizCreationActivity, android.R.layout.simple_spinner_item, answerOptions) {
+                        override fun getDropDownView(position: Int, convertView: android.view.View?, parent: android.view.ViewGroup): android.view.View {
+                            val view = super.getDropDownView(position, convertView, parent) as TextView
+                            view.setTextColor(android.graphics.Color.BLACK)
+                            view.setPadding(24, 16, 24, 16)
+                            return view
+                        }
+                    }
                     answerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
                     correctAnswerSpinner.adapter = answerAdapter
                 }
-                
+
                 correctAnswerSpinner.isEnabled = true
             }
             override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
         
         // Initialize with True/False options
-        val answerOptions = listOf("True", "False")
-        val answerAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, answerOptions)
-        answerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        correctAnswerSpinner.adapter = answerAdapter
+        val initAnswerOptions = listOf("True", "False")
+        val initAnswerAdapter = object : ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, initAnswerOptions) {
+            override fun getDropDownView(position: Int, convertView: android.view.View?, parent: android.view.ViewGroup): android.view.View {
+                val view = super.getDropDownView(position, convertView, parent) as TextView
+                view.setTextColor(android.graphics.Color.BLACK)
+                view.setPadding(24, 16, 24, 16)
+                return view
+            }
+        }
+        initAnswerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        correctAnswerSpinner.adapter = initAnswerAdapter
         correctAnswerSpinner.isEnabled = true
         
-        dialog.setView(view)
-        dialog.setPositiveButton("Add") { _, _ ->
+        // Hide underlying action buttons so they don't appear duplicated under the dialog
+        actionButtonsContainer.visibility = android.view.View.GONE
+        addQuestionButton.visibility = android.view.View.GONE
+
+         builder.setView(view)
+         val alert = builder.create()
+         alert.setOnDismissListener {
+             // restore underlying buttons visibility
+             actionButtonsContainer.visibility = android.view.View.VISIBLE
+             addQuestionButton.visibility = android.view.View.VISIBLE
+         }
+         alert.show()
+
+        // Hook dialog internal buttons
+        dialogCancelButton.setOnClickListener {
+            alert.dismiss()
+        }
+
+        dialogAddButton.setOnClickListener {
             val questionText = questionTextInput.text.toString()
             if (questionText.isNotEmpty()) {
-                val type = if (questionTypeSpinner.selectedItemPosition == 0) 
+                val type = if (questionTypeSpinner.selectedItemPosition == 0)
                     QuestionType.TRUE_FALSE else QuestionType.MULTIPLE_CHOICE
                 
                 val options: List<String>
@@ -238,13 +262,11 @@ class QuizCreationActivity : AppCompatActivity() {
                     options = optionInputs.map { it.text.toString() }.filter { it.isNotEmpty() }
                     if (options.isEmpty()) {
                         Toast.makeText(this, "Please provide at least one option", Toast.LENGTH_SHORT).show()
-                        return@setPositiveButton
+                        return@setOnClickListener
                     }
-                    // Correct answer is the index (0, 1, 2, 3) as per API format
                     correctAnswerIndex = correctAnswerSpinner.selectedItemPosition.toString()
                 } else {
                     options = listOf("True", "False")
-                    // For true/false: "true" or "false" (lowercase) as per API format
                     correctAnswerIndex = if (correctAnswerSpinner.selectedItemPosition == 0) "true" else "false"
                 }
                 
@@ -260,10 +282,11 @@ class QuizCreationActivity : AppCompatActivity() {
                 
                 questions.add(question)
                 questionAdapter.notifyItemInserted(questions.size - 1)
+                alert.dismiss()
+            } else {
+                Toast.makeText(this, "Please enter question text", Toast.LENGTH_SHORT).show()
             }
         }
-        dialog.setNegativeButton("Cancel", null)
-        dialog.show()
     }
     
     private fun saveQuiz() {
@@ -347,6 +370,7 @@ class QuizCreationActivity : AppCompatActivity() {
             }
         }
     }
+
 }
 
 /**
