@@ -46,7 +46,8 @@
                 android:layout_height="wrap_content"
                 android:hint="@string/first_name"
                 android:inputType="text"
-                android:textColor="@color/text_primary" />
+                android:textColor="@color/black"
+                android:textColorHint="@color/text_secondary" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <!-- Last Name -->
@@ -66,7 +67,8 @@
                 android:layout_height="wrap_content"
                 android:hint="@string/last_name"
                 android:inputType="text"
-                android:textColor="@color/text_primary" />
+                android:textColor="@color/black"
+                android:textColorHint="@color/text_secondary" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <!-- Email -->
@@ -86,7 +88,8 @@
                 android:layout_height="wrap_content"
                 android:hint="@string/email"
                 android:inputType="textEmailAddress"
-                android:textColor="@color/text_primary" />
+                android:textColor="@color/black"
+                android:textColorHint="@color/text_secondary" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <!-- Password -->
@@ -107,7 +110,8 @@
                 android:layout_height="wrap_content"
                 android:hint="@string/password"
                 android:inputType="textPassword"
-                android:textColor="@color/text_primary" />
+                android:textColor="@color/black"
+                android:textColorHint="@color/text_secondary" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <!-- Confirm Password -->
@@ -128,7 +132,8 @@
                 android:layout_height="wrap_content"
                 android:hint="@string/confirm_password"
                 android:inputType="textPassword"
-                android:textColor="@color/text_primary" />
+                android:textColor="@color/black"
+                android:textColorHint="@color/text_secondary" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <!-- Role Selection -->
