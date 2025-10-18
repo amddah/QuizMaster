@@ -144,4 +144,10 @@
     <string name="profile">Profile</string>
     <string name="settings">Settings</string>
     <string name="history">History</string>
+
+    <!-- Added for StudentDashboardActivity -->
+    <string name="full_name">%1$s %2$s</string>
+    <string name="no_description">No description</string>
+    <string name="failed_load_quizzes">Failed to load quizzes</string>
+    <string name="error_with_message">Error: %s</string>
 </resources>

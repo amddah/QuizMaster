@@ -1,6 +1,7 @@
 package com.example.quizmaster.data.remote
 
 import com.example.quizmaster.data.model.QuizModel
+import com.example.quizmaster.data.model.QuizApiModel
 import retrofit2.Response
 import retrofit2.http.*
 
@@ -14,12 +15,12 @@ interface QuizApiService {
         @Query("category") category: String? = null,
         @Query("difficulty") difficulty: String? = null,
         @Query("status") status: String? = null
-    ): Response<List<QuizModel>>
+    ): Response<List<QuizApiModel>>
     
     @GET("quizzes/{id}")
     suspend fun getQuizById(
         @Path("id") quizId: String
-    ): Response<QuizModel>
+    ): Response<QuizApiModel>
     
     @POST("quizzes")
     suspend fun createQuiz(

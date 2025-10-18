@@ -13,6 +13,7 @@ object OfflineQuestions {
             QuizCategory.SCIENCE -> getScienceQuestions(difficulty)
             QuizCategory.HISTORY -> getHistoryQuestions(difficulty)
             QuizCategory.TECHNOLOGY -> getTechnologyQuestions(difficulty)
+            QuizCategory.PROGRAMMING -> getProgrammingQuestions(difficulty)
             QuizCategory.SPORTS -> getSportsQuestions(difficulty)
             QuizCategory.ENTERTAINMENT -> getEntertainmentQuestions(difficulty)
             QuizCategory.GEOGRAPHY -> getGeographyQuestions(difficulty)
@@ -260,6 +261,59 @@ object OfflineQuestions {
                     correctAnswer = "Structured Query Language",
                     incorrectAnswers = listOf("Simple Query Language", "Standard Query Language", "System Query Language"),
                     category = "Technology",
+                    difficulty = "hard"
+                )
+            )
+        }
+    }
+    
+    private fun getProgrammingQuestions(difficulty: QuizDifficulty): List<Question> {
+        return when (difficulty) {
+            QuizDifficulty.EASY -> listOf(
+                Question(
+                    question = "What does HTML stand for?",
+                    correctAnswer = "HyperText Markup Language",
+                    incorrectAnswers = listOf("Hyperlink Text Management Language", "Home Tool Markup Language", "HyperText Management Language"),
+                    category = "Programming",
+                    difficulty = "easy"
+                ),
+                Question(
+                    question = "Which programming language is known as the 'language of the web'?",
+                    correctAnswer = "JavaScript",
+                    incorrectAnswers = listOf("Python", "Java", "C++"),
+                    category = "Programming",
+                    difficulty = "easy"
+                )
+            )
+            QuizDifficulty.MEDIUM -> listOf(
+                Question(
+                    question = "What is the difference between '==' and '===' in JavaScript?",
+                    correctAnswer = "== compares values, === compares values and types",
+                    incorrectAnswers = listOf("No difference", "=== is faster", "== is stricter"),
+                    category = "Programming",
+                    difficulty = "medium"
+                ),
+                Question(
+                    question = "What does OOP stand for?",
+                    correctAnswer = "Object-Oriented Programming",
+                    incorrectAnswers = listOf("Optional Object Programming", "Open Object Protocol", "Objective Operational Programming"),
+                    category = "Programming",
+                    difficulty = "medium"
+                )
+            )
+            QuizDifficulty.HARD -> listOf(
+                Question(
+                    question = "What is the time complexity of binary search?",
+                    correctAnswer = "O(log n)",
+                    incorrectAnswers = listOf("O(n)", "O(n²)", "O(1)"),
+                    category = "Programming",
+                    difficulty = "hard"
+                ),
+                Question(
+                    question = "What design pattern ensures a class has only one instance?",
+                    correctAnswer = "Singleton",
+                    incorrectAnswers = listOf("Factory", "Observer", "Strategy"),
+                    category = "Programming",
                     difficulty = "hard"
                 )
             )

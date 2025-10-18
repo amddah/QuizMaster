@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.quizmaster.R
 import com.example.quizmaster.data.local.UserSessionManager
 import com.example.quizmaster.data.model.QuizModel
+import com.example.quizmaster.data.model.toQuizModel
 import com.example.quizmaster.data.remote.ApiClient
 import com.example.quizmaster.data.remote.QuizApiService
 import kotlinx.coroutines.launch
@@ -57,9 +58,10 @@ class ApprovalActivity : AppCompatActivity() {
                 val response = quizApiService.getAllQuizzes(status = "pending")
 
                 if (response.isSuccessful) {
-                    response.body()?.let { quizzes ->
+                    response.body()?.let { apiQuizzes ->
                         pendingQuizzes.clear()
-                        pendingQuizzes.addAll(quizzes)
+                        val convertedQuizzes = apiQuizzes.map { it.toQuizModel() }
+                        pendingQuizzes.addAll(convertedQuizzes)
 
                         if (pendingQuizzes.isEmpty()) {
                             emptyStateLayout.visibility = View.VISIBLE

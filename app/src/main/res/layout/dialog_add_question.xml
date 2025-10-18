@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
@@ -17,15 +18,20 @@
     <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp">
+        android:layout_marginBottom="16dp"
+        app:boxBackgroundColor="@color/white"
+        app:boxStrokeColor="@color/green_500">
 
-        <EditText
+        <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/questionTextInput"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/question_text"
             android:inputType="textMultiLine"
-            android:maxLines="3" />
+            android:minLines="2"
+            android:maxLines="4"
+            android:textColor="@color/text_primary"
+            android:textSize="16sp" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -34,15 +40,19 @@
         android:layout_height="wrap_content"
         android:text="@string/question_type"
         android:textSize="16sp"
+        android:textStyle="bold"
         android:textColor="@color/text_primary"
+        android:layout_marginTop="8dp"
         android:layout_marginBottom="8dp" />
 
     <Spinner
         android:id="@+id/questionTypeSpinner"
         android:layout_width="match_parent"
-        android:layout_height="48dp"
+        android:layout_height="56dp"
         android:layout_marginBottom="16dp"
-        android:background="@drawable/spinner_background" />
+        android:padding="12dp"
+        android:background="@drawable/spinner_background"
+        android:popupBackground="@color/white" />
 
     <LinearLayout
         android:id="@+id/optionsContainer"
@@ -57,6 +67,8 @@
         android:text="@string/correct_answer"
         android:textSize="16sp"
         android:textColor="@color/text_primary"
+        android:textStyle="bold"
+        android:layout_marginTop="8dp"
         android:layout_marginBottom="8dp" />
 
     <Spinner
@@ -64,7 +76,11 @@
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:layout_marginBottom="24dp"
-        android:background="@drawable/spinner_background" />
+        android:enabled="true"
+        android:clickable="true"
+        android:focusable="true"
+        android:background="@drawable/spinner_background"
+        android:popupBackground="@color/white" />
 
     <LinearLayout
         android:layout_width="match_parent"

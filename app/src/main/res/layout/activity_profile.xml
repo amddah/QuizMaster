@@ -7,7 +7,7 @@
     android:background="@color/white">
 
     <!-- Header -->
-    <com.google.android.material.appbarwidget.AppBarLayout
+    <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/green_primary">
@@ -45,7 +45,7 @@
                 android:src="@android:drawable/ic_menu_preferences"
                 android:contentDescription="@string/settings" />
         </LinearLayout>
-    </com.google.android.material.appbarwidget.AppBarLayout>
+    </com.google.android.material.appbar.AppBarLayout>
 
     <!-- Scrollable Content -->
     <ScrollView
@@ -202,13 +202,10 @@
                 android:textColor="@color/black"
                 android:layout_marginBottom="12dp" />
 
-            <GridView
+            <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/badgesGrid"
                 android:layout_width="match_parent"
                 android:layout_height="200dp"
-                android:numColumns="4"
-                android:verticalSpacing="8dp"
-                android:horizontalSpacing="8dp"
                 android:layout_marginBottom="16dp" />
 
             <!-- Quiz History Section -->

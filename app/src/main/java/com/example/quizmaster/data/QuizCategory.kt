@@ -5,6 +5,7 @@ enum class QuizCategory(val displayName: String, val apiValue: String) {
     SCIENCE("Science & Nature", "17"),
     HISTORY("History", "23"),
     TECHNOLOGY("Science: Computers", "18"),
+    PROGRAMMING("Programming", "programming"),
     SPORTS("Sports", "21"),
     ENTERTAINMENT("Entertainment: Film", "11"),
     GEOGRAPHY("Geography", "22"),
@@ -17,6 +18,14 @@ enum class QuizCategory(val displayName: String, val apiValue: String) {
         
         fun fromApiValue(apiValue: String): QuizCategory? {
             return entries.find { it.apiValue == apiValue }
+        }
+        
+        fun fromString(categoryString: String): QuizCategory? {
+            return entries.find {
+                it.name.equals(categoryString, ignoreCase = true) ||
+                it.displayName.equals(categoryString, ignoreCase = true) ||
+                it.apiValue.equals(categoryString, ignoreCase = true)
+            }
         }
     }
 }

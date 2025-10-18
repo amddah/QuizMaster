@@ -13,5 +13,13 @@ enum class QuizDifficulty(val displayName: String, val apiValue: String) {
         fun fromApiValue(apiValue: String): QuizDifficulty? {
             return entries.find { it.apiValue == apiValue }
         }
+        
+        fun fromString(difficultyString: String): QuizDifficulty? {
+            return entries.find {
+                it.name.equals(difficultyString, ignoreCase = true) ||
+                it.displayName.equals(difficultyString, ignoreCase = true) ||
+                it.apiValue.equals(difficultyString, ignoreCase = true)
+            }
+        }
     }
 }

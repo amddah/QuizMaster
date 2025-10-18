@@ -51,7 +51,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/quiz_title"
-                android:inputType="text" />
+                android:inputType="text"
+                android:textColor="@color/black" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <!-- Quiz Description -->
@@ -68,7 +69,8 @@
                 android:layout_height="wrap_content"
                 android:hint="@string/quiz_description"
                 android:inputType="textMultiLine"
-                android:minLines="3" />
+                android:minLines="3"
+                android:textColor="@color/black" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <!-- Category Spinner -->
@@ -77,16 +79,19 @@
             android:layout_height="wrap_content"
             android:text="@string/category"
             android:textStyle="bold"
-            android:textColor="@color/black"
+            android:textSize="16sp"
+            android:textColor="@color/text_primary"
             android:layout_marginTop="8dp"
-            android:layout_marginBottom="4dp" />
+            android:layout_marginBottom="8dp" />
 
         <Spinner
             android:id="@+id/categorySpinner"
             android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:layout_marginBottom="12dp"
-            android:background="@drawable/spinner_background" />
+            android:layout_height="56dp"
+            android:layout_marginBottom="16dp"
+            android:padding="12dp"
+            android:background="@drawable/spinner_background"
+            android:popupBackground="@color/white" />
 
         <!-- Difficulty Spinner -->
         <TextView
@@ -94,16 +99,19 @@
             android:layout_height="wrap_content"
             android:text="@string/difficulty"
             android:textStyle="bold"
-            android:textColor="@color/black"
+            android:textSize="16sp"
+            android:textColor="@color/text_primary"
             android:layout_marginTop="8dp"
-            android:layout_marginBottom="4dp" />
+            android:layout_marginBottom="8dp" />
 
         <Spinner
             android:id="@+id/difficultySpinner"
             android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:layout_marginBottom="12dp"
-            android:background="@drawable/spinner_background" />
+            android:layout_height="56dp"
+            android:layout_marginBottom="16dp"
+            android:padding="12dp"
+            android:background="@drawable/spinner_background"
+            android:popupBackground="@color/white" />
 
         <!-- Course Selection -->
         <TextView
@@ -111,16 +119,19 @@
             android:layout_height="wrap_content"
             android:text="@string/linked_course"
             android:textStyle="bold"
-            android:textColor="@color/black"
+            android:textSize="16sp"
+            android:textColor="@color/text_primary"
             android:layout_marginTop="8dp"
-            android:layout_marginBottom="4dp" />
+            android:layout_marginBottom="8dp" />
 
         <Spinner
             android:id="@+id/courseSpinner"
             android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:layout_marginBottom="16dp"
-            android:background="@drawable/spinner_background" />
+            android:layout_height="56dp"
+            android:layout_marginBottom="20dp"
+            android:padding="12dp"
+            android:background="@drawable/spinner_background"
+            android:popupBackground="@color/white" />
 
         <!-- Questions Section -->
         <LinearLayout

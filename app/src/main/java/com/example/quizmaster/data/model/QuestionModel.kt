@@ -34,13 +34,16 @@ data class QuestionModel(
     
     @SerializedName("options")
     val options: List<String>,  // For multiple choice, includes correct answer
-    
+
     @SerializedName("time_limit")
     val timeLimit: Int = 15,  // seconds
     
     @SerializedName("max_score")
     val maxScore: Int = 100,  // Maximum points for this question
-    
+
+    @SerializedName("order")
+    val order: Int = 0,
+
     @SerializedName("explanation")
     val explanation: String? = null  // Optional explanation for the answer
 ) {

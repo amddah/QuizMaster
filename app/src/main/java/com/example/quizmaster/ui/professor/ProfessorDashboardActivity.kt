@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.quizmaster.R
 import com.example.quizmaster.data.local.UserSessionManager
 import com.example.quizmaster.data.model.QuizModel
+import com.example.quizmaster.data.model.toQuizModel
 import com.example.quizmaster.data.remote.ApiClient
 import com.example.quizmaster.data.remote.QuizApiService
 import com.example.quizmaster.ui.auth.LoginActivity
@@ -32,6 +33,8 @@ class ProfessorDashboardActivity : AppCompatActivity() {
     private lateinit var createQuizButton: Button
     private lateinit var viewApprovalsButton: Button
     private lateinit var myQuizzesRecycler: RecyclerView
+    private lateinit var logoutButton: Button
+    private lateinit var profileButton: Button
 
     private var myQuizzes = mutableListOf<QuizModel>()
     
@@ -54,6 +57,8 @@ class ProfessorDashboardActivity : AppCompatActivity() {
         createQuizButton = findViewById(R.id.createQuizButton)
         viewApprovalsButton = findViewById(R.id.viewApprovalsButton)
         myQuizzesRecycler = findViewById(R.id.myQuizzesRecycler)
+        logoutButton = findViewById(R.id.logoutButton)
+        profileButton = findViewById(R.id.profileButton)
 
         myQuizzesRecycler.layoutManager = LinearLayoutManager(this)
     }
@@ -65,6 +70,18 @@ class ProfessorDashboardActivity : AppCompatActivity() {
         
         viewApprovalsButton.setOnClickListener {
             startActivity(Intent(this, ApprovalActivity::class.java))
+        }
+        
+        logoutButton.setOnClickListener {
+            lifecycleScope.launch {
+                sessionManager.clearSession()
+                startActivity(Intent(this@ProfessorDashboardActivity, LoginActivity::class.java))
+                finish()
+            }
+        }
+        
+        profileButton.setOnClickListener {
+            startActivity(Intent(this@ProfessorDashboardActivity, com.example.quizmaster.ui.profile.ProfileActivity::class.java))
         }
     }
     
@@ -94,7 +111,11 @@ class ProfessorDashboardActivity : AppCompatActivity() {
             val response = quizApiService.getAllQuizzes()
 
             if (response.isSuccessful) {
-                myQuizzes = response.body()?.toMutableList() ?: mutableListOf()
+                response.body()?.let { apiQuizzes ->
+                    myQuizzes = apiQuizzes.map { it.toQuizModel() }.toMutableList()
+                } ?: run {
+                    myQuizzes = mutableListOf()
+                }
                 quizzesCountText.text = myQuizzes.size.toString()
                 myQuizzesRecycler.adapter = QuizAdapter(myQuizzes)
             }
@@ -126,7 +147,7 @@ class ProfessorDashboardActivity : AppCompatActivity() {
         
         override fun onCreateViewHolder(parent: android.view.ViewGroup, viewType: Int): QuizViewHolder {
             val view = android.view.LayoutInflater.from(parent.context)
-                .inflate(R.layout.item_quiz_result, parent, false)
+                .inflate(R.layout.item_quiz_card, parent, false)
             return QuizViewHolder(view)
         }
         
@@ -144,6 +165,10 @@ class ProfessorDashboardActivity : AppCompatActivity() {
                 itemView.findViewById<TextView>(R.id.quizTitle).text = quiz.title
                 itemView.findViewById<TextView>(R.id.quizCategory).text = quiz.category.toString()
                 itemView.findViewById<TextView>(R.id.quizDifficulty).text = quiz.difficulty.toString()
+                itemView.findViewById<TextView>(R.id.quizDescription).text = quiz.description ?: ""
+                
+                // Hide the start button since this is just for display
+                itemView.findViewById<Button>(R.id.startButton).visibility = android.view.View.GONE
             }
         }
     }

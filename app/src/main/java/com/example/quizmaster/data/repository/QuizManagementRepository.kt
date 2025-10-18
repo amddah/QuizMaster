@@ -25,7 +25,8 @@ class QuizManagementRepository(
             val statusString = status?.name?.lowercase()
             val response = quizApiService.getAllQuizzes(category, difficulty, statusString)
             if (response.isSuccessful && response.body() != null) {
-                Result.success(response.body()!!)
+                val convertedQuizzes = response.body()!!.map { it.toQuizModel() }
+                Result.success(convertedQuizzes)
             } else {
                 Result.failure(Exception("Failed to fetch quizzes: ${response.message()}"))
             }
@@ -38,7 +39,8 @@ class QuizManagementRepository(
         try {
             val response = quizApiService.getQuizById(quizId)
             if (response.isSuccessful && response.body() != null) {
-                Result.success(response.body()!!)
+                val convertedQuiz = response.body()!!.toQuizModel()
+                Result.success(convertedQuiz)
             } else {
                 Result.failure(Exception("Failed to fetch quiz: ${response.message()}"))
             }

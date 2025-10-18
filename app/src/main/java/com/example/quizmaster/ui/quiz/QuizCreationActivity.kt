@@ -18,6 +18,7 @@ import com.example.quizmaster.data.remote.QuizApiService
 import com.example.quizmaster.data.QuizCategory
 import com.example.quizmaster.data.QuizDifficulty
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.first
 
 /**
  * Quiz Creation Activity - Allows students and professors to create quizzes
@@ -66,15 +67,77 @@ class QuizCreationActivity : AppCompatActivity() {
     }
     
     private fun setupSpinners() {
-        val categories = QuizCategory.values().map { it.displayName }
-        val categoryAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, categories)
+        // Category Spinner
+        val categories = QuizCategory.entries.map { it.displayName }
+        val categoryAdapter = object : ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, categories) {
+            override fun getView(position: Int, convertView: android.view.View?, parent: android.view.ViewGroup): android.view.View {
+                val view = super.getView(position, convertView, parent) as TextView
+                view.setTextColor(getColor(R.color.text_primary))
+                view.textSize = 16f
+                view.setPadding(16, 16, 16, 16)
+                return view
+            }
+            
+            override fun getDropDownView(position: Int, convertView: android.view.View?, parent: android.view.ViewGroup): android.view.View {
+                val view = super.getDropDownView(position, convertView, parent) as TextView
+                view.setTextColor(getColor(R.color.text_primary))
+                view.setPadding(24, 16, 24, 16)
+                return view
+            }
+        }
         categoryAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         categorySpinner.adapter = categoryAdapter
         
-        val difficulties = QuizDifficulty.values().map { it.displayName }
-        val difficultyAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, difficulties)
+        // Difficulty Spinner
+        val difficulties = QuizDifficulty.entries.map { it.displayName }
+        val difficultyAdapter = object : ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, difficulties) {
+            override fun getView(position: Int, convertView: android.view.View?, parent: android.view.ViewGroup): android.view.View {
+                val view = super.getView(position, convertView, parent) as TextView
+                view.setTextColor(getColor(R.color.text_primary))
+                view.textSize = 16f
+                view.setPadding(16, 16, 16, 16)
+                return view
+            }
+            
+            override fun getDropDownView(position: Int, convertView: android.view.View?, parent: android.view.ViewGroup): android.view.View {
+                val view = super.getDropDownView(position, convertView, parent) as TextView
+                view.setTextColor(getColor(R.color.text_primary))
+                view.setPadding(24, 16, 24, 16)
+                return view
+            }
+        }
         difficultyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         difficultySpinner.adapter = difficultyAdapter
+        
+        // Course Spinner with proper text visibility
+        val courses = listOf(
+            "PROG101 - Programming 101",
+            "DS201 - Data Structures",
+            "ALG301 - Algorithms",
+            "DB401 - Database Systems",
+            "WEB101 - Web Development",
+            "MOB201 - Mobile Development",
+            "SE301 - Software Engineering",
+            "NET401 - Computer Networks"
+        )
+        val courseAdapter = object : ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, courses) {
+            override fun getView(position: Int, convertView: android.view.View?, parent: android.view.ViewGroup): android.view.View {
+                val view = super.getView(position, convertView, parent) as TextView
+                view.setTextColor(getColor(R.color.text_primary))
+                view.textSize = 16f
+                view.setPadding(16, 16, 16, 16)
+                return view
+            }
+            
+            override fun getDropDownView(position: Int, convertView: android.view.View?, parent: android.view.ViewGroup): android.view.View {
+                val view = super.getDropDownView(position, convertView, parent) as TextView
+                view.setTextColor(getColor(R.color.text_primary))
+                view.setPadding(24, 16, 24, 16)
+                return view
+            }
+        }
+        courseAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        courseSpinner.adapter = courseAdapter
     }
     
     private fun setupRecyclerView() {
@@ -113,24 +176,53 @@ class QuizCreationActivity : AppCompatActivity() {
         typeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         questionTypeSpinner.adapter = typeAdapter
         
+        val optionInputs = mutableListOf<EditText>()
+        
         questionTypeSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: android.view.View?, position: Int, id: Long) {
                 optionsContainer.removeAllViews()
+                optionInputs.clear()
+                
                 if (position == 1) { // Multiple Choice
                     repeat(4) { i ->
                         val optionInput = EditText(this@QuizCreationActivity).apply {
                             hint = "Option ${i + 1}"
+                            textSize = 16f
+                            setPadding(16, 16, 16, 16)
+                            setTextColor(getColor(R.color.text_primary))
+                            setHintTextColor(getColor(R.color.text_secondary))
                             layoutParams = LinearLayout.LayoutParams(
                                 LinearLayout.LayoutParams.MATCH_PARENT,
                                 LinearLayout.LayoutParams.WRAP_CONTENT
                             ).apply { setMargins(0, 8, 0, 8) }
                         }
                         optionsContainer.addView(optionInput)
+                        optionInputs.add(optionInput)
                     }
+                    
+                    // Update correct answer spinner for multiple choice
+                    val answerOptions = listOf("Option 1", "Option 2", "Option 3", "Option 4")
+                    val answerAdapter = ArrayAdapter(this@QuizCreationActivity, android.R.layout.simple_spinner_item, answerOptions)
+                    answerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+                    correctAnswerSpinner.adapter = answerAdapter
+                } else { // True/False
+                    val answerOptions = listOf("True", "False")
+                    val answerAdapter = ArrayAdapter(this@QuizCreationActivity, android.R.layout.simple_spinner_item, answerOptions)
+                    answerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+                    correctAnswerSpinner.adapter = answerAdapter
                 }
+                
+                correctAnswerSpinner.isEnabled = true
             }
             override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
+        
+        // Initialize with True/False options
+        val answerOptions = listOf("True", "False")
+        val answerAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, answerOptions)
+        answerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        correctAnswerSpinner.adapter = answerAdapter
+        correctAnswerSpinner.isEnabled = true
         
         dialog.setView(view)
         dialog.setPositiveButton("Add") { _, _ ->
@@ -139,22 +231,31 @@ class QuizCreationActivity : AppCompatActivity() {
                 val type = if (questionTypeSpinner.selectedItemPosition == 0) 
                     QuestionType.TRUE_FALSE else QuestionType.MULTIPLE_CHOICE
                 
-                val options = if (type == QuestionType.MULTIPLE_CHOICE) {
-                    (0 until optionsContainer.childCount).map {
-                        (optionsContainer.getChildAt(it) as EditText).text.toString()
+                val options: List<String>
+                val correctAnswerIndex: String
+                
+                if (type == QuestionType.MULTIPLE_CHOICE) {
+                    options = optionInputs.map { it.text.toString() }.filter { it.isNotEmpty() }
+                    if (options.isEmpty()) {
+                        Toast.makeText(this, "Please provide at least one option", Toast.LENGTH_SHORT).show()
+                        return@setPositiveButton
                     }
+                    // Correct answer is the index (0, 1, 2, 3) as per API format
+                    correctAnswerIndex = correctAnswerSpinner.selectedItemPosition.toString()
                 } else {
-                    listOf("True", "False")
+                    options = listOf("True", "False")
+                    // For true/false: "true" or "false" (lowercase) as per API format
+                    correctAnswerIndex = if (correctAnswerSpinner.selectedItemPosition == 0) "true" else "false"
                 }
                 
                 val question = QuestionModel(
                     id = System.currentTimeMillis().toString(),
                     questionText = questionText,
                     type = type,
-                    correctAnswer = "0",
+                    correctAnswer = correctAnswerIndex,
                     options = options,
-                    timeLimit = 15,
-                    maxScore = 100
+                    timeLimit = 60,
+                    maxScore = 10
                 )
                 
                 questions.add(question)
@@ -168,29 +269,44 @@ class QuizCreationActivity : AppCompatActivity() {
     private fun saveQuiz() {
         val title = quizTitleInput.text.toString()
         val description = quizDescriptionInput.text.toString()
-        val courseName = courseSpinner.selectedItem?.toString() ?: ""
+        val courseSelection = courseSpinner.selectedItem?.toString() ?: ""
 
-        if (title.isEmpty() || questions.isEmpty() || courseName.isEmpty()) {
+        if (title.isEmpty() || questions.isEmpty() || courseSelection.isEmpty()) {
             Toast.makeText(this, "Please fill all fields and add at least one question", Toast.LENGTH_SHORT).show()
             return
         }
+        
+        // Extract course ID from the selection (format: "PROG101 - Programming 101")
+        val courseId = courseSelection.split(" - ").firstOrNull()?.trim() ?: "UNKNOWN"
+        val courseName = courseSelection.split(" - ").lastOrNull()?.trim() ?: courseSelection
         
         progressBar.visibility = ProgressBar.VISIBLE
 
         lifecycleScope.launch {
             try {
-                val category = QuizCategory.values()[categorySpinner.selectedItemPosition]
-                val difficulty = QuizDifficulty.values()[difficultySpinner.selectedItemPosition]
-                
-                // Get current user from Flow
-                var currentUser: com.example.quizmaster.data.model.User? = null
-                sessionManager.currentUser.collect { user ->
-                    currentUser = user
-                    return@collect
-                }
+                val category = QuizCategory.entries[categorySpinner.selectedItemPosition]
+                val difficulty = QuizDifficulty.entries[difficultySpinner.selectedItemPosition]
+
+                // Get current user from Flow (suspend) - first emission
+                val currentUser = sessionManager.currentUser.first()
 
                 val status = if (currentUser?.role == UserRole.PROFESSOR)
                     ApprovalStatus.APPROVED else ApprovalStatus.PENDING
+                
+                // Prepare questions with proper order
+                val orderedQuestions = questions.mapIndexed { index, question ->
+                    QuestionModel(
+                        id = question.id,
+                        questionText = question.questionText,
+                        type = question.type,
+                        correctAnswer = question.correctAnswer,
+                        options = question.options,
+                        timeLimit = question.timeLimit,
+                        maxScore = question.maxScore,
+                        order = index + 1,
+                        explanation = question.explanation
+                    )
+                }
                 
                 val quiz = QuizModel(
                     id = System.currentTimeMillis().toString(),
@@ -198,11 +314,11 @@ class QuizCreationActivity : AppCompatActivity() {
                     description = description,
                     category = category,
                     difficulty = difficulty,
-                    questions = questions,
+                    questions = orderedQuestions,
                     creatorId = currentUser?.id ?: "",
                     creatorName = "${currentUser?.firstName} ${currentUser?.lastName}",
                     creatorRole = currentUser?.role ?: UserRole.STUDENT,
-                    linkedCourseId = "course-${System.currentTimeMillis()}",
+                    linkedCourseId = courseId,
                     linkedCourseName = courseName,
                     approvalStatus = status
                 )

@@ -210,20 +210,33 @@
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
         android:layout_marginTop="16dp"
-        android:gravity="center_horizontal">
+        android:gravity="center_vertical">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Available Quizzes"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@color/text_primary" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Available Quizzes"
-            android:textSize="16sp"
-            android:textStyle="bold" />
+            android:text="Filter: "
+            android:textSize="14sp"
+            android:textColor="@color/text_secondary"
+            android:layout_marginEnd="8dp" />
 
         <Spinner
             android:id="@+id/categorySpinner"
-            android:layout_width="120dp"
-            android:layout_height="32dp"
-            android:background="@drawable/spinner_background" />
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minWidth="140dp"
+            android:padding="8dp"
+            android:background="@drawable/spinner_background"
+            android:popupBackground="@color/white" />
     </LinearLayout>
 
     <!-- Quizzes RecyclerView -->
@@ -234,15 +247,64 @@
         android:layout_weight="1"
         android:layout_margin="16dp"
         android:clipToPadding="false"
-        android:paddingBottom="16dp" />
+        android:paddingBottom="76dp" />
 
     <!-- Floating Action Button -->
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/createQuizFab"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="16dp"
-        android:src="@android:drawable/ic_input_add"
-        app:backgroundTint="@color/green_500" />
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/createQuizFab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="8dp"
+            android:src="@android:drawable/ic_input_add"
+            android:contentDescription="Create Quiz"
+            app:backgroundTint="@color/green_500"
+            app:tint="@color/white"
+            app:elevation="6dp" />
+    </FrameLayout>
+
+    <!-- Bottom Navigation -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:orientation="horizontal"
+        android:background="@color/white"
+        android:elevation="8dp"
+        android:paddingTop="4dp">
+
+        <Button
+            android:id="@+id/dashboardButton"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="Dashboard"
+            android:background="?attr/selectableItemBackground"
+            android:textColor="@color/green_500"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/profileButton"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="Profile"
+            android:background="?attr/selectableItemBackground"
+            android:textColor="@color/gray_600"
+            android:textSize="12sp" />
+
+        <Button
+            android:id="@+id/logoutButton"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="Logout"
+            android:background="?attr/selectableItemBackground"
+            android:textColor="@color/gray_600"
+            android:textSize="12sp" />
+    </LinearLayout>
 </LinearLayout>
