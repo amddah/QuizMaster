@@ -1,9 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
-<shape xmlns:android="http://schemas.android.com/apk/res/android"
-    android:shape="rectangle">
-    <solid android:color="#FFFFFF"/>
-    <stroke
-        android:width="2dp"
-        android:color="#4CAF50"/>
-    <corners android:radius="12dp"/>
-</shape>
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="?android:attr/colorControlHighlight">
+
+    <item>
+        <selector>
+            <!-- Disabled state: very light gray border and background -->
+            <item android:state_enabled="false">
+                <shape android:shape="rectangle">
+                    <solid android:color="#FFFFFF"/>
+                    <stroke android:width="2dp" android:color="#C8E6C9"/>
+                    <corners android:radius="12dp"/>
+                </shape>
+            </item>
+
+            <!-- Pressed state: slightly green tinted background -->
+            <item android:state_pressed="true">
+                <shape android:shape="rectangle">
+                    <solid android:color="#E8F5E9"/>
+                    <stroke android:width="2dp" android:color="#4CAF50"/>
+                    <corners android:radius="12dp"/>
+                </shape>
+            </item>
+
+            <!-- Default state: white background with green stroke -->
+            <item>
+                <shape android:shape="rectangle">
+                    <solid android:color="#FFFFFF"/>
+                    <stroke android:width="2dp" android:color="#4CAF50"/>
+                    <corners android:radius="12dp"/>
+                </shape>
+            </item>
+        </selector>
+    </item>
+
+    <!-- Mask to keep ripple inside rounded corners -->
+    <item android:id="@android:id/mask">
+        <shape android:shape="rectangle">
+            <solid android:color="#FFFFFF"/>
+            <corners android:radius="12dp"/>
+        </shape>
+    </item>
+</ripple>

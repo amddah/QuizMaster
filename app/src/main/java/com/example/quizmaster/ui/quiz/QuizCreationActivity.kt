@@ -5,6 +5,7 @@ import android.widget.*
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
+import com.google.android.material.button.MaterialButton
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -34,10 +35,14 @@ class QuizCreationActivity : AppCompatActivity() {
     private lateinit var difficultySpinner: Spinner
     private lateinit var courseSpinner: Spinner
     private lateinit var questionsRecyclerView: RecyclerView
-    private lateinit var addQuestionButton: Button
-    private lateinit var submitButton: Button
+    private lateinit var addQuestionButton: MaterialButton
+    private lateinit var submitButton: MaterialButton
     private lateinit var actionButtonsContainer: LinearLayout
     private lateinit var progressBar: ProgressBar
+
+    // Added references for cancel/back so they can be wired to actions
+    private lateinit var cancelButton: MaterialButton
+    private lateinit var backButton: ImageButton
 
     private lateinit var sessionManager: UserSessionManager
     private lateinit var quizApiService: QuizApiService
@@ -48,7 +53,9 @@ class QuizCreationActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_quiz_creation)
-        
+        // Ensure the window resizes when the keyboard appears so bottom buttons stay visible
+        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
+
         sessionManager = UserSessionManager.getInstance(this)
         quizApiService = ApiClient.quizApiService
         
@@ -80,22 +87,69 @@ class QuizCreationActivity : AppCompatActivity() {
     }
 
     private fun initViews() {
-        quizTitleInput = findViewById(R.id.quizTitleInput)
-        quizDescriptionInput = findViewById(R.id.quizDescriptionInput)
-        categorySpinner = findViewById(R.id.categorySpinner)
-        difficultySpinner = findViewById(R.id.difficultySpinner)
-        courseSpinner = findViewById(R.id.courseSpinner)
-        questionsRecyclerView = findViewById(R.id.questionsRecyclerView)
-        addQuestionButton = findViewById(R.id.addQuestionButton)
-        submitButton = findViewById(R.id.submitButton)
-        actionButtonsContainer = findViewById(R.id.actionButtonsContainer)
-        progressBar = findViewById(R.id.progressBar)
+         quizTitleInput = findViewById(R.id.quizTitleInput)
+         quizDescriptionInput = findViewById(R.id.quizDescriptionInput)
+         categorySpinner = findViewById(R.id.categorySpinner)
+         difficultySpinner = findViewById(R.id.difficultySpinner)
+         courseSpinner = findViewById(R.id.courseSpinner)
+         questionsRecyclerView = findViewById(R.id.questionsRecyclerView)
+         addQuestionButton = findViewById(R.id.addQuestionButton)
+         submitButton = findViewById(R.id.submitButton)
+         cancelButton = findViewById(R.id.cancelButton)
+         backButton = findViewById(R.id.backButton)
+         actionButtonsContainer = findViewById(R.id.actionButtonsContainer)
+         progressBar = findViewById(R.id.progressBar)
 
-        // Ensure input text is visible regardless of theme overrides
-        quizTitleInput.setTextColor(android.graphics.Color.BLACK)
-        quizDescriptionInput.setTextColor(android.graphics.Color.BLACK)
+         // Ensure input text is visible regardless of theme overrides
+         quizTitleInput.setTextColor(android.graphics.Color.BLACK)
+         quizDescriptionInput.setTextColor(android.graphics.Color.BLACK)
+
+         // Make buttons more friendly (no screaming uppercase)
+         try {
+             submitButton.isAllCaps = false
+             cancelButton.isAllCaps = false
+             addQuestionButton.isAllCaps = false
+         } catch (_: Exception) { }
+
+         // Shorter, friendlier label for submit to keep UI compact
+         try { submitButton.text = getString(R.string.submit_short) } catch (_: Exception) { }
+
+         // Defensive: ensure action buttons are visible and enabled (fix for themes/layout states hiding them)
+         actionButtonsContainer.visibility = View.VISIBLE
+         submitButton.visibility = View.VISIBLE
+         submitButton.isEnabled = true
+         // Adjust padding/minHeight/elevation but keep Material styling from XML
+         try {
+             val pad = (12 * resources.displayMetrics.density).toInt()
+             submitButton.setPadding(pad, 0, pad, 0)
+             submitButton.minHeight = (48 * resources.displayMetrics.density).toInt()
+             // bring to front after layout pass and ensure elevation
+             submitButton.post {
+                 submitButton.bringToFront()
+                 submitButton.invalidate()
+                 actionButtonsContainer.invalidate()
+                 val elev = 8 * resources.displayMetrics.density
+                 try {
+                     submitButton.elevation = elev
+                     submitButton.translationZ = elev
+                     actionButtonsContainer.elevation = elev
+                     cancelButton.elevation = elev
+                 } catch (_: Exception) { }
+             }
+         } catch (_: Exception) { }
+         cancelButton.visibility = View.VISIBLE
+         cancelButton.isEnabled = true
+     }
+
+    // Return true if user has entered any data that would be lost if they exit
+    private fun hasUnsavedChanges(): Boolean {
+        if (quizTitleInput.text?.isNotEmpty() == true) return true
+        if (quizDescriptionInput.text?.isNotEmpty() == true) return true
+        if (questions.isNotEmpty()) return true
+        // Also check if any spinner selection differs from default (optional)
+        return false
     }
-    
+
     private fun setupSpinners() {
         // Category Spinner
         val categories = QuizCategory.entries.map { it.displayName }
@@ -214,13 +268,40 @@ class QuizCreationActivity : AppCompatActivity() {
         submitButton.setOnClickListener {
             saveQuiz()
         }
+
+        // Friendly confirmation on cancel: ask before discarding edits
+        cancelButton.setOnClickListener {
+            if (hasUnsavedChanges()) {
+                android.app.AlertDialog.Builder(this)
+                    .setTitle(getString(R.string.discard_changes_title))
+                    .setMessage(getString(R.string.discard_changes_message))
+                    .setPositiveButton(getString(R.string.discard)) { _, _ -> finish() }
+                    .setNegativeButton(getString(R.string.cancel)) { dialog, _ -> dialog.dismiss() }
+                    .show()
+            } else {
+                finish()
+            }
+        }
+
+        backButton.setOnClickListener {
+            if (hasUnsavedChanges()) {
+                android.app.AlertDialog.Builder(this)
+                    .setTitle(getString(R.string.discard_changes_title))
+                    .setMessage(getString(R.string.discard_changes_message))
+                    .setPositiveButton(getString(R.string.discard)) { _, _ -> finish() }
+                    .setNegativeButton(getString(R.string.cancel)) { dialog, _ -> dialog.dismiss() }
+                    .show()
+            } else {
+                finish()
+            }
+        }
     }
     
     @Suppress("DEPRECATION")
     private fun showAddQuestionDialog() {
         val builder = android.app.AlertDialog.Builder(this)
         val view = layoutInflater.inflate(R.layout.dialog_add_question, null)
-        
+
         val questionTextInput = view.findViewById<EditText>(R.id.questionTextInput)
         // Force text color on dialog input to avoid theme tint making text invisible
         questionTextInput.setTextColor(android.graphics.Color.BLACK)
@@ -673,18 +754,11 @@ class QuizCreationActivity : AppCompatActivity() {
                 progressBar.visibility = ProgressBar.GONE
                 
                 if (response.isSuccessful) {
-                    Toast.makeText(
-                        this@QuizCreationActivity,
-                        "Quiz created successfully!",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    finish()
+                    Toast.makeText(this@QuizCreationActivity, "Quiz saved successfully", Toast.LENGTH_SHORT).show()
+                    // Optionally, navigate away or clear form
+                    finish() // or clearForm()
                 } else {
-                    Toast.makeText(
-                        this@QuizCreationActivity,
-                        "Failed to create quiz: ${response.message()}",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    Toast.makeText(this@QuizCreationActivity, "Failed to save quiz: ${response.message()}", Toast.LENGTH_SHORT).show()
                 }
             } catch (e: Exception) {
                 progressBar.visibility = ProgressBar.GONE
@@ -692,70 +766,4 @@ class QuizCreationActivity : AppCompatActivity() {
             }
         }
     }
-
-}
-
-/**
- * Adapter for displaying questions in RecyclerView
- */
-class QuestionAdapter(
-    private val questions: MutableList<QuestionModel>,
-    private val onDelete: (Int) -> Unit,
-    private val onEdit: (Int) -> Unit
-) : RecyclerView.Adapter<QuestionAdapter.ViewHolder>() {
-
-    inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val questionText: TextView = itemView.findViewById(R.id.questionText)
-        private val questionType: TextView = itemView.findViewById(R.id.questionType)
-        private val deleteButton: androidx.appcompat.widget.AppCompatImageButton = itemView.findViewById(R.id.deleteButton)
-
-        fun bind(question: QuestionModel) {
-            questionText.text = question.questionText
-            // Show type + extras (options count and points) to give more info in the item UI
-            questionType.text = "${question.type.name} • ${question.options.size} options • ${question.maxScore} pts"
-
-            // Accessibility: describe the delete action
-            deleteButton.contentDescription = itemView.context.getString(R.string.delete_question)
-
-            deleteButton.setOnClickListener {
-                val pos = bindingAdapterPosition
-                if (pos == RecyclerView.NO_POSITION) return@setOnClickListener
-
-                // Prevent double-clicks
-                deleteButton.isEnabled = false
-
-                // Confirmation dialog before deletion
-                android.app.AlertDialog.Builder(itemView.context)
-                    .setTitle(itemView.context.getString(R.string.confirm_delete_title))
-                    .setMessage(itemView.context.getString(R.string.confirm_delete_message))
-                    .setPositiveButton(itemView.context.getString(R.string.delete)) { _, _ ->
-                        onDelete(pos)
-                    }
-                    .setNegativeButton(itemView.context.getString(R.string.cancel)) { dialog, _ ->
-                        dialog.dismiss()
-                    }
-                    .setOnDismissListener {
-                        // Re-enable after dialog closes
-                        deleteButton.isEnabled = true
-                    }
-                    .show()
-            }
-
-            itemView.setOnClickListener {
-                val pos = bindingAdapterPosition
-                if (pos != RecyclerView.NO_POSITION) onEdit(pos)
-            }
-        }
-    }
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = android.view.LayoutInflater.from(parent.context).inflate(R.layout.item_question, parent, false)
-        return ViewHolder(view)
-    }
-
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(questions[position])
-    }
-
-    override fun getItemCount() = questions.size
 }

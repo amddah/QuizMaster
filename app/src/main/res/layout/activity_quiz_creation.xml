@@ -3,13 +3,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fillViewport="true"
     android:background="@color/white">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="12dp">
 
         <!-- Header -->
         <LinearLayout
@@ -17,12 +18,12 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:layout_marginBottom="16dp">
+            android:layout_marginBottom="12dp">
 
             <ImageButton
                 android:id="@+id/backButton"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:contentDescription="@string/back"
                 android:src="@drawable/ic_launcher_foreground" />
@@ -32,17 +33,17 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="@string/create_quiz"
-                android:textSize="24sp"
+                android:textSize="20sp"
                 android:textStyle="bold"
                 android:textColor="@color/black"
-                android:layout_marginStart="16dp" />
+                android:layout_marginStart="12dp" />
         </LinearLayout>
 
         <!-- Quiz Title -->
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
+            android:layout_marginBottom="10dp"
             app:boxBackgroundMode="outline"
             app:boxBackgroundColor="@color/input_background"
             app:boxStrokeColor="@color/green_500"
@@ -58,14 +59,14 @@
                 android:inputType="text"
                 android:textColor="@color/black"
                 android:textColorHint="@color/text_secondary"
-                android:padding="12dp" />
+                android:padding="10dp" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <!-- Quiz Description -->
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
+            android:layout_marginBottom="10dp"
             app:boxBackgroundMode="outline"
             app:boxBackgroundColor="@color/input_background"
             app:boxStrokeColor="@color/green_500"
@@ -82,7 +83,7 @@
                 android:minLines="3"
                 android:textColor="@color/black"
                 android:textColorHint="@color/text_secondary"
-                android:padding="12dp" />
+                android:padding="10dp" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <!-- Category Spinner -->
@@ -91,20 +92,20 @@
             android:layout_height="wrap_content"
             android:text="@string/category"
             android:textStyle="bold"
-            android:textSize="16sp"
+            android:textSize="15sp"
             android:textColor="@color/text_primary"
             android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp" />
+            android:layout_marginBottom="6dp" />
 
         <Spinner
             android:id="@+id/categorySpinner"
             android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:layout_marginBottom="16dp"
+            android:layout_height="48dp"
+            android:layout_marginBottom="12dp"
             android:paddingStart="12dp"
             android:paddingEnd="56dp"
-            android:paddingTop="8dp"
-            android:paddingBottom="8dp"
+            android:paddingTop="6dp"
+            android:paddingBottom="6dp"
             android:gravity="center_vertical"
             android:clipToPadding="false"
             android:background="@drawable/input_border"
@@ -117,20 +118,20 @@
             android:layout_height="wrap_content"
             android:text="@string/difficulty"
             android:textStyle="bold"
-            android:textSize="16sp"
+            android:textSize="15sp"
             android:textColor="@color/text_primary"
             android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp" />
+            android:layout_marginBottom="6dp" />
 
         <Spinner
             android:id="@+id/difficultySpinner"
             android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:layout_marginBottom="16dp"
+            android:layout_height="48dp"
+            android:layout_marginBottom="12dp"
             android:paddingStart="12dp"
             android:paddingEnd="56dp"
-            android:paddingTop="8dp"
-            android:paddingBottom="8dp"
+            android:paddingTop="6dp"
+            android:paddingBottom="6dp"
             android:gravity="center_vertical"
             android:clipToPadding="false"
             android:background="@drawable/input_border"
@@ -143,20 +144,20 @@
             android:layout_height="wrap_content"
             android:text="@string/linked_course"
             android:textStyle="bold"
-            android:textSize="16sp"
+            android:textSize="15sp"
             android:textColor="@color/text_primary"
             android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp" />
+            android:layout_marginBottom="6dp" />
 
         <Spinner
             android:id="@+id/courseSpinner"
             android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:layout_marginBottom="20dp"
+            android:layout_height="48dp"
+            android:layout_marginBottom="16dp"
             android:paddingStart="12dp"
             android:paddingEnd="56dp"
-            android:paddingTop="8dp"
-            android:paddingBottom="8dp"
+            android:paddingTop="6dp"
+            android:paddingBottom="6dp"
             android:gravity="center_vertical"
             android:clipToPadding="false"
             android:background="@drawable/input_border"
@@ -169,34 +170,37 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:layout_marginTop="16dp"
-            android:layout_marginBottom="12dp">
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="10dp">
 
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="@string/questions"
-                android:textSize="18sp"
+                android:textSize="17sp"
                 android:textStyle="bold"
                 android:textColor="@color/black" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/addQuestionButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/add_question"
-                android:background="@drawable/button_primary"
+                android:minHeight="40dp"
+                android:paddingHorizontal="12dp"
+                app:cornerRadius="10dp"
+                android:backgroundTint="#4CAF50"
                 android:textColor="@color/white"
-                android:paddingHorizontal="16dp" />
+                style="?attr/materialButtonStyle" />
         </LinearLayout>
 
         <!-- Questions RecyclerView -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/questionsRecyclerView"
             android:layout_width="match_parent"
-            android:layout_height="300dp"
-            android:layout_marginBottom="16dp"
+            android:layout_height="240dp"
+            android:layout_marginBottom="12dp"
             android:background="@color/light_gray"
             android:clipToPadding="false" />
 
@@ -207,30 +211,45 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center"
-            android:layout_marginTop="16dp"
-            android:spacing="12dp">
+            android:layout_marginTop="12dp"
+            android:paddingBottom="12dp">
 
-            <Button
+            <!-- Cancel as an outlined MaterialButton with icon -->
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/cancelButton"
-                style="?android:attr/buttonBarButtonStyle"
                 android:layout_width="0dp"
-                android:layout_height="48dp"
+                android:layout_height="44dp"
                 android:layout_weight="1"
+                android:layout_marginEnd="6dp"
+                android:contentDescription="@string/cancel"
                 android:text="@string/cancel"
-                android:background="@drawable/button_outline"
                 android:textColor="@color/green_500"
-                android:layout_marginEnd="6dp" />
+                app:icon="@drawable/ic_close"
+                app:iconTint="@color/green_500"
+                app:iconGravity="textStart"
+                app:iconPadding="8dp"
+                app:strokeColor="@color/green_500"
+                app:strokeWidth="2dp"
+                app:cornerRadius="12dp"
+                style="?attr/materialButtonOutlinedStyle" />
 
-            <Button
+            <!-- Submit as a filled MaterialButton with white icon/text -->
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/submitButton"
-                style="?android:attr/buttonBarButtonStyle"
                 android:layout_width="0dp"
-                android:layout_height="48dp"
+                android:layout_height="44dp"
                 android:layout_weight="1"
+                android:layout_marginStart="6dp"
+                android:contentDescription="@string/submit_quiz"
                 android:text="@string/submit_quiz"
-                android:background="@drawable/button_primary"
                 android:textColor="@color/white"
-                android:layout_marginStart="6dp" />
+                app:icon="@drawable/ic_done"
+                app:iconTint="@color/white"
+                app:iconGravity="textStart"
+                app:iconPadding="8dp"
+                app:cornerRadius="12dp"
+                android:backgroundTint="#4CAF50"
+                style="?attr/materialButtonStyle" />
         </LinearLayout>
 
         <!-- Progress Bar -->
@@ -238,8 +257,7 @@
             android:id="@+id/progressBar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="12dp"
             android:visibility="gone" />
     </LinearLayout>
 </ScrollView>
-
