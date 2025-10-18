@@ -11,6 +11,7 @@ import com.example.quizmaster.R
 import com.example.quizmaster.data.local.UserSessionManager
 import com.example.quizmaster.data.model.UserRole
 import com.example.quizmaster.ui.auth.LoginActivity
+import com.example.quizmaster.data.remote.ApiClient
 import kotlinx.coroutines.launch
 
 /**
@@ -68,6 +69,8 @@ class ProfileActivity : AppCompatActivity() {
         logoutButton.setOnClickListener {
             lifecycleScope.launch {
                 sessionManager.clearSession()
+                // Remove token from ApiClient
+                ApiClient.setAuthToken(null)
                 startActivity(Intent(this@ProfileActivity, LoginActivity::class.java))
                 finish()
             }

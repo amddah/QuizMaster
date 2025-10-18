@@ -15,6 +15,7 @@ import com.example.quizmaster.data.remote.AuthApiService
 import com.example.quizmaster.ui.professor.ProfessorDashboardActivity
 import com.example.quizmaster.ui.student.StudentDashboardActivity
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.first
 
 class LoginActivity : AppCompatActivity() {
     
@@ -121,13 +122,16 @@ class LoginActivity : AppCompatActivity() {
     
     private fun checkExistingSession() {
         lifecycleScope.launch {
-            sessionManager.isLoggedIn.collect { isLoggedIn ->
-                if (isLoggedIn) {
-                    sessionManager.currentUser.collect { user ->
-                        user?.let {
-                            navigateToDashboard(it.role)
-                        }
-                    }
+            // If user logged in previously, restore auth token and navigate
+            val loggedIn = sessionManager.isLoggedIn.first()
+            if (loggedIn) {
+                // restore token for ApiClient so subsequent requests include Authorization
+                val token = sessionManager.authToken.first()
+                token?.let { ApiClient.setAuthToken(it) }
+
+                val user = sessionManager.currentUser.first()
+                if (user != null) {
+                    navigateToDashboard(user.role)
                 }
             }
         }

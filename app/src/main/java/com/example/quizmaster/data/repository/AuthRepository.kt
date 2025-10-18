@@ -3,6 +3,7 @@ package com.example.quizmaster.data.repository
 import com.example.quizmaster.data.model.*
 import com.example.quizmaster.data.remote.AuthApiService
 import com.example.quizmaster.data.local.UserSessionManager
+import com.example.quizmaster.data.remote.ApiClient
 
 /**
  * Repository for authentication operations with error handling
@@ -25,6 +26,8 @@ class AuthRepository(
                 if (authResponse != null) {
                     // Save token and user session
                     sessionManager.saveSession(authResponse.token, authResponse.user)
+                    // Ensure ApiClient has the token for subsequent requests
+                    ApiClient.setAuthToken(authResponse.token)
                     Result.success(authResponse.user)
                 } else {
                     Result.failure(Exception("Empty response from server"))
@@ -108,10 +111,13 @@ class AuthRepository(
         return try {
             // Clear session
             sessionManager.clearSession()
+            // Remove token from ApiClient
+            ApiClient.setAuthToken(null)
             Result.success(Unit)
         } catch (e: Exception) {
             // Clear session even on error
             sessionManager.clearSession()
+            ApiClient.setAuthToken(null)
             Result.success(Unit)
         }
     }

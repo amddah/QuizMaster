@@ -103,6 +103,8 @@ class StudentDashboardActivity : AppCompatActivity() {
         logoutButton.setOnClickListener {
             lifecycleScope.launch {
                 sessionManager.clearSession()
+                // Remove auth token from ApiClient so subsequent requests are unauthenticated
+                ApiClient.setAuthToken(null)
                 startActivity(Intent(this@StudentDashboardActivity, LoginActivity::class.java))
                 finish()
             }
@@ -132,10 +134,16 @@ class StudentDashboardActivity : AppCompatActivity() {
     private fun loadQuizzes() {
         lifecycleScope.launch {
             try {
-                val category = categorySpinner.selectedItem?.toString()
+                val selectedCategory = categorySpinner.selectedItem?.toString()
+                // If the user selected "All" (case-insensitive) or nothing, don't send the category parameter
+                val categoryForRequest = if (selectedCategory.isNullOrBlank() || selectedCategory.equals("All", ignoreCase = true)) {
+                    null
+                } else {
+                    selectedCategory
+                }
 
                 val response = ApiClient.quizApiService.getAllQuizzes(
-                    category = category
+                    category = categoryForRequest
                 )
                 
                 if (response.isSuccessful) {
@@ -155,21 +163,13 @@ class StudentDashboardActivity : AppCompatActivity() {
     }
     
     private fun startQuiz(quiz: QuizModel) {
-        // Start online quiz with the quiz data
-        // For now, we'll show a dialog or navigate to a quiz detail page
-        // You can implement an OnlineQuizActivity later
-        
-        Toast.makeText(
-            this,
-            "Starting online quiz: ${quiz.title}\nQuiz ID: ${quiz.id}",
-            Toast.LENGTH_SHORT
-        ).show()
-        
-        // TODO: Implement OnlineQuizActivity for API-based quizzes
-        // val intent = Intent(this, OnlineQuizActivity::class.java)
-        // intent.putExtra("quiz_id", quiz.id)
-        // intent.putExtra("quiz_title", quiz.title)
-        // startActivity(intent)
+        // Navigate to QuizActivity to answer questions. Pass category and difficulty so
+        // the QuizViewModel can load appropriate questions.
+        val intent = Intent(this, com.example.quizmaster.ui.QuizActivity::class.java).apply {
+            putExtra(com.example.quizmaster.ui.QuizActivity.EXTRA_CATEGORY, quiz.category.name)
+            putExtra(com.example.quizmaster.ui.QuizActivity.EXTRA_DIFFICULTY, quiz.difficulty.name)
+        }
+        startActivity(intent)
     }
 }
 
