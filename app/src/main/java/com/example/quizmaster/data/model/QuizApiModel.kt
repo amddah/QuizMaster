@@ -1,6 +1,10 @@
 package com.example.quizmaster.data.model
 
 import com.google.gson.annotations.SerializedName
+import com.example.quizmaster.data.QuizCategory
+import com.example.quizmaster.data.QuizDifficulty
+import com.example.quizmaster.data.model.QuestionModel
+import com.example.quizmaster.data.model.QuizModel
 
 /**
  * API response model that matches the actual quiz API response structure
@@ -114,5 +118,41 @@ fun QuestionApiModel.toQuestionModel(): QuestionModel {
         timeLimit = this.timeLimit,
         maxScore = this.points,
         order = this.order
+    )
+}
+
+// --- Conversion dans l'autre sens : de nos modèles d'application vers le modèle attendu par l'API ---
+fun QuestionModel.toQuestionApiModel(): QuestionApiModel {
+    return QuestionApiModel(
+        id = this.id,
+        questionText = this.questionText,
+        type = when (this.type) {
+            QuestionType.MULTIPLE_CHOICE -> "multiple_choice"
+            QuestionType.TRUE_FALSE -> "true_false"
+        },
+        options = if (this.options.isEmpty()) null else this.options,
+        correctAnswer = this.correctAnswer,
+        timeLimit = this.timeLimit,
+        points = this.maxScore,
+        order = this.order
+    )
+}
+
+fun QuizModel.toApiModel(): QuizApiModel {
+    return QuizApiModel(
+        id = this.id,
+        title = this.title,
+        description = this.description,
+        // Use API-specific values (apiValue) when available so the backend receives expected tokens
+        category = this.category.apiValue,
+        difficultyLevel = this.difficulty.apiValue,
+        courseId = this.linkedCourseId,
+        creatorId = this.creatorId,
+        creatorRole = this.creatorRole.name.lowercase(),
+        status = this.approvalStatus.name.lowercase(),
+        questions = this.questions.map { it.toQuestionApiModel() },
+        createdAt = System.currentTimeMillis().toString(),
+        updatedAt = System.currentTimeMillis().toString(),
+        approvedBy = this.approvedBy
     )
 }

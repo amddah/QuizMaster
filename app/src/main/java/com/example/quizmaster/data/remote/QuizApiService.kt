@@ -24,9 +24,9 @@ interface QuizApiService {
     
     @POST("quizzes")
     suspend fun createQuiz(
-        @Body quiz: QuizModel
-    ): Response<QuizModel>
-    
+        @Body quiz: QuizApiModel
+    ): Response<QuizApiModel>
+
     @DELETE("quizzes/{id}")
     suspend fun deleteQuiz(
         @Path("id") quizId: String
@@ -35,5 +35,5 @@ interface QuizApiService {
     @PUT("quizzes/{id}/approve")
     suspend fun approveQuiz(
         @Path("id") quizId: String
-    ): Response<QuizModel>
+    ): Response<QuizApiModel>
 }

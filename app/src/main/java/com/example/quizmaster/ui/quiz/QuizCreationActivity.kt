@@ -21,6 +21,7 @@ import com.example.quizmaster.data.remote.ApiClient
 import com.example.quizmaster.data.remote.QuizApiService
 import com.example.quizmaster.data.QuizCategory
 import com.example.quizmaster.data.QuizDifficulty
+import com.example.quizmaster.data.model.toApiModel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.first
 
@@ -749,7 +750,8 @@ class QuizCreationActivity : AppCompatActivity() {
                     approvalStatus = status
                 )
                 
-                val response = quizApiService.createQuiz(quiz)
+                // Use the API-specific model so field names match the backend contract
+                val response = quizApiService.createQuiz(quiz.toApiModel())
 
                 progressBar.visibility = ProgressBar.GONE
                 

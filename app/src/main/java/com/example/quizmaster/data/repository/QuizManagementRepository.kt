@@ -52,9 +52,10 @@ class QuizManagementRepository(
     suspend fun createQuiz(quiz: QuizModel): Result<QuizModel> = 
         withContext(Dispatchers.IO) {
             try {
-                val response = quizApiService.createQuiz(quiz)
+                // Use API model to match backend contract and convert the API response back to our app model
+                val response = quizApiService.createQuiz(quiz.toApiModel())
                 if (response.isSuccessful && response.body() != null) {
-                    Result.success(response.body()!!)
+                    Result.success(response.body()!!.toQuizModel())
                 } else {
                     Result.failure(Exception("Failed to create quiz: ${response.message()}"))
                 }
@@ -84,7 +85,7 @@ class QuizManagementRepository(
             try {
                 val response = quizApiService.approveQuiz(quizId)
                 if (response.isSuccessful && response.body() != null) {
-                    Result.success(response.body()!!)
+                    Result.success(response.body()!!.toQuizModel())
                 } else {
                     Result.failure(Exception("Failed to approve quiz: ${response.message()}"))
                 }
