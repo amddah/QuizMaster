@@ -3,6 +3,7 @@ package com.example.quizmaster.ui.professor
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.util.Log
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -32,12 +33,14 @@ class ProfessorDashboardActivity : AppCompatActivity() {
     private lateinit var quizzesCountText: TextView
     private lateinit var createQuizButton: Button
     private lateinit var viewApprovalsButton: Button
+    private lateinit var pendingCard: android.view.View
+    private lateinit var pendingCardInner: android.view.View
     private lateinit var myQuizzesRecycler: RecyclerView
     private lateinit var logoutButton: Button
     private lateinit var profileButton: Button
 
     private var myQuizzes = mutableListOf<QuizModel>()
-    
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_professor_dashboard)
@@ -56,6 +59,11 @@ class ProfessorDashboardActivity : AppCompatActivity() {
         quizzesCountText = findViewById(R.id.quizzesCountText)
         createQuizButton = findViewById(R.id.createQuizButton)
         viewApprovalsButton = findViewById(R.id.viewApprovalsButton)
+        pendingCard = findViewById(R.id.pendingCard)
+        pendingCardInner = findViewById(R.id.pendingCardInner)
+        // Ensure card is clickable at runtime in case some parent view intercepts
+        pendingCard.isClickable = true
+        pendingCard.isFocusable = true
         myQuizzesRecycler = findViewById(R.id.myQuizzesRecycler)
         logoutButton = findViewById(R.id.logoutButton)
         profileButton = findViewById(R.id.profileButton)
@@ -71,7 +79,29 @@ class ProfessorDashboardActivity : AppCompatActivity() {
         viewApprovalsButton.setOnClickListener {
             startActivity(Intent(this, ApprovalActivity::class.java))
         }
-        
+
+        // Also allow clicking the Pending card itself to go to approvals
+        pendingCard.setOnClickListener {
+            // Debug: show a toast and log so we can confirm the click handler runs
+            Toast.makeText(this@ProfessorDashboardActivity, "Opening approvals...", Toast.LENGTH_SHORT).show()
+            Log.d("ProfessorDashboard", "pendingCard clicked - launching ApprovalActivity")
+            startActivity(Intent(this, ApprovalActivity::class.java))
+        }
+
+        // Also allow clicking the pending count text to open approvals (helps if child view consumed clicks)
+        pendingCountText.setOnClickListener {
+            Toast.makeText(this@ProfessorDashboardActivity, "Opening approvals...", Toast.LENGTH_SHORT).show()
+            Log.d("ProfessorDashboard", "pendingCountText clicked - launching ApprovalActivity")
+            startActivity(Intent(this, ApprovalActivity::class.java))
+        }
+
+        // Fallback: inner container click as well
+        pendingCardInner.setOnClickListener {
+            Toast.makeText(this@ProfessorDashboardActivity, "Opening approvals...", Toast.LENGTH_SHORT).show()
+            Log.d("ProfessorDashboard", "pendingCardInner clicked - launching ApprovalActivity")
+            startActivity(Intent(this, ApprovalActivity::class.java))
+        }
+
         logoutButton.setOnClickListener {
             lifecycleScope.launch {
                 sessionManager.clearSession()

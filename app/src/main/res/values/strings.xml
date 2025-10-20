@@ -112,6 +112,7 @@
     <string name="quiz_approved">Quiz Approved!</string>
     <string name="quiz_rejected">Quiz Rejected</string>
     <string name="created_by">Created by: %s</string>
+    <string name="created_by_default">Created by: Student Name</string>
     <string name="no_pending_quizzes">No pending quizzes to review</string>
     
     <!-- Profile -->
