@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">QuizMaster</string>
     
@@ -44,7 +45,9 @@
     <string name="next_question">Next Question</string>
     <string name="true_answer">True</string>
     <string name="false_answer">False</string>
-    
+    <string name="start_quiz">Start Quiz</string>
+    <string name="review_quiz">Review Quiz</string>
+
     <!-- Course Access -->
     <string name="course_locked">🔒 Complete %s to unlock</string>
     <string name="course_completed">✅ Course Completed</string>
@@ -106,7 +109,7 @@
     <string name="pending_quizzes">Pending Quizzes</string>
     <string name="my_quizzes">My Quizzes</string>
     <string name="statistics">Statistics</string>
-    <string name="pending_approvals">Pending Approvals (%d)</string>
+    <string name="pending_approvals">Pending Approvals</string>
     <string name="approve">Approve</string>
     <string name="reject">Reject</string>
     <string name="quiz_approved">Quiz Approved!</string>
@@ -165,4 +168,11 @@
     <string name="discard_changes_title">Discard changes?</string>
     <string name="discard_changes_message">Are you sure you want to discard this quiz? Your current changes will be lost.</string>
     <string name="discard">Discard</string>
+
+    <!-- Quiz review title -->
+    <string name="quiz_review_title_format">Reviewing Quiz: %s</string>
+    <string name="reviewing_quiz">Reviewing Quiz</string>
+    <string name="no_review_data">No review data available</string>
+    <string name="lbl_correct">Correct: %s</string>
+    <string name="lbl_student">Student: %s</string>
 </resources>

@@ -43,4 +43,9 @@
     <color name="error_red">#F44336</color>
     <color name="input_background">#F8F9FA</color>
     <color name="gray_stroke">#D1D5DB</color>
+
+    <!-- Aliases / names used by layouts -->
+    <color name="divider">#D1D5DB</color>
+    <color name="answer_correct">#4CAF50</color>
+    <color name="answer_student">#757575</color>
 </resources>

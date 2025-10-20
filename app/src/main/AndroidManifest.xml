@@ -80,6 +80,12 @@
             android:exported="false"
             android:theme="@style/Theme.MyApplication" />
 
+        <!-- Quiz Review Activity (Professor) -->
+        <activity
+            android:name=".ui.professor.QuizReviewActivity"
+            android:exported="false"
+            android:theme="@style/Theme.MyApplication" />
+
         <!-- Profile Activity -->
         <activity
             android:name=".ui.profile.ProfileActivity"

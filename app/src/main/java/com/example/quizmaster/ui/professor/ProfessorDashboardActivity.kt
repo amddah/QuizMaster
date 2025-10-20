@@ -17,6 +17,7 @@ import com.example.quizmaster.data.remote.ApiClient
 import com.example.quizmaster.data.remote.QuizApiService
 import com.example.quizmaster.ui.auth.LoginActivity
 import com.example.quizmaster.ui.quiz.QuizCreationActivity
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.launch
 
 /**
@@ -31,8 +32,7 @@ class ProfessorDashboardActivity : AppCompatActivity() {
     private lateinit var professorNameText: TextView
     private lateinit var pendingCountText: TextView
     private lateinit var quizzesCountText: TextView
-    private lateinit var createQuizButton: Button
-    private lateinit var viewApprovalsButton: Button
+    private lateinit var createQuizFab: FloatingActionButton
     private lateinit var pendingCard: android.view.View
     private lateinit var pendingCardInner: android.view.View
     private lateinit var myQuizzesRecycler: RecyclerView
@@ -57,8 +57,7 @@ class ProfessorDashboardActivity : AppCompatActivity() {
         professorNameText = findViewById(R.id.professorNameText)
         pendingCountText = findViewById(R.id.pendingCountText)
         quizzesCountText = findViewById(R.id.quizzesCountText)
-        createQuizButton = findViewById(R.id.createQuizButton)
-        viewApprovalsButton = findViewById(R.id.viewApprovalsButton)
+        createQuizFab = findViewById(R.id.createQuizFab)
         pendingCard = findViewById(R.id.pendingCard)
         pendingCardInner = findViewById(R.id.pendingCardInner)
         // Ensure card is clickable at runtime in case some parent view intercepts
@@ -72,12 +71,9 @@ class ProfessorDashboardActivity : AppCompatActivity() {
     }
     
     private fun setupClickListeners() {
-        createQuizButton.setOnClickListener {
+        // FAB now used for creating quizzes
+        createQuizFab.setOnClickListener {
             startActivity(Intent(this, QuizCreationActivity::class.java))
-        }
-        
-        viewApprovalsButton.setOnClickListener {
-            startActivity(Intent(this, ApprovalActivity::class.java))
         }
 
         // Also allow clicking the Pending card itself to go to approvals
@@ -198,7 +194,18 @@ class ProfessorDashboardActivity : AppCompatActivity() {
                 itemView.findViewById<TextView>(R.id.quizDescription).text = quiz.description ?: ""
                 
                 // Hide the start button since this is just for display
-                itemView.findViewById<Button>(R.id.startButton).visibility = android.view.View.GONE
+                val startBtn = itemView.findViewById<Button>(R.id.startButton)
+                startBtn.visibility = android.view.View.GONE
+
+                // Setup review button to open QuizReviewActivity with quiz id
+                val reviewBtn = itemView.findViewById<android.widget.ImageButton>(R.id.reviewButton)
+                reviewBtn.visibility = android.view.View.VISIBLE
+                reviewBtn.setOnClickListener {
+                    val ctx = itemView.context
+                    val intent = Intent(ctx, QuizReviewActivity::class.java)
+                    intent.putExtra("quiz_id", quiz.id)
+                    ctx.startActivity(intent)
+                }
             }
         }
     }

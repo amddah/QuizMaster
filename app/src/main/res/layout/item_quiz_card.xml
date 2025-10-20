@@ -3,24 +3,24 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="8dp"
-    app:cardCornerRadius="16dp"
-    app:cardElevation="6dp"
+    android:layout_margin="6dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="4dp"
     app:strokeWidth="0dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="20dp"
+        android:padding="12dp"
         android:background="@color/white">
 
         <TextView
             android:id="@+id/quizTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Quiz Title"
-            android:textSize="20sp"
+            android:text="@string/quiz_title"
+            android:textSize="16sp"
             android:textStyle="bold"
             android:textColor="@color/text_primary"
             android:lineSpacingExtra="2dp" />
@@ -29,60 +29,72 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginTop="8dp">
+            android:layout_marginTop="6dp">
 
             <TextView
                 android:id="@+id/quizCategory"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Category"
-                android:textSize="13sp"
+                android:text="@string/category"
+                android:textSize="11sp"
                 android:textColor="@color/white"
                 android:background="@color/green_primary"
-                android:paddingHorizontal="12dp"
-                android:paddingVertical="4dp"
-                android:layout_marginEnd="8dp"
-                android:drawablePadding="4dp" />
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="3dp"
+                android:layout_marginEnd="6dp"
+                android:drawablePadding="3dp" />
 
             <TextView
                 android:id="@+id/quizDifficulty"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Difficulty"
-                android:textSize="13sp"
+                android:text="@string/difficulty"
+                android:textSize="11sp"
                 android:textColor="@color/gray_600"
                 android:background="@color/light_gray"
-                android:paddingHorizontal="12dp"
-                android:paddingVertical="4dp" />
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="3dp" />
         </LinearLayout>
 
         <TextView
             android:id="@+id/quizDescription"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:text="Description"
-            android:textSize="14sp"
+            android:layout_marginTop="8dp"
+            android:text="@string/quiz_description"
+            android:textSize="12sp"
             android:textColor="@color/text_secondary"
-            android:maxLines="3"
+            android:maxLines="2"
             android:ellipsize="end"
-            android:lineSpacingExtra="4dp" />
+            android:lineSpacingExtra="3dp" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/startButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="Start Quiz"
-            android:textSize="16sp"
+            android:layout_marginTop="12dp"
+            android:text="@string/start_quiz"
+            android:textSize="14sp"
             android:textStyle="bold"
-            android:paddingVertical="12dp"
-            app:cornerRadius="8dp"
+            android:paddingVertical="8dp"
+            app:cornerRadius="6dp"
             android:backgroundTint="@color/green_primary"
             android:textColor="@color/white"
             app:icon="@android:drawable/ic_media_play"
             app:iconGravity="textStart"
-            app:iconPadding="8dp" />
+            app:iconPadding="6dp" />
+
+        <!-- Review (eye) button for professors -->
+        <ImageButton
+            android:id="@+id/reviewButton"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginTop="8dp"
+            android:layout_gravity="end"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/review_quiz"
+            app:srcCompat="@drawable/ic_eye_24dp"
+            app:tint="@color/green_primary" />
 
     </LinearLayout>
 
