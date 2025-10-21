@@ -49,22 +49,19 @@ class QuizReviewActivity : AppCompatActivity() {
             items.add(
                 QuizReviewItem(
                     questionText = "What is the capital of France?",
-                    correctAnswer = "Paris",
-                    studentAnswer = "Lyon"
+                    options = listOf("Paris", "London", "Berlin", "Madrid")
                 )
             )
             items.add(
                 QuizReviewItem(
                     questionText = "2 + 2 = ?",
-                    correctAnswer = "4",
-                    studentAnswer = "4"
+                    options = listOf("3", "4", "5", "6")
                 )
             )
             items.add(
                 QuizReviewItem(
                     questionText = "Is Kotlin interoperable with Java?",
-                    correctAnswer = "Yes",
-                    studentAnswer = "Yes"
+                    options = listOf("Yes", "No")
                 )
             )
         }

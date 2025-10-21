@@ -3,6 +3,7 @@ package com.example.quizmaster.ui.professor
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.quizmaster.R
@@ -12,8 +13,7 @@ class QuizReviewAdapter(private val items: List<QuizReviewItem>) :
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val questionText: TextView = view.findViewById(R.id.questionText)
-        val correctAnswerText: TextView = view.findViewById(R.id.correctAnswerText)
-        val studentAnswerText: TextView = view.findViewById(R.id.studentAnswerText)
+        val optionsContainer: LinearLayout = view.findViewById(R.id.optionsContainer)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -25,9 +25,20 @@ class QuizReviewAdapter(private val items: List<QuizReviewItem>) :
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = items[position]
         holder.questionText.text = item.questionText
-        val ctx = holder.itemView.context
-        holder.correctAnswerText.text = ctx.getString(R.string.lbl_correct, item.correctAnswer)
-        holder.studentAnswerText.text = ctx.getString(R.string.lbl_student, item.studentAnswer)
+
+        // Clear previous options
+        holder.optionsContainer.removeAllViews()
+
+        // Add each option as a TextView
+        for (option in item.options) {
+            val optionView = TextView(holder.itemView.context).apply {
+                text = "• $option"
+                textSize = 14f
+                setTextColor(holder.itemView.context.getColor(R.color.text_secondary))
+                setPadding(0, 4, 0, 4)
+            }
+            holder.optionsContainer.addView(optionView)
+        }
     }
 
     override fun getItemCount(): Int = items.size

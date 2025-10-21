@@ -8,19 +8,16 @@ import android.os.Parcelable
  */
 data class QuizReviewItem(
     val questionText: String,
-    val correctAnswer: String,
-    val studentAnswer: String
+    val options: List<String>
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
         parcel.readString() ?: "",
-        parcel.readString() ?: "",
-        parcel.readString() ?: ""
+        parcel.createStringArrayList() ?: arrayListOf()
     )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeString(questionText)
-        parcel.writeString(correctAnswer)
-        parcel.writeString(studentAnswer)
+        parcel.writeStringList(options)
     }
 
     override fun describeContents(): Int = 0
