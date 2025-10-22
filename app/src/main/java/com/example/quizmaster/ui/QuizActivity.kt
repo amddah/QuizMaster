@@ -240,8 +240,12 @@ class QuizActivity : AppCompatActivity() {
         val progress = ((questionNumber - 1) * 100) / totalQuestions
         progressBar.progress = progress
 
-        // Build answer list defensively: dedupe and ensure correctAnswer present
-        val answers = (question.incorrectAnswers + question.correctAnswer).filterNotNull().map { it.trim() }.distinct().shuffled()
+        // Build answer list defensively: for boolean type ensure exactly True/False
+        val answers = if (question.type.equals("boolean", ignoreCase = true) || question.type.equals("bool", ignoreCase = true)) {
+            listOf("True", "False").shuffled()
+        } else {
+            (question.incorrectAnswers + question.correctAnswer).filterNotNull().map { it.trim() }.distinct().shuffled()
+        }
 
         // Reset all buttons first and show/hide based on available answers
         answerButtons.forEach { btn ->
@@ -295,11 +299,13 @@ class QuizActivity : AppCompatActivity() {
                 button.isEnabled = false
                 val text = button.text.toString()
                 when {
-                    text == question.correctAnswer -> {
+                    // Use robust comparison for correctness (trim + ignore case)
+                    question.isCorrectAnswer(text) -> {
                         button.setBackgroundColor(ContextCompat.getColor(this, android.R.color.holo_green_light))
                         button.setTextColor(ContextCompat.getColor(this, android.R.color.white))
                     }
-                    text == selectedAnswer && !isCorrect -> {
+                    // If this button matches the user's selection (case-insensitive) and it's wrong
+                    text.trim().equals(selectedAnswer.trim(), ignoreCase = true) && !isCorrect -> {
                         button.setBackgroundColor(ContextCompat.getColor(this, android.R.color.holo_red_light))
                         button.setTextColor(ContextCompat.getColor(this, android.R.color.white))
                     }
