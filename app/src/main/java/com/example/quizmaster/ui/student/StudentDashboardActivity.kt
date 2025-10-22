@@ -17,6 +17,7 @@ import com.example.quizmaster.ui.auth.LoginActivity
 import com.example.quizmaster.ui.profile.ProfileActivity
 import com.example.quizmaster.ui.quiz.QuizCreationActivity
 import com.example.quizmaster.ui.QuizActivity
+import com.google.gson.Gson
 import kotlinx.coroutines.launch
 
 /**
@@ -139,13 +140,14 @@ class StudentDashboardActivity : AppCompatActivity() {
                 val categoryForRequest = if (selectedCategory.isNullOrBlank() || selectedCategory.equals("All", ignoreCase = true)) {
                     null
                 } else {
-                    selectedCategory
+                    // send lowercase to backend to avoid mismatches
+                    selectedCategory.lowercase()
                 }
 
                 val response = ApiClient.quizApiService.getAllQuizzes(
                     category = categoryForRequest
                 )
-                
+
                 if (response.isSuccessful) {
                     quizzes.clear()
                     response.body()?.let { apiQuizzes ->
@@ -161,15 +163,35 @@ class StudentDashboardActivity : AppCompatActivity() {
             }
         }
     }
-    
+
     private fun startQuiz(quiz: QuizModel) {
-        // Navigate to QuizActivity to answer questions. Pass category and difficulty so
-        // the QuizViewModel can load appropriate questions.
-        val intent = Intent(this, com.example.quizmaster.ui.QuizActivity::class.java).apply {
-            putExtra(com.example.quizmaster.ui.QuizActivity.EXTRA_CATEGORY, quiz.category.name)
-            putExtra(com.example.quizmaster.ui.QuizActivity.EXTRA_DIFFICULTY, quiz.difficulty.name)
+        // When student taps Start, fetch quiz by ID from backend (Search Quiz by ID API), show loading overlay
+        val loadingOverlay = findViewById<View>(R.id.loadingOverlay)
+        loadingOverlay.visibility = View.VISIBLE
+
+        lifecycleScope.launch {
+            try {
+                val response = ApiClient.quizApiService.getQuizById(quiz.id)
+                if (response.isSuccessful && response.body() != null) {
+                    val quizFromServer = response.body()!!
+                    // Convert API model to app's QuizModel first, then serialize
+                    val converted = quizFromServer.toQuizModel()
+                    val gson = Gson()
+                    val quizJson = gson.toJson(converted)
+
+                    val intent = Intent(this@StudentDashboardActivity, QuizActivity::class.java).apply {
+                        putExtra(QuizActivity.EXTRA_QUIZ_JSON, quizJson)
+                    }
+                    startActivity(intent)
+                } else {
+                    Toast.makeText(this@StudentDashboardActivity, getString(R.string.failed_load_quizzes), Toast.LENGTH_SHORT).show()
+                }
+            } catch (e: Exception) {
+                Toast.makeText(this@StudentDashboardActivity, getString(R.string.error_with_message, e.message ?: getString(R.string.error)), Toast.LENGTH_SHORT).show()
+            } finally {
+                loadingOverlay.visibility = View.GONE
+            }
         }
-        startActivity(intent)
     }
 }
 

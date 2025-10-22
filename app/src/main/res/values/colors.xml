@@ -44,6 +44,9 @@
     <color name="input_background">#F8F9FA</color>
     <color name="gray_stroke">#D1D5DB</color>
 
+    <!-- Ajout de la couleur manquante utilisée par les layouts -->
+    <color name="error">#F44336</color>
+
     <!-- Aliases / names used by layouts -->
     <color name="divider">#D1D5DB</color>
     <color name="answer_correct">#4CAF50</color>

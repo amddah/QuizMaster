@@ -4,7 +4,6 @@ import com.example.quizmaster.data.Quiz
 import com.example.quizmaster.data.QuizCategory
 import com.example.quizmaster.data.QuizDifficulty
 import com.example.quizmaster.data.QuizResult
-import com.example.quizmaster.data.local.OfflineQuestions
 import com.example.quizmaster.data.local.QuizDataStore
 import com.example.quizmaster.data.local.QuizStatistics
 import com.example.quizmaster.data.remote.TriviaApiService
@@ -13,18 +12,17 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import java.net.UnknownHostException
 
 class QuizRepository(private val dataStore: QuizDataStore) {
     
     private val apiService: TriviaApiService by lazy {
         val logging = HttpLoggingInterceptor()
         logging.level = HttpLoggingInterceptor.Level.BODY
-        
+
         val client = OkHttpClient.Builder()
             .addInterceptor(logging)
             .build()
-        
+
         Retrofit.Builder()
             .baseUrl(TriviaApiService.BASE_URL)
             .client(client)
@@ -32,14 +30,14 @@ class QuizRepository(private val dataStore: QuizDataStore) {
             .build()
             .create(TriviaApiService::class.java)
     }
-    
+
     suspend fun getQuiz(category: QuizCategory, difficulty: QuizDifficulty): Result<Quiz> {
         return try {
-            // Try to get questions from API first
+            // Try to get questions from API. Ensure we send lowercase filter params to avoid backend mismatches.
             val response = apiService.getQuestions(
                 amount = 10,
-                category = category.apiValue,
-                difficulty = difficulty.apiValue
+                category = category.apiValue.lowercase(),
+                difficulty = difficulty.apiValue.lowercase()
             )
             
             if (response.responseCode == 0 && response.results.isNotEmpty()) {
@@ -50,22 +48,10 @@ class QuizRepository(private val dataStore: QuizDataStore) {
                 )
                 Result.success(quiz)
             } else {
-                // Fallback to offline questions
-                val offlineQuiz = OfflineQuestions.getQuizForCategory(category, difficulty)
-                Result.success(offlineQuiz)
+                Result.failure(Exception("No questions available for this category and difficulty"))
             }
-        } catch (e: UnknownHostException) {
-            // No internet connection, use offline questions
-            val offlineQuiz = OfflineQuestions.getQuizForCategory(category, difficulty)
-            Result.success(offlineQuiz)
         } catch (e: Exception) {
-            // Any other error, try offline questions as fallback
-            try {
-                val offlineQuiz = OfflineQuestions.getQuizForCategory(category, difficulty)
-                Result.success(offlineQuiz)
-            } catch (offlineError: Exception) {
-                Result.failure(e)
-            }
+            Result.failure(e)
         }
     }
     

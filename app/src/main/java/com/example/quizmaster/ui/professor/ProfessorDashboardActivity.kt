@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.View
 import android.util.Log
 import android.widget.*
+import android.widget.ImageButton
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -19,6 +20,7 @@ import com.example.quizmaster.ui.auth.LoginActivity
 import com.example.quizmaster.ui.quiz.QuizCreationActivity
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.launch
+import com.example.quizmaster.data.model.UserRole
 
 /**
  * Professor Dashboard Activity
@@ -28,13 +30,16 @@ class ProfessorDashboardActivity : AppCompatActivity() {
     
     private lateinit var sessionManager: UserSessionManager
     private lateinit var quizApiService: QuizApiService
-    
+    // Flag to indicate whether the current user is a professor.
+    // Default false so UI defaults to hiding professor-only actions for safety.
+    private var isProfessor: Boolean = false
+
     private lateinit var professorNameText: TextView
     private lateinit var pendingCountText: TextView
     private lateinit var quizzesCountText: TextView
     private lateinit var createQuizFab: FloatingActionButton
-    private lateinit var pendingCard: android.view.View
-    private lateinit var pendingCardInner: android.view.View
+    private lateinit var pendingCard: View
+    private lateinit var pendingCardInner: View
     private lateinit var myQuizzesRecycler: RecyclerView
     private lateinit var logoutButton: Button
     private lateinit var profileButton: Button
@@ -116,25 +121,28 @@ class ProfessorDashboardActivity : AppCompatActivity() {
             try {
                 sessionManager.currentUser.collect { user ->
                     user?.let {
-                        professorNameText.text = "Welcome, Prof. ${it.firstName}!"
-                        loadMyQuizzes()
-                        loadPendingCount()
-                    }
-                }
-            } catch (e: Exception) {
-                Toast.makeText(
-                    this@ProfessorDashboardActivity,
-                    "Error loading dashboard: ${e.message}",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-        }
-    }
-    
-    private suspend fun loadMyQuizzes() {
-        try {
-            // Get all quizzes - in a real app, filter by creator
-            val response = quizApiService.getAllQuizzes()
+                        // Determine the role and store it so the UI can adapt (hide professor-only actions for students)
+                        isProfessor = (it.role == UserRole.PROFESSOR)
+                        // Use a translatable string resource instead of a hardcoded string
+                        professorNameText.text = getString(R.string.welcome_professor, it.firstName)
+                         loadMyQuizzes()
+                         loadPendingCount()
+                     }
+                 }
+             } catch (e: Exception) {
+                 Toast.makeText(
+                     this@ProfessorDashboardActivity,
+                     "Error loading dashboard: ${e.message}",
+                     Toast.LENGTH_SHORT
+                 ).show()
+             }
+         }
+     }
+
+     private suspend fun loadMyQuizzes() {
+         try {
+             // Get all quizzes - in a real app, filter by creator
+             val response = quizApiService.getAllQuizzes()
 
             if (response.isSuccessful) {
                 response.body()?.let { apiQuizzes ->
@@ -143,6 +151,7 @@ class ProfessorDashboardActivity : AppCompatActivity() {
                     myQuizzes = mutableListOf()
                 }
                 quizzesCountText.text = myQuizzes.size.toString()
+                // Pass the current isProfessor flag implicitly by allowing the adapter to read it from the outer class
                 myQuizzesRecycler.adapter = QuizAdapter(myQuizzes)
             }
         } catch (e: Exception) {
@@ -163,7 +172,7 @@ class ProfessorDashboardActivity : AppCompatActivity() {
                 val pendingCount = response.body()?.size ?: 0
                 pendingCountText.text = pendingCount.toString()
             }
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             // Silent fail for pending count
         }
     }
@@ -184,7 +193,7 @@ class ProfessorDashboardActivity : AppCompatActivity() {
         
         override fun getItemCount() = quizzes.size
         
-        private inner class QuizViewHolder(itemView: android.view.View) :
+        private inner class QuizViewHolder(itemView: View) :
             RecyclerView.ViewHolder(itemView) {
             
             fun bind(quiz: QuizModel) {
@@ -195,11 +204,12 @@ class ProfessorDashboardActivity : AppCompatActivity() {
                 
                 // Hide the start button since this is just for display
                 val startBtn = itemView.findViewById<Button>(R.id.startButton)
-                startBtn.visibility = android.view.View.GONE
+                startBtn.visibility = View.GONE
 
                 // Setup review button to open QuizReviewActivity with quiz id
-                val reviewBtn = itemView.findViewById<android.widget.ImageButton>(R.id.reviewButton)
-                reviewBtn.visibility = android.view.View.VISIBLE
+                val reviewBtn = itemView.findViewById<ImageButton>(R.id.reviewButton)
+                // Only show the review (eye) button to professors
+                reviewBtn.visibility = if (isProfessor) View.VISIBLE else View.GONE
                 reviewBtn.setOnClickListener {
                     val ctx = itemView.context
                     val intent = Intent(ctx, QuizReviewActivity::class.java)

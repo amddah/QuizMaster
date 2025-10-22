@@ -21,6 +21,6 @@ data class Question(
     }
     
     fun isCorrectAnswer(answer: String): Boolean {
-        return answer == correctAnswer
+        return answer.trim().equals(correctAnswer.trim(), ignoreCase = true)
     }
 }

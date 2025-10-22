@@ -7,11 +7,11 @@ import com.google.gson.annotations.SerializedName
 /**
  * Approval status for quizzes
  */
-enum class ApprovalStatus {
-    PENDING,      // Waiting for professor approval
-    APPROVED,     // Approved and available to students
-    REJECTED;     // Rejected by professor
-    
+enum class ApprovalStatus(val apiValue: String) {
+    PENDING("pending"),      // Waiting for professor approval
+    APPROVED("approved"),     // Approved and available to students
+    REJECTED("rejected");     // Rejected by professor
+
     companion object {
         fun fromString(status: String): ApprovalStatus? {
             return entries.find { it.name.equals(status, ignoreCase = true) }

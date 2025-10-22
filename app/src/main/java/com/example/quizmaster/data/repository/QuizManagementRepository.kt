@@ -22,8 +22,11 @@ class QuizManagementRepository(
         status: ApprovalStatus? = null
     ): Result<List<QuizModel>> = withContext(Dispatchers.IO) {
         try {
+            // Normalize incoming filters to lowercase to match backend expectations
+            val categoryNormalized = category?.lowercase()
+            val difficultyNormalized = difficulty?.lowercase()
             val statusString = status?.name?.lowercase()
-            val response = quizApiService.getAllQuizzes(category, difficulty, statusString)
+            val response = quizApiService.getAllQuizzes(categoryNormalized, difficultyNormalized, statusString)
             if (response.isSuccessful && response.body() != null) {
                 val convertedQuizzes = response.body()!!.map { it.toQuizModel() }
                 Result.success(convertedQuizzes)

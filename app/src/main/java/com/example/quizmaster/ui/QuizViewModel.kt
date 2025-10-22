@@ -61,7 +61,24 @@ class QuizViewModel(private val repository: QuizRepository) : ViewModel() {
             )
         }
     }
-    
+
+    /**
+     * Start a quiz using a preloaded Quiz object (e.g. fetched via Search-by-ID).
+     */
+    fun startQuizWithQuiz(quiz: Quiz) {
+        viewModelScope.launch {
+            _uiState.value = QuizUiState.Loading
+            quizStartTime = System.currentTimeMillis()
+
+            currentQuiz = quiz
+            currentQuestionIndex = 0
+            correctAnswers = 0
+
+            // Small suspend to ensure UI sees Loading state then updates
+            showCurrentQuestion()
+        }
+    }
+
     fun submitAnswer(selectedAnswer: String) {
         val quiz = currentQuiz ?: return
         val currentQuestion = quiz.questions[currentQuestionIndex]

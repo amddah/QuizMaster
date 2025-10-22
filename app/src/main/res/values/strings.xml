@@ -48,6 +48,9 @@
     <string name="start_quiz">Start Quiz</string>
     <string name="review_quiz">Review Quiz</string>
 
+    <!-- Category / difficulty combined format (used by QuizActivity) -->
+    <string name="category_difficulty_format">%1$s - %2$s</string>
+
     <!-- Course Access -->
     <string name="course_locked">🔒 Complete %s to unlock</string>
     <string name="course_completed">✅ Course Completed</string>
@@ -175,4 +178,11 @@
     <string name="no_review_data">No review data available</string>
     <string name="lbl_correct">Correct: %s</string>
     <string name="lbl_student">Student: %s</string>
+
+    <!-- Error strings used by QuizReviewActivity -->
+    <string name="error_missing_quiz_id">Missing quiz id</string>
+    <string name="error_empty_response">Empty response from server</string>
+    <string name="error_network_generic">Network error (code %s)</string>
+    <string name="error_network_generic_short">Network error</string>
+    <string name="error_unauthorized">You are not authorized to view this content</string>
 </resources>

@@ -3,18 +3,24 @@ package com.example.quizmaster.ui
 import android.content.Intent
 import android.os.Bundle
 import android.os.CountDownTimer
+import android.view.View
 import android.widget.ProgressBar
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.example.quizmaster.R
 import com.example.quizmaster.data.Question
+import com.example.quizmaster.data.Quiz
 import com.example.quizmaster.data.QuizCategory
 import com.example.quizmaster.data.QuizDifficulty
 import com.example.quizmaster.utils.ScoreCalculator
 import com.google.android.material.button.MaterialButton
+import com.google.gson.Gson
+import com.example.quizmaster.data.model.QuizModel
+import com.example.quizmaster.data.model.QuestionType
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -23,6 +29,7 @@ class QuizActivity : AppCompatActivity() {
     companion object {
         const val EXTRA_CATEGORY = "extra_category"
         const val EXTRA_DIFFICULTY = "extra_difficulty"
+        const val EXTRA_QUIZ_JSON = "extra_quiz_json"
         private const val TIMER_DURATION = 15000L // 15 seconds
         private const val FEEDBACK_DELAY = 2000L // 2 seconds
         private const val KEY_TOTAL_SCORE = "key_total_score"
@@ -44,6 +51,9 @@ class QuizActivity : AppCompatActivity() {
     private lateinit var textViewTimer: TextView
     private lateinit var textViewScore: TextView
     private lateinit var progressBar: ProgressBar
+    private lateinit var loadingProgressBar: ProgressBar
+    private lateinit var cardViewQuestion: View
+    private lateinit var linearLayoutAnswers: View
     private lateinit var buttonAnswer1: MaterialButton
     private lateinit var buttonAnswer2: MaterialButton
     private lateinit var buttonAnswer3: MaterialButton
@@ -70,7 +80,7 @@ class QuizActivity : AppCompatActivity() {
         observeViewModel()
 
         // update UI score after views have been initialized
-        textViewScore.text = "Score: $totalScore"
+        textViewScore.text = getString(R.string.quiz_score, totalScore)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -85,6 +95,9 @@ class QuizActivity : AppCompatActivity() {
         textViewTimer = findViewById(R.id.textViewTimer)
         textViewScore = findViewById(R.id.textViewScore)
         progressBar = findViewById(R.id.progressBar)
+        loadingProgressBar = findViewById(R.id.loadingProgressBar)
+        cardViewQuestion = findViewById(R.id.cardViewQuestion)
+        linearLayoutAnswers = findViewById(R.id.linearLayoutAnswers)
         buttonAnswer1 = findViewById(R.id.buttonAnswer1)
         buttonAnswer2 = findViewById(R.id.buttonAnswer2)
         buttonAnswer3 = findViewById(R.id.buttonAnswer3)
@@ -101,33 +114,103 @@ class QuizActivity : AppCompatActivity() {
         
         answerButtons.forEachIndexed { index, button ->
             button.setOnClickListener {
-                if (!isAnswerSubmitted) {
-                    submitAnswer(button.text.toString(), index)
+                if (!isAnswerSubmitted && button.visibility == View.VISIBLE) {
+                    submitAnswer(button.text.toString())
                 }
             }
         }
     }
     
     private fun setupQuiz() {
+        // If a full quiz JSON was passed, deserialize and start with it (Search-by-ID flow)
+        val quizJson = intent.getStringExtra(EXTRA_QUIZ_JSON)
+        if (!quizJson.isNullOrBlank()) {
+            try {
+                val gson = Gson()
+                val quizModel = gson.fromJson(quizJson, QuizModel::class.java)
+                // Convert QuizModel -> local Quiz
+                val localQuestions = quizModel.questions.map { qm ->
+                    // Ensure options are distinct and the correct answer is present
+                    if (qm.type == QuestionType.TRUE_FALSE) {
+                        // Normalize true/false answers to canonical "True" / "False"
+                        val correctNormalized = if (qm.correctAnswer.equals("true", ignoreCase = true) || qm.correctAnswer.equals("True", ignoreCase = true)) "True" else "False"
+                        val incorrectNormalized = if (correctNormalized == "True") "False" else "True"
+
+                        Question(
+                            question = qm.questionText,
+                            correctAnswer = correctNormalized,
+                            incorrectAnswers = listOf(incorrectNormalized),
+                            category = quizModel.category.name,
+                            difficulty = quizModel.difficulty.name,
+                            type = "boolean"
+                        )
+                    } else {
+                        val opts = qm.options.filterNotNull().map { it.trim() }.distinct().toMutableList()
+                        if (!opts.contains(qm.correctAnswer)) {
+                            opts.add(qm.correctAnswer)
+                        }
+
+                        // Build incorrectAnswers by removing correctAnswer from options
+                        val incorrect = opts.filter { it != qm.correctAnswer }
+
+                        Question(
+                            question = qm.questionText,
+                            correctAnswer = qm.correctAnswer,
+                            incorrectAnswers = incorrect,
+                            category = quizModel.category.name,
+                            difficulty = quizModel.difficulty.name,
+                            type = "multiple"
+                        )
+                    }
+                 }
+
+                val localQuiz = Quiz(
+                    questions = localQuestions,
+                    category = quizModel.category,
+                    difficulty = quizModel.difficulty
+                )
+
+                textViewCategory.text = getString(R.string.category_difficulty_format, localQuiz.category.displayName, localQuiz.difficulty.displayName)
+                viewModel.startQuizWithQuiz(localQuiz)
+                return
+            } catch (e: Exception) {
+                Toast.makeText(this, getString(R.string.error_with_message, e.message ?: getString(R.string.error)), Toast.LENGTH_SHORT).show()
+                // fall back to default behavior below
+            }
+        }
+
         val categoryName = intent.getStringExtra(EXTRA_CATEGORY) ?: QuizCategory.GENERAL.name
         val difficultyName = intent.getStringExtra(EXTRA_DIFFICULTY) ?: QuizDifficulty.EASY.name
         
         val category = QuizCategory.valueOf(categoryName)
         val difficulty = QuizDifficulty.valueOf(difficultyName)
         
-        textViewCategory.text = "${category.displayName} - ${difficulty.displayName}"
+        textViewCategory.text = getString(R.string.category_difficulty_format, category.displayName, difficulty.displayName)
 
         viewModel.startQuiz(category, difficulty)
     }
-    
+
     private fun observeViewModel() {
         lifecycleScope.launch {
             viewModel.uiState.collect { state ->
                 when (state) {
                     is QuizUiState.Loading -> {
                         // Show loading state
+                        loadingProgressBar.visibility = View.VISIBLE
+                        cardViewQuestion.visibility = View.GONE
+                        linearLayoutAnswers.visibility = View.GONE
+                        textViewProgress.visibility = View.GONE
+                        textViewTimer.visibility = View.GONE
+                        progressBar.visibility = View.GONE
                     }
                     is QuizUiState.QuestionReady -> {
+                        // Hide loading, show question
+                        loadingProgressBar.visibility = View.GONE
+                        cardViewQuestion.visibility = View.VISIBLE
+                        linearLayoutAnswers.visibility = View.VISIBLE
+                        textViewProgress.visibility = View.VISIBLE
+                        textViewTimer.visibility = View.VISIBLE
+                        progressBar.visibility = View.VISIBLE
                         displayQuestion(state.question, state.currentQuestionNumber, state.totalQuestions)
                     }
                     is QuizUiState.QuizCompleted -> {
@@ -136,44 +219,61 @@ class QuizActivity : AppCompatActivity() {
                     }
                     is QuizUiState.Error -> {
                         // Handle error
+                        loadingProgressBar.visibility = View.GONE
+                        Toast.makeText(this@QuizActivity, "Error loading quiz: ${state.message}", Toast.LENGTH_SHORT).show()
+                        finish() // or handle differently
                     }
                 }
             }
         }
     }
-    
+
     private fun displayQuestion(question: Question, questionNumber: Int, totalQuestions: Int) {
         currentQuestion = question
         isAnswerSubmitted = false
         questionStartTime = System.currentTimeMillis()
         
         textViewQuestion.text = question.question
-        textViewProgress.text = "$questionNumber / $totalQuestions"
-        textViewScore.text = "Score: $totalScore"
+        textViewProgress.text = getString(R.string.quiz_question_counter, questionNumber, totalQuestions)
+        textViewScore.text = getString(R.string.quiz_score, totalScore)
 
         val progress = ((questionNumber - 1) * 100) / totalQuestions
         progressBar.progress = progress
 
-        val answers = question.getAllAnswers()
-        answerButtons.forEachIndexed { index, button ->
-            if (index < answers.size) {
-                button.text = answers[index]
-                button.isEnabled = true
-                resetButtonStyle(button)
+        // Build answer list defensively: dedupe and ensure correctAnswer present
+        val answers = (question.incorrectAnswers + question.correctAnswer).filterNotNull().map { it.trim() }.distinct().shuffled()
+
+        // Reset all buttons first and show/hide based on available answers
+        answerButtons.forEach { btn ->
+            btn.visibility = View.GONE
+            btn.isEnabled = false
+            btn.text = ""
+            resetButtonStyle(btn)
+            btn.contentDescription = null
+        }
+
+        answers.forEachIndexed { index, ans ->
+            if (index < answerButtons.size) {
+                val btn = answerButtons[index]
+                btn.visibility = View.VISIBLE
+                btn.isEnabled = true
+                btn.text = ans
+                btn.contentDescription = ans
+                resetButtonStyle(btn)
             }
         }
         
         startTimer()
     }
-    
-    private fun submitAnswer(selectedAnswer: String, buttonIndex: Int) {
+
+    private fun submitAnswer(selectedAnswer: String) {
         if (isAnswerSubmitted) return
         
         isAnswerSubmitted = true
         countDownTimer?.cancel()
         
         val question = currentQuestion ?: return
-        val isCorrect = selectedAnswer == question.correctAnswer
+        val isCorrect = question.isCorrectAnswer(selectedAnswer)
         val timeToAnswer = ((System.currentTimeMillis() - questionStartTime) / 1000).toInt()
         
         // Inform ViewModel about the submitted answer (to keep repository results consistent)
@@ -189,15 +289,25 @@ class QuizActivity : AppCompatActivity() {
         
         totalScore += pointsEarned
         
-        // Highlight correct/incorrect answer
-        answerButtons.forEachIndexed { index, button ->
-            button.isEnabled = false
-            when {
-                button.text == question.correctAnswer -> {
-                    button.setBackgroundColor(ContextCompat.getColor(this, android.R.color.holo_green_light))
-                }
-                button.text == selectedAnswer && !isCorrect -> {
-                    button.setBackgroundColor(ContextCompat.getColor(this, android.R.color.holo_red_light))
+        // Highlight correct/incorrect answer and disable visible buttons
+        answerButtons.forEach { button ->
+            if (button.visibility == View.VISIBLE) {
+                button.isEnabled = false
+                val text = button.text.toString()
+                when {
+                    text == question.correctAnswer -> {
+                        button.setBackgroundColor(ContextCompat.getColor(this, android.R.color.holo_green_light))
+                        button.setTextColor(ContextCompat.getColor(this, android.R.color.white))
+                    }
+                    text == selectedAnswer && !isCorrect -> {
+                        button.setBackgroundColor(ContextCompat.getColor(this, android.R.color.holo_red_light))
+                        button.setTextColor(ContextCompat.getColor(this, android.R.color.white))
+                    }
+                    else -> {
+                        // dim other options
+                        button.setBackgroundColor(ContextCompat.getColor(this, android.R.color.darker_gray))
+                        button.setTextColor(ContextCompat.getColor(this, android.R.color.black))
+                    }
                 }
             }
         }
@@ -213,8 +323,8 @@ class QuizActivity : AppCompatActivity() {
         countDownTimer = object : CountDownTimer(TIMER_DURATION, 100) {
             override fun onTick(millisUntilFinished: Long) {
                 val secondsRemaining = millisUntilFinished / 1000
-                textViewTimer.text = "$secondsRemaining s"
-                
+                textViewTimer.text = getString(R.string.quiz_timer, secondsRemaining)
+
                 // Change color based on time remaining
                 when {
                     secondsRemaining > 10 -> textViewTimer.setTextColor(ContextCompat.getColor(this@QuizActivity, android.R.color.holo_green_dark))
@@ -226,9 +336,9 @@ class QuizActivity : AppCompatActivity() {
             override fun onFinish() {
                 if (!isAnswerSubmitted) {
                     isAnswerSubmitted = true
-                    textViewTimer.text = "0 s"
-                    answerButtons.forEach { it.isEnabled = false }
-                    
+                    textViewTimer.text = getString(R.string.quiz_timer, 0)
+                    answerButtons.forEach { if (it.visibility == View.VISIBLE) it.isEnabled = false }
+
                     lifecycleScope.launch {
                         delay(FEEDBACK_DELAY)
                         viewModel.nextQuestion()
@@ -239,7 +349,9 @@ class QuizActivity : AppCompatActivity() {
     }
     
     private fun resetButtonStyle(button: MaterialButton) {
+        // Reset to neutral appearance
         button.setBackgroundColor(ContextCompat.getColor(this, android.R.color.darker_gray))
+        button.setTextColor(ContextCompat.getColor(this, android.R.color.black))
     }
     
     private fun navigateToResults(score: Int, totalQuestions: Int, category: QuizCategory, difficulty: QuizDifficulty) {
