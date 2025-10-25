@@ -17,9 +17,9 @@ object ApiClient {
     
     // API base URLs - Use 10.0.2.2 for Android emulator to access host machine's localhost
     // For physical devices, replace with your computer's IP address (e.g., "http://192.168.1.100:8080/api/v1/")
-    private const val BASE_URL = "https://domestic-orsa-nameffsm-80c50f02.koyeb.app/api/v1/"
+    private const val BASE_URL = "http://10.0.2.2:8080/api/v1/"
     private const val COURSE_API_BASE_URL = "http://10.0.2.2:8080/api/v1/"
-    
+
     private var authToken: String? = null
     
     fun setAuthToken(token: String?) {
