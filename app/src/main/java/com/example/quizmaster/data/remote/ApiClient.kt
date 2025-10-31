@@ -78,4 +78,8 @@ object ApiClient {
     val courseApiService: CourseApiService by lazy {
         courseRetrofit.create(CourseApiService::class.java)
     }
+    
+    fun createGamificationService(): GamificationApiService {
+        return retrofit.create(GamificationApiService::class.java)
+    }
 }

@@ -5,6 +5,8 @@
         <domain includeSubdomains="true">127.0.0.1</domain>
         <domain includeSubdomains="true">localhost</domain>
         <domain includeSubdomains="true">10.0.2.2</domain>
+        <!-- Physical device - your computer's local IP -->
+        <domain includeSubdomains="true">192.168.1.180</domain>
     </domain-config>
 
     <!-- For production, use secure connections -->

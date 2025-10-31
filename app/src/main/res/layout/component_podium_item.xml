@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="8dp">
+
+    <!-- Medal -->
+    <TextView
+        android:id="@+id/podiumMedal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="🥇"
+        android:textSize="48sp"
+        tools:text="🥈" />
+
+    <!-- User Name -->
+    <TextView
+        android:id="@+id/podiumName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Player"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:textAlignment="center"
+        android:maxLines="1"
+        android:ellipsize="end"
+        android:textColor="?android:attr/textColorPrimary"
+        tools:text="John Doe" />
+
+    <!-- XP -->
+    <TextView
+        android:id="@+id/podiumXp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="0 XP"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:textColor="?attr/colorPrimary"
+        tools:text="2,450 XP" />
+
+    <!-- Podium -->
+    <View
+        android:id="@+id/podiumBase"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:layout_marginTop="12dp"
+        android:background="?attr/colorPrimary"
+        android:alpha="0.3" />
+
+</LinearLayout>

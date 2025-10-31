@@ -98,6 +98,24 @@
             android:exported="false"
             android:theme="@style/Theme.MyApplication" />
 
+        <!-- Gamification: Quiz Rewards Activity -->
+        <activity
+            android:name=".ui.quiz.QuizRewardsActivity"
+            android:exported="false"
+            android:theme="@style/Theme.MyApplication" />
+
+        <!-- Gamification: Profile Activity -->
+        <activity
+            android:name=".ui.profile.GamificationProfileActivity"
+            android:exported="false"
+            android:theme="@style/Theme.MyApplication" />
+
+        <!-- Gamification: Enhanced Leaderboard Activity -->
+        <activity
+            android:name=".ui.leaderboard.EnhancedLeaderboardActivity"
+            android:exported="false"
+            android:theme="@style/Theme.MyApplication" />
+
         <!-- Main Activity (Legacy) -->
         <activity
             android:name=".MainActivity"

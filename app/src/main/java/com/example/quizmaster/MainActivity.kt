@@ -270,6 +270,54 @@ class MainActivity : AppCompatActivity() {
         actionsLayout.orientation = LinearLayout.VERTICAL
         actionsLayout.setPadding(24, 20, 24, 20)
 
+        // Profile button - NEW!
+        val profileButton = Button(this)
+        profileButton.text = "👤 MY PROFILE & BADGES"
+        profileButton.textSize = 16f
+        profileButton.setTypeface(null, Typeface.BOLD)
+        profileButton.setTextColor(primaryGreen)
+        profileButton.setBackgroundColor(Color.TRANSPARENT)
+        profileButton.setPadding(0, 16, 0, 16)
+
+        val profileParams = LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT
+        )
+        profileButton.layoutParams = profileParams
+
+        profileButton.setOnClickListener {
+            try {
+                val intent = Intent(this, com.example.quizmaster.ui.profile.GamificationProfileActivity::class.java)
+                startActivity(intent)
+            } catch (e: Exception) {
+                createSimpleMessage("Profile feature loading...")
+            }
+        }
+
+        // Leaderboard button - NEW!
+        val leaderboardButton = Button(this)
+        leaderboardButton.text = "🏆 GLOBAL LEADERBOARD"
+        leaderboardButton.textSize = 16f
+        leaderboardButton.setTypeface(null, Typeface.BOLD)
+        leaderboardButton.setTextColor(primaryGreen)
+        leaderboardButton.setBackgroundColor(Color.TRANSPARENT)
+        leaderboardButton.setPadding(0, 16, 0, 16)
+
+        val leaderboardParams = LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT
+        )
+        leaderboardButton.layoutParams = leaderboardParams
+
+        leaderboardButton.setOnClickListener {
+            try {
+                val intent = Intent(this, com.example.quizmaster.ui.leaderboard.EnhancedLeaderboardActivity::class.java)
+                startActivity(intent)
+            } catch (e: Exception) {
+                createSimpleMessage("Leaderboard feature loading...")
+            }
+        }
+
         // History button
         val historyButton = Button(this)
         historyButton.text = "📊 VIEW QUIZ HISTORY"
@@ -294,6 +342,8 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        actionsLayout.addView(profileButton)
+        actionsLayout.addView(leaderboardButton)
         actionsLayout.addView(historyButton)
         card.addView(actionsLayout)
 

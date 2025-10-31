@@ -151,6 +151,7 @@
     <string name="profile">Profile</string>
     <string name="settings">Settings</string>
     <string name="history">History</string>
+    <string name="refresh">Refresh</string>
 
     <!-- Added for StudentDashboardActivity -->
     <string name="full_name">%1$s %2$s</string>

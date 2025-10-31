@@ -361,11 +361,16 @@ class QuizActivity : AppCompatActivity() {
     }
     
     private fun navigateToResults(score: Int, totalQuestions: Int, category: QuizCategory, difficulty: QuizDifficulty) {
-        val intent = Intent(this, ResultsActivity::class.java).apply {
-            putExtra(ResultsActivity.EXTRA_SCORE, score)
-            putExtra(ResultsActivity.EXTRA_TOTAL_QUESTIONS, totalQuestions)
-            putExtra(ResultsActivity.EXTRA_CATEGORY, category.name)
-            putExtra(ResultsActivity.EXTRA_DIFFICULTY, difficulty.name)
+        // Navigate to QuizRewardsActivity instead of ResultsActivity to show gamification
+        val intent = Intent(this, com.example.quizmaster.ui.quiz.QuizRewardsActivity::class.java).apply {
+            // Note: In a real implementation, you'd pass the actual attemptId from backend
+            // For now, using a placeholder. You should integrate with QuizAttemptRepository
+            putExtra("ATTEMPT_ID", "temp_attempt_id")
+            putExtra("SCORE", score)
+            putExtra("MAX_SCORE", totalQuestions * 10) // Assuming 10 points per question
+            putExtra("TIME_TAKEN", 300) // Placeholder - should track actual time
+            putExtra("CATEGORY", category.name)
+            putExtra("DIFFICULTY", difficulty.name)
         }
         startActivity(intent)
         finish()
