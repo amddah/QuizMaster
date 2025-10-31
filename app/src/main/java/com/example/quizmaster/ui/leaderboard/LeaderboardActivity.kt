@@ -151,7 +151,7 @@ class LeaderboardAdapter : RecyclerView.Adapter<LeaderboardAdapter.ViewHolder>()
         
         fun bind(entry: LeaderboardEntry) {
             rankText.text = "#${entry.rank}"
-            nameText.text = entry.student_name
+            nameText.text = entry.studentName
             scoreText.text = "${entry.score.toInt()} pts"
             percentageText.text = "${String.format("%.1f", entry.percentage)}%"
         }

@@ -121,8 +121,8 @@ class QuizRewardsActivity : AppCompatActivity() {
         // Observe attempt
         viewModel.attempt.observe(this) { attempt ->
             attempt?.let {
-                val percentage = if (it.maxPossibleScore > 0) {
-                    (it.totalScore.toDouble() / it.maxPossibleScore) * 100
+                val percentage = if (it.maxScore > 0) {
+                    (it.totalScore / it.maxScore) * 100
                 } else 0.0
 
                 // Update performance tier
@@ -205,8 +205,8 @@ class QuizRewardsActivity : AppCompatActivity() {
 
     private fun shareResults() {
         val attempt = viewModel.attempt.value ?: return
-        val percentage = if (attempt.maxPossibleScore > 0) {
-            (attempt.totalScore.toDouble() / attempt.maxPossibleScore) * 100
+        val percentage = if (attempt.maxScore > 0) {
+            (attempt.totalScore / attempt.maxScore) * 100
         } else 0.0
 
         val xpGain = viewModel.xpGain.value?.xp_gained ?: 0

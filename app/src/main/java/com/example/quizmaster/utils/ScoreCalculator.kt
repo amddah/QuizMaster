@@ -1,7 +1,7 @@
 package com.example.quizmaster.utils
 
 import com.example.quizmaster.data.model.QuestionModel
-import com.example.quizmaster.data.model.QuizAnswer
+import com.example.quizmaster.data.model.Answer
 
 /**
  * Utility class for calculating quiz scores based on response time
@@ -64,8 +64,8 @@ object ScoreCalculator {
     /**
      * Calculate total score for a list of answers
      */
-    fun calculateTotalScore(answers: List<QuizAnswer>): Int {
-        return answers.sumOf { it.scoreEarned }
+    fun calculateTotalScore(answers: List<Answer>): Int {
+        return answers.sumOf { it.pointsEarned.toInt() }
     }
     
     /**

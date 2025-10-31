@@ -2,15 +2,16 @@ package com.example.quizmaster.data.repository
 
 import com.example.quizmaster.data.model.QuizAttempt
 import com.example.quizmaster.data.remote.ApiClient
+import com.example.quizmaster.data.remote.CompleteAttemptRequest
 import com.example.quizmaster.data.remote.LeaderboardEntry
 import com.example.quizmaster.data.remote.StartAttemptRequest
 import com.example.quizmaster.data.remote.SubmitAnswerRequest
-import com.example.quizmaster.utils.ScoreCalculator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 /**
  * Repository for quiz attempt operations
+ * All endpoints match the backend Swagger specification
  */
 class QuizAttemptRepository {
     
@@ -18,16 +19,18 @@ class QuizAttemptRepository {
     
     /**
      * Start a new quiz attempt
+     * POST /attempts/start
      */
     suspend fun startAttempt(quizId: String): Result<QuizAttempt> = withContext(Dispatchers.IO) {
         try {
-            val request = StartAttemptRequest(quiz_id = quizId)
+            val request = StartAttemptRequest(quizId = quizId)
             val response = quizAttemptApiService.startAttempt(request)
             
             if (response.isSuccessful && response.body() != null) {
                 Result.success(response.body()!!)
             } else {
-                Result.failure(Exception("Failed to start attempt: ${response.code()}"))
+                val errorMsg = response.errorBody()?.string() ?: "Unknown error"
+                Result.failure(Exception("Failed to start attempt: ${response.code()} - $errorMsg"))
             }
         } catch (e: Exception) {
             Result.failure(e)
@@ -35,7 +38,8 @@ class QuizAttemptRepository {
     }
     
     /**
-     * Submit an answer for a question
+     * Submit an answer for a question in an ongoing attempt
+     * POST /attempts/answer
      */
     suspend fun submitAnswer(
         attemptId: String,
@@ -45,17 +49,18 @@ class QuizAttemptRepository {
     ): Result<Map<String, Any>> = withContext(Dispatchers.IO) {
         try {
             val request = SubmitAnswerRequest(
-                attempt_id = attemptId,
-                question_id = questionId,
+                attemptId = attemptId,
+                questionId = questionId,
                 answer = answer,
-                time_taken = timeToAnswer
+                timeToAnswer = timeToAnswer
             )
             val response = quizAttemptApiService.submitAnswer(request)
             
             if (response.isSuccessful && response.body() != null) {
                 Result.success(response.body()!!)
             } else {
-                Result.failure(Exception("Failed to submit answer: ${response.code()}"))
+                val errorMsg = response.errorBody()?.string() ?: "Unknown error"
+                Result.failure(Exception("Failed to submit answer: ${response.code()} - $errorMsg"))
             }
         } catch (e: Exception) {
             Result.failure(e)
@@ -63,16 +68,19 @@ class QuizAttemptRepository {
     }
     
     /**
-     * Complete a quiz attempt
+     * Complete a quiz attempt and calculate final score
+     * PUT /attempts/complete
      */
     suspend fun completeAttempt(attemptId: String): Result<QuizAttempt> = withContext(Dispatchers.IO) {
         try {
-            val response = quizAttemptApiService.completeAttempt(attemptId)
+            val request = CompleteAttemptRequest(id = attemptId)
+            val response = quizAttemptApiService.completeAttempt(request)
             
             if (response.isSuccessful && response.body() != null) {
                 Result.success(response.body()!!)
             } else {
-                Result.failure(Exception("Failed to complete attempt: ${response.code()}"))
+                val errorMsg = response.errorBody()?.string() ?: "Unknown error"
+                Result.failure(Exception("Failed to complete attempt: ${response.code()} - $errorMsg"))
             }
         } catch (e: Exception) {
             Result.failure(e)
@@ -80,7 +88,8 @@ class QuizAttemptRepository {
     }
     
     /**
-     * Get my quiz attempts
+     * Get all quiz attempts by the authenticated student
+     * GET /attempts
      */
     suspend fun getMyAttempts(): Result<List<QuizAttempt>> = withContext(Dispatchers.IO) {
         try {
@@ -89,7 +98,8 @@ class QuizAttemptRepository {
             if (response.isSuccessful && response.body() != null) {
                 Result.success(response.body()!!)
             } else {
-                Result.failure(Exception("Failed to get attempts: ${response.code()}"))
+                val errorMsg = response.errorBody()?.string() ?: "Unknown error"
+                Result.failure(Exception("Failed to get attempts: ${response.code()} - $errorMsg"))
             }
         } catch (e: Exception) {
             Result.failure(e)
@@ -97,41 +107,8 @@ class QuizAttemptRepository {
     }
     
     /**
-     * Get quiz leaderboard
-     */
-    suspend fun getQuizLeaderboard(quizId: String): Result<List<LeaderboardEntry>> = withContext(Dispatchers.IO) {
-        try {
-            val response = quizAttemptApiService.getQuizLeaderboard(quizId)
-            
-            if (response.isSuccessful && response.body() != null) {
-                Result.success(response.body()!!)
-            } else {
-                Result.failure(Exception("Failed to get leaderboard: ${response.code()}"))
-            }
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
-    }
-    
-    /**
-     * Get my rank for a quiz
-     */
-    suspend fun getMyRankForQuiz(quizId: String): Result<Map<String, Any>> = withContext(Dispatchers.IO) {
-        try {
-            val response = quizAttemptApiService.getMyRank(quizId)
-            
-            if (response.isSuccessful && response.body() != null) {
-                Result.success(response.body()!!)
-            } else {
-                Result.failure(Exception("Failed to get rank: ${response.code()}"))
-            }
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
-    }
-    
-    /**
-     * Get attempt by ID
+     * Get details of a specific quiz attempt
+     * GET /attempts/{id}
      */
     suspend fun getAttemptById(attemptId: String): Result<QuizAttempt> = withContext(Dispatchers.IO) {
         try {
@@ -140,7 +117,84 @@ class QuizAttemptRepository {
             if (response.isSuccessful && response.body() != null) {
                 Result.success(response.body()!!)
             } else {
-                Result.failure(Exception("Failed to get attempt: ${response.code()}"))
+                val errorMsg = response.errorBody()?.string() ?: "Unknown error"
+                Result.failure(Exception("Failed to get attempt: ${response.code()} - $errorMsg"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+    
+    /**
+     * Get detailed XP breakdown for a specific quiz attempt
+     * GET /attempts/{id}/xp
+     */
+    suspend fun getAttemptXpDetails(attemptId: String): Result<Map<String, Any>> = withContext(Dispatchers.IO) {
+        try {
+            val response = quizAttemptApiService.getAttemptXpDetails(attemptId)
+            
+            if (response.isSuccessful && response.body() != null) {
+                Result.success(response.body()!!)
+            } else {
+                val errorMsg = response.errorBody()?.string() ?: "Unknown error"
+                Result.failure(Exception("Failed to get XP details: ${response.code()} - $errorMsg"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+    
+    /**
+     * Get the global leaderboard showing top performing students
+     * GET /leaderboards/global
+     */
+    suspend fun getGlobalLeaderboard(): Result<List<Map<String, Any>>> = withContext(Dispatchers.IO) {
+        try {
+            val response = quizAttemptApiService.getGlobalLeaderboard()
+            
+            if (response.isSuccessful && response.body() != null) {
+                Result.success(response.body()!!)
+            } else {
+                val errorMsg = response.errorBody()?.string() ?: "Unknown error"
+                Result.failure(Exception("Failed to get global leaderboard: ${response.code()} - $errorMsg"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+    
+    /**
+     * Get the leaderboard for a specific quiz
+     * GET /leaderboards/quiz/{quiz_id}
+     */
+    suspend fun getQuizLeaderboard(quizId: String): Result<List<LeaderboardEntry>> = withContext(Dispatchers.IO) {
+        try {
+            val response = quizAttemptApiService.getQuizLeaderboard(quizId)
+            
+            if (response.isSuccessful && response.body() != null) {
+                Result.success(response.body()!!)
+            } else {
+                val errorMsg = response.errorBody()?.string() ?: "Unknown error"
+                Result.failure(Exception("Failed to get leaderboard: ${response.code()} - $errorMsg"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+    
+    /**
+     * Get the authenticated student's rank for a specific quiz
+     * GET /leaderboards/quiz/{quiz_id}/my-rank
+     */
+    suspend fun getMyRankForQuiz(quizId: String): Result<Map<String, Any>> = withContext(Dispatchers.IO) {
+        try {
+            val response = quizAttemptApiService.getMyRank(quizId)
+            
+            if (response.isSuccessful && response.body() != null) {
+                Result.success(response.body()!!)
+            } else {
+                val errorMsg = response.errorBody()?.string() ?: "Unknown error"
+                Result.failure(Exception("Failed to get rank: ${response.code()} - $errorMsg"))
             }
         } catch (e: Exception) {
             Result.failure(e)

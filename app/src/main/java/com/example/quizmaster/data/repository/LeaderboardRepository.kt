@@ -108,7 +108,7 @@ class LeaderboardRepository(
         val studentScore = studentAttempt.totalScore
         
         val betterThan = leaderboard.count { it.score < studentScore }
-        val rank = leaderboard.indexOfFirst { it.student_id == studentAttempt.studentId } + 1
+        val rank = leaderboard.indexOfFirst { it.studentId == studentAttempt.studentId } + 1
         val topScore = leaderboard.firstOrNull()?.score?.toInt() ?: 0
         val averageScore = if (leaderboard.isNotEmpty()) {
             leaderboard.map { it.score }.average()

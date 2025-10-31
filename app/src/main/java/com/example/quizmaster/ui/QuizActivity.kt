@@ -3,6 +3,7 @@ package com.example.quizmaster.ui
 import android.content.Intent
 import android.os.Bundle
 import android.os.CountDownTimer
+import android.util.Log
 import android.view.View
 import android.widget.ProgressBar
 import android.widget.TextView
@@ -16,6 +17,7 @@ import com.example.quizmaster.data.Question
 import com.example.quizmaster.data.Quiz
 import com.example.quizmaster.data.QuizCategory
 import com.example.quizmaster.data.QuizDifficulty
+import com.example.quizmaster.data.repository.QuizAttemptRepository
 import com.example.quizmaster.utils.ScoreCalculator
 import com.google.android.material.button.MaterialButton
 import com.google.gson.Gson
@@ -30,12 +32,17 @@ class QuizActivity : AppCompatActivity() {
         const val EXTRA_CATEGORY = "extra_category"
         const val EXTRA_DIFFICULTY = "extra_difficulty"
         const val EXTRA_QUIZ_JSON = "extra_quiz_json"
+        const val EXTRA_QUIZ_ID = "extra_quiz_id" // For backend quiz ID
         private const val TIMER_DURATION = 15000L // 15 seconds
         private const val FEEDBACK_DELAY = 2000L // 2 seconds
         private const val KEY_TOTAL_SCORE = "key_total_score"
+        private const val KEY_ATTEMPT_ID = "key_attempt_id"
+        private const val KEY_QUIZ_START_TIME = "key_quiz_start_time"
+        private const val TAG = "QuizActivity"
     }
     
     private lateinit var viewModel: QuizViewModel
+    private val attemptRepository = QuizAttemptRepository()
 
     private var countDownTimer: CountDownTimer? = null
     private var currentQuestion: Question? = null
@@ -43,6 +50,12 @@ class QuizActivity : AppCompatActivity() {
     private var isAnswerSubmitted = false
     private var questionStartTime = 0L
     private var totalScore = 0
+    
+    // Backend integration variables
+    private var currentAttemptId: String? = null
+    private var currentQuizId: String? = null
+    private var quizStartTime = 0L
+    private val questionAnswers = mutableListOf<Pair<String, Int>>() // questionId to timeToAnswer
     
     // UI Elements
     private lateinit var textViewQuestion: TextView
@@ -63,10 +76,15 @@ class QuizActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_quiz)
 
-        // Restore totalScore if activity recreated
+        // Restore state if activity recreated
         if (savedInstanceState != null) {
             totalScore = savedInstanceState.getInt(KEY_TOTAL_SCORE, 0)
+            currentAttemptId = savedInstanceState.getString(KEY_ATTEMPT_ID)
+            quizStartTime = savedInstanceState.getLong(KEY_QUIZ_START_TIME, 0L)
         }
+
+        // Get quiz ID from intent if provided
+        currentQuizId = intent.getStringExtra(EXTRA_QUIZ_ID)
 
         // Initialize ViewModel
         viewModel = ViewModelProvider(
@@ -81,11 +99,18 @@ class QuizActivity : AppCompatActivity() {
 
         // update UI score after views have been initialized
         textViewScore.text = getString(R.string.quiz_score, totalScore)
+        
+        // Start backend quiz attempt if we have a quiz ID and no attempt yet
+        if (currentQuizId != null && currentAttemptId == null) {
+            startBackendAttempt(currentQuizId!!)
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState.putInt(KEY_TOTAL_SCORE, totalScore)
+        outState.putString(KEY_ATTEMPT_ID, currentAttemptId)
+        outState.putLong(KEY_QUIZ_START_TIME, quizStartTime)
     }
     
     private fun initializeViews() {
@@ -293,6 +318,11 @@ class QuizActivity : AppCompatActivity() {
         
         totalScore += pointsEarned
         
+        // Submit answer to backend if we have a quiz model with question IDs
+        // For now, we'll use a placeholder - ideally you'd get the question ID from the question object
+        val questionId = "q_${question.question.hashCode()}" // Temporary ID generation
+        submitAnswerToBackend(questionId, selectedAnswer, timeToAnswer)
+        
         // Highlight correct/incorrect answer and disable visible buttons
         answerButtons.forEach { button ->
             if (button.visibility == View.VISIBLE) {
@@ -360,20 +390,115 @@ class QuizActivity : AppCompatActivity() {
         button.setTextColor(ContextCompat.getColor(this, android.R.color.black))
     }
     
-    private fun navigateToResults(score: Int, totalQuestions: Int, category: QuizCategory, difficulty: QuizDifficulty) {
-        // Navigate to QuizRewardsActivity instead of ResultsActivity to show gamification
-        val intent = Intent(this, com.example.quizmaster.ui.quiz.QuizRewardsActivity::class.java).apply {
-            // Note: In a real implementation, you'd pass the actual attemptId from backend
-            // For now, using a placeholder. You should integrate with QuizAttemptRepository
-            putExtra("ATTEMPT_ID", "temp_attempt_id")
-            putExtra("SCORE", score)
-            putExtra("MAX_SCORE", totalQuestions * 10) // Assuming 10 points per question
-            putExtra("TIME_TAKEN", 300) // Placeholder - should track actual time
-            putExtra("CATEGORY", category.name)
-            putExtra("DIFFICULTY", difficulty.name)
+    /**
+     * Start a quiz attempt on the backend
+     */
+    private fun startBackendAttempt(quizId: String) {
+        lifecycleScope.launch {
+            Log.d(TAG, "Starting backend attempt for quiz: $quizId")
+            quizStartTime = System.currentTimeMillis()
+            
+            val result = attemptRepository.startAttempt(quizId)
+            
+            result.onSuccess { attempt ->
+                currentAttemptId = attempt.id
+                Log.d(TAG, "Backend attempt started successfully: ${attempt.id}")
+            }
+            
+            result.onFailure { error ->
+                Log.e(TAG, "Failed to start backend attempt: ${error.message}", error)
+                // Continue with local quiz even if backend fails
+                Toast.makeText(
+                    this@QuizActivity,
+                    "Note: Quiz will run in offline mode",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
         }
-        startActivity(intent)
-        finish()
+    }
+    
+    /**
+     * Submit an answer to the backend
+     */
+    private fun submitAnswerToBackend(questionId: String, answer: String, timeToAnswer: Int) {
+        val attemptId = currentAttemptId ?: return
+        
+        lifecycleScope.launch {
+            Log.d(TAG, "Submitting answer - Attempt: $attemptId, Question: $questionId, Answer: $answer, Time: $timeToAnswer")
+            
+            val result = attemptRepository.submitAnswer(
+                attemptId = attemptId,
+                questionId = questionId,
+                answer = answer,
+                timeToAnswer = timeToAnswer
+            )
+            
+            result.onSuccess { response ->
+                val isCorrect = response["is_correct"] as? Boolean ?: false
+                val pointsEarned = response["points_earned"] as? Double ?: 0.0
+                Log.d(TAG, "Answer submitted - Correct: $isCorrect, Points: $pointsEarned")
+            }
+            
+            result.onFailure { error ->
+                Log.e(TAG, "Failed to submit answer: ${error.message}", error)
+                // Continue with local quiz even if backend submission fails
+            }
+        }
+    }
+    
+    /**
+     * Complete the quiz attempt on the backend
+     */
+    private fun completeBackendAttempt(onComplete: (String?) -> Unit) {
+        val attemptId = currentAttemptId
+        
+        if (attemptId == null) {
+            Log.d(TAG, "No attempt ID - skipping backend completion")
+            onComplete(null)
+            return
+        }
+        
+        lifecycleScope.launch {
+            Log.d(TAG, "Completing backend attempt: $attemptId")
+            
+            val result = attemptRepository.completeAttempt(attemptId)
+            
+            result.onSuccess { completedAttempt ->
+                Log.d(TAG, "Backend attempt completed successfully")
+                Log.d(TAG, "Score: ${completedAttempt.totalScore}/${completedAttempt.maxScore}")
+                Log.d(TAG, "XP Earned: ${completedAttempt.xpEarned}")
+                onComplete(attemptId)
+            }
+            
+            result.onFailure { error ->
+                Log.e(TAG, "Failed to complete backend attempt: ${error.message}", error)
+                // Still navigate to results with local data
+                onComplete(attemptId)
+            }
+        }
+    }
+    
+    private fun navigateToResults(score: Int, totalQuestions: Int, category: QuizCategory, difficulty: QuizDifficulty) {
+        // Complete backend attempt first, then navigate
+        completeBackendAttempt { attemptId ->
+            val totalTimeTaken = if (quizStartTime > 0) {
+                ((System.currentTimeMillis() - quizStartTime) / 1000).toInt()
+            } else {
+                300 // Default fallback
+            }
+            
+            // Navigate to QuizRewardsActivity with real attempt ID from backend
+            val intent = Intent(this, com.example.quizmaster.ui.quiz.QuizRewardsActivity::class.java).apply {
+                putExtra("ATTEMPT_ID", attemptId ?: "local_attempt") // Use real ID or fallback
+                putExtra("SCORE", score)
+                putExtra("MAX_SCORE", totalQuestions * 10) // Assuming 10 points per question
+                putExtra("TIME_TAKEN", totalTimeTaken)
+                putExtra("CATEGORY", category.name)
+                putExtra("DIFFICULTY", difficulty.name)
+            }
+            startActivity(intent)
+            finish()
+        }
     }
     
     override fun onDestroy() {
