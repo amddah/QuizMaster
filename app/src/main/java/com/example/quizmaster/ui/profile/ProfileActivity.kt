@@ -27,12 +27,15 @@ class ProfileActivity : AppCompatActivity() {
     private lateinit var badgesAdapter: SimpleBadgesAdapter
     
     private lateinit var userNameText: TextView
+    private lateinit var userEmailText: TextView
     private lateinit var userRoleText: TextView
     private lateinit var levelText: TextView
     private lateinit var xpText: TextView
     private lateinit var badgesGrid: RecyclerView
     private lateinit var logoutButton: Button
     private var loadingProgress: ProgressBar? = null
+    private var totalQuizzesText: TextView? = null
+    private var streakText: TextView? = null
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,6 +55,7 @@ class ProfileActivity : AppCompatActivity() {
     
     private fun initViews() {
         userNameText = findViewById(R.id.userNameText)
+        userEmailText = findViewById(R.id.userEmailText)
         userRoleText = findViewById(R.id.userRoleText)
         levelText = findViewById(R.id.levelText)
         xpText = findViewById(R.id.xpText)
@@ -60,6 +64,8 @@ class ProfileActivity : AppCompatActivity() {
         
         // Optional views
         loadingProgress = findViewById(R.id.loadingProgress)
+        totalQuizzesText = findViewById(R.id.totalQuizzesText)
+        streakText = findViewById(R.id.streakText)
     }
     
     private fun setupRecyclerView() {
@@ -74,8 +80,23 @@ class ProfileActivity : AppCompatActivity() {
         // Observe user data
         viewModel.user.observe(this) { user ->
             user?.let {
-                userNameText.text = "${it.firstName} ${it.lastName}"
-                userRoleText.text = if (it.role == UserRole.PROFESSOR) "Professor" else "Student"
+                // Display name with proper formatting
+                val fullName = "${it.firstName} ${it.lastName}".trim()
+                userNameText.text = if (fullName.isNotEmpty()) fullName else "User"
+                
+                // Display email
+                userEmailText.text = it.email
+                
+                // Display role with emoji
+                userRoleText.text = if (it.role == UserRole.PROFESSOR) "👨‍🏫 Professor" else "👨‍🎓 Student"
+                
+                // Display total quizzes
+                totalQuizzesText?.text = "${it.totalQuizzes ?: 0}"
+                
+                // Display streak
+                it.streak?.let { streak ->
+                    streakText?.text = "${streak.currentStreak} days"
+                }
             }
         }
         
@@ -116,6 +137,11 @@ class ProfileActivity : AppCompatActivity() {
     }
 
     private fun setupClickListeners() {
+        // Quiz history button
+        findViewById<View>(R.id.viewHistoryButton)?.setOnClickListener {
+            startActivity(Intent(this, QuizHistoryActivity::class.java))
+        }
+        
         logoutButton.setOnClickListener {
             lifecycleScope.launch {
                 sessionManager.clearSession()

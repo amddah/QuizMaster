@@ -98,6 +98,13 @@
             android:exported="false"
             android:theme="@style/Theme.MyApplication" />
 
+        <!-- Quiz History Activity -->
+        <activity
+            android:name=".ui.quiz.QuizHistoryActivity"
+            android:exported="false"
+            android:parentActivityName=".ui.profile.ProfileActivity"
+            android:theme="@style/Theme.MyApplication" />
+
         <!-- Gamification: Quiz Rewards Activity -->
         <activity
             android:name=".ui.quiz.QuizRewardsActivity"

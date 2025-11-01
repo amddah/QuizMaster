@@ -37,6 +37,18 @@ data class User(
     @SerializedName("total_quizzes_completed")
     val totalQuizzesCompleted: Int = 0,
     
+    @SerializedName("total_quizzes")
+    val totalQuizzes: Int? = null,
+    
+    @SerializedName("total_correct")
+    val totalCorrect: Int? = null,
+    
+    @SerializedName("total_questions")
+    val totalQuestions: Int? = null,
+    
+    @SerializedName("streak")
+    val streak: Streak? = null,
+    
     @SerializedName("badges")
        val badges: List<Badge> = emptyList(),
     
@@ -57,6 +69,18 @@ data class User(
        val type: String? = null,
        @SerializedName("earned_at")
        val earnedAt: String? = null
+    )
+    
+    /**
+     * Streak model matching backend response
+     */
+    data class Streak(
+        @SerializedName("current_streak")
+        val currentStreak: Int = 0,
+        @SerializedName("longest_streak")
+        val longestStreak: Int = 0,
+        @SerializedName("last_quiz_date")
+        val lastQuizDate: String? = null
     )
     fun isStudent(): Boolean = role == UserRole.STUDENT
     fun isProfessor(): Boolean = role == UserRole.PROFESSOR

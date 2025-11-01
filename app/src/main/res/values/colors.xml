@@ -51,4 +51,9 @@
     <color name="divider">#D1D5DB</color>
     <color name="answer_correct">#4CAF50</color>
     <color name="answer_student">#757575</color>
+    
+    <!-- Quiz History Colors -->
+    <color name="grey_200">#EEEEEE</color>
+    <color name="primary">#6200EE</color>
+    <color name="background">#F5F5F5</color>
 </resources>

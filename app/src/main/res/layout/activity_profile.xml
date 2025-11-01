@@ -70,14 +70,14 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:padding="20dp">
 
                     <TextView
                         android:id="@+id/userNameText"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/user_name"
-                        android:textSize="18sp"
+                        android:text="John Doe"
+                        android:textSize="24sp"
                         android:textStyle="bold"
                         android:textColor="@color/black" />
 
@@ -85,19 +85,24 @@
                         android:id="@+id/userEmailText"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/email"
+                        android:text="student@example.com"
                         android:textSize="14sp"
-                        android:textColor="@color/gray"
-                        android:layout_marginTop="8dp" />
+                        android:textColor="@color/gray_600"
+                        android:layout_marginTop="4dp" />
 
                     <TextView
                         android:id="@+id/userRoleText"
-                        android:layout_width="match_parent"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/role"
+                        android:text="👨‍🎓 Student"
                         android:textSize="14sp"
-                        android:textColor="@color/green_primary"
-                        android:layout_marginTop="8dp"
+                        android:textColor="@color/white"
+                        android:background="@color/green_primary"
+                        android:paddingStart="12dp"
+                        android:paddingEnd="12dp"
+                        android:paddingTop="6dp"
+                        android:paddingBottom="6dp"
+                        android:layout_marginTop="12dp"
                         android:textStyle="bold" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
@@ -112,20 +117,21 @@
                 android:textColor="@color/black"
                 android:layout_marginBottom="12dp" />
 
-            <!-- Stats Grid -->
+            <!-- Stats Grid Row 1 -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginBottom="16dp">
+                android:layout_marginBottom="12dp">
 
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:layout_marginEnd="8dp"
+                    android:layout_marginEnd="6dp"
                     app:cardCornerRadius="8dp"
-                    app:cardElevation="2dp">
+                    app:cardElevation="2dp"
+                    app:cardBackgroundColor="@color/primary">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -138,18 +144,19 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:text="Level"
-                            android:textSize="12sp"
-                            android:textColor="@color/gray"
+                            android:textSize="11sp"
+                            android:textColor="@color/white"
+                            android:alpha="0.8"
                             android:gravity="center" />
 
                         <TextView
                             android:id="@+id/levelText"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="10"
-                            android:textSize="20sp"
+                            android:text="3"
+                            android:textSize="24sp"
                             android:textStyle="bold"
-                            android:textColor="@color/green_primary"
+                            android:textColor="@color/white"
                             android:gravity="center"
                             android:layout_marginTop="4dp" />
                     </LinearLayout>
@@ -159,7 +166,53 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:layout_marginStart="8dp"
+                    android:layout_marginStart="6dp"
+                    app:cardCornerRadius="8dp"
+                    app:cardElevation="2dp"
+                    app:cardBackgroundColor="@color/orange_500">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="12dp"
+                        android:gravity="center">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="XP"
+                            android:textSize="11sp"
+                            android:textColor="@color/white"
+                            android:alpha="0.8"
+                            android:gravity="center" />
+
+                        <TextView
+                            android:id="@+id/xpText"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="650"
+                            android:textSize="24sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/white"
+                            android:gravity="center"
+                            android:layout_marginTop="4dp" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
+
+            <!-- Stats Grid Row 2 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="16dp">
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="6dp"
                     app:cardCornerRadius="8dp"
                     app:cardElevation="2dp">
 
@@ -173,16 +226,52 @@
                         <TextView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="XP"
-                            android:textSize="12sp"
+                            android:text="📊 Quizzes"
+                            android:textSize="11sp"
                             android:textColor="@color/gray"
                             android:gravity="center" />
 
                         <TextView
-                            android:id="@+id/xpText"
+                            android:id="@+id/totalQuizzesText"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="850"
+                            android:text="5"
+                            android:textSize="20sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/green_primary"
+                            android:gravity="center"
+                            android:layout_marginTop="4dp" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="6dp"
+                    app:cardCornerRadius="8dp"
+                    app:cardElevation="2dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="12dp"
+                        android:gravity="center">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="🔥 Streak"
+                            android:textSize="11sp"
+                            android:textColor="@color/gray"
+                            android:gravity="center" />
+
+                        <TextView
+                            android:id="@+id/streakText"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="2 days"
                             android:textSize="20sp"
                             android:textStyle="bold"
                             android:textColor="@color/green_primary"
@@ -209,14 +298,29 @@
                 android:layout_marginBottom="16dp" />
 
             <!-- Quiz History Section -->
-            <TextView
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/quiz_history"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:textColor="@color/black"
-                android:layout_marginBottom="12dp" />
+                android:orientation="horizontal"
+                android:layout_marginBottom="12dp">
+                
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/quiz_history"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/black" />
+                
+                <Button
+                    android:id="@+id/viewHistoryButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="View All"
+                    android:textSize="12sp"
+                    style="@style/Widget.Material3.Button.TextButton" />
+            </LinearLayout>
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/quizHistoryRecycler"
