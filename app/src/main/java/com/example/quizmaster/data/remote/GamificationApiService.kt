@@ -32,6 +32,28 @@ data class BadgeUnlockResponse(
 )
 
 /**
+ * Response for user achievements from backend
+ * Backend returns: {"badges": [...], "level": 3, "total_badges": 2, "xp": 650}
+ */
+data class UserAchievementsResponse(
+    val badges: List<BadgeData>,
+    val level: Int,
+    val total_badges: Int,
+    val xp: Int
+)
+
+/**
+ * Badge data from achievements endpoint
+ */
+data class BadgeData(
+    val type: String,
+    val name: String,
+    val description: String,
+    val icon: String,
+    val earned_at: String
+)
+
+/**
  * API service for gamification features
  */
 interface GamificationApiService {
@@ -46,7 +68,7 @@ interface GamificationApiService {
      * Get user achievements/badges
      */
     @GET("users/achievements")
-    suspend fun getUserAchievements(): Response<List<Achievement>>
+    suspend fun getUserAchievements(): Response<UserAchievementsResponse>
     
     /**
      * Get XP breakdown for a specific attempt

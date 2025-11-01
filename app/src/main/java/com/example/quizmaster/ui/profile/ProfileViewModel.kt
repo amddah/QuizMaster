@@ -1,0 +1,96 @@
+package com.example.quizmaster.ui.profile
+
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
+import com.example.quizmaster.data.model.User
+import com.example.quizmaster.data.remote.ApiClient
+import com.example.quizmaster.data.remote.BadgeData
+import com.example.quizmaster.repository.GamificationRepository
+import kotlinx.coroutines.launch
+
+/**
+ * ViewModel for user profile with backend data
+ */
+class ProfileViewModel(application: Application) : AndroidViewModel(application) {
+
+    private val authService = ApiClient.authApiService
+    private val gamificationRepository = GamificationRepository(
+        ApiClient.createGamificationService()
+    )
+
+    private val _user = MutableLiveData<User?>()
+    val user: LiveData<User?> = _user
+
+    private val _badges = MutableLiveData<List<BadgeData>>()
+    val badges: LiveData<List<BadgeData>> = _badges
+
+    private val _level = MutableLiveData<Int>()
+    val level: LiveData<Int> = _level
+
+    private val _xp = MutableLiveData<Int>()
+    val xp: LiveData<Int> = _xp
+
+    private val _totalBadges = MutableLiveData<Int>()
+    val totalBadges: LiveData<Int> = _totalBadges
+
+    private val _isLoading = MutableLiveData<Boolean>()
+    val isLoading: LiveData<Boolean> = _isLoading
+
+    private val _errorMessage = MutableLiveData<String?>()
+    val errorMessage: LiveData<String?> = _errorMessage
+
+    /**
+     * Load user profile from backend
+     */
+    fun loadUserProfile() {
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                // Load user profile
+                val profileResponse = authService.getCurrentUser()
+                if (profileResponse.isSuccessful && profileResponse.body() != null) {
+                    _user.value = profileResponse.body()
+                }
+
+                // Load achievements (badges)
+                loadAchievements()
+
+            } catch (e: Exception) {
+                _errorMessage.value = "Failed to load profile: ${e.message}"
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    /**
+     * Load user achievements from backend
+     */
+    private suspend fun loadAchievements() {
+        try {
+            val result = gamificationRepository.getUserAchievements()
+            result.onSuccess { achievements ->
+                // The backend returns: {"badges": [...], "level": 3, "total_badges": 2, "xp": 650}
+                // We need to parse this properly
+                _badges.value = achievements.badges
+                _level.value = achievements.level
+                _xp.value = achievements.xp
+                _totalBadges.value = achievements.total_badges
+            }.onFailure { error ->
+                _errorMessage.value = "Failed to load achievements: ${error.message}"
+            }
+        } catch (e: Exception) {
+            _errorMessage.value = "Error loading achievements: ${e.message}"
+        }
+    }
+
+    /**
+     * Refresh profile data
+     */
+    fun refreshProfile() {
+        loadUserProfile()
+    }
+}

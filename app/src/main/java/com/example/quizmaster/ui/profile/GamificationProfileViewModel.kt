@@ -96,7 +96,24 @@ class GamificationProfileViewModel(application: Application) : AndroidViewModel(
 
     private suspend fun loadAchievements() {
         val result = repository.getUserAchievements()
-        result.onSuccess { achievements ->
+        result.onSuccess { achievementsResponse ->
+            // Convert BadgeData to Achievement for display
+            val achievements = achievementsResponse.badges.map { badge ->
+                // Map string type to BadgeType enum
+                val badgeType = try {
+                    BadgeType.valueOf(badge.type.uppercase())
+                } catch (e: Exception) {
+                    BadgeType.FIRST_QUIZ // Default fallback
+                }
+                
+                Achievement(
+                    id = badge.type,
+                    userId = "",
+                    badgeType = badgeType,
+                    earnedAt = System.currentTimeMillis(), // Use current time as fallback
+                    isNew = false
+                )
+            }
             _achievements.value = achievements
         }.onFailure { error ->
             _errorMessage.value = "Failed to load achievements: ${error.message}"

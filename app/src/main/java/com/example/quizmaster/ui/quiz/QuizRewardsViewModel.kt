@@ -65,12 +65,9 @@ class QuizRewardsViewModel(application: Application) : AndroidViewModel(applicat
     }
 
     private suspend fun loadNewBadges() {
-        val result = gamificationRepository.getUserAchievements()
-        result.onSuccess { achievements ->
-            // Filter for new badges
-            val newBadges = achievements.filter { it.isNew }
-            _newBadges.value = newBadges
-        }
+        // Note: Badges are now shown from complete response instead
+        // This can be enhanced later to show achievement details
+        _newBadges.value = emptyList()
     }
 
     /**

@@ -29,9 +29,9 @@ class GamificationRepository(private val apiService: GamificationApiService) {
     }
     
     /**
-     * Get user achievements
+     * Get user achievements with full response
      */
-    suspend fun getUserAchievements(): Result<List<Achievement>> = withContext(Dispatchers.IO) {
+    suspend fun getUserAchievements(): Result<UserAchievementsResponse> = withContext(Dispatchers.IO) {
         try {
             val response = apiService.getUserAchievements()
             if (response.isSuccessful && response.body() != null) {
