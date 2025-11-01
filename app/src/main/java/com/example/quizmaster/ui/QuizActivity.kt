@@ -22,7 +22,9 @@ import com.example.quizmaster.utils.ScoreCalculator
 import com.google.android.material.button.MaterialButton
 import com.google.gson.Gson
 import com.example.quizmaster.data.model.QuizModel
+import com.example.quizmaster.data.model.QuestionModel
 import com.example.quizmaster.data.model.QuestionType
+import com.example.quizmaster.ui.quiz.QuizRewardsActivity
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -55,7 +57,20 @@ class QuizActivity : AppCompatActivity() {
     private var currentAttemptId: String? = null
     private var currentQuizId: String? = null
     private var quizStartTime = 0L
-    private val questionAnswers = mutableListOf<Pair<String, Int>>() // questionId to timeToAnswer
+    
+    // Store quiz model and current question tracking for backend
+    private var currentQuizModel: QuizModel? = null
+    private var currentQuestionIndex = 0
+    
+    // Local storage for answers before submission
+    data class LocalAnswer(
+        val questionId: String,
+        val answer: String,
+        val timeToAnswer: Int,
+        val isCorrect: Boolean,
+        val pointsEarned: Double
+    )
+    private val localAnswers = mutableListOf<LocalAnswer>()
     
     // UI Elements
     private lateinit var textViewQuestion: TextView
@@ -94,16 +109,24 @@ class QuizActivity : AppCompatActivity() {
 
         initializeViews()
         setupAnswerButtons()
+        // Disable answer buttons until backend attempt is created
+        setAnswerButtonsEnabled(false)
         setupQuiz()
         observeViewModel()
 
         // update UI score after views have been initialized
         textViewScore.text = getString(R.string.quiz_score, totalScore)
-        
+
         // Start backend quiz attempt if we have a quiz ID and no attempt yet
         if (currentQuizId != null && currentAttemptId == null) {
             startBackendAttempt(currentQuizId!!)
+        } else {
+            // If no backend, enable buttons (local mode)
+            setAnswerButtonsEnabled(true)
         }
+    }
+    private fun setAnswerButtonsEnabled(enabled: Boolean) {
+        answerButtons.forEach { it.isEnabled = enabled }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -153,6 +176,11 @@ class QuizActivity : AppCompatActivity() {
             try {
                 val gson = Gson()
                 val quizModel = gson.fromJson(quizJson, QuizModel::class.java)
+                
+                // Store the quiz model for backend integration
+                currentQuizModel = quizModel
+                currentQuizId = quizModel.id
+                
                 // Convert QuizModel -> local Quiz
                 val localQuestions = quizModel.questions.map { qm ->
                     // Ensure options are distinct and the correct answer is present
@@ -258,6 +286,9 @@ class QuizActivity : AppCompatActivity() {
         isAnswerSubmitted = false
         questionStartTime = System.currentTimeMillis()
         
+        // Track current question index (0-based)
+        currentQuestionIndex = questionNumber - 1
+        
         textViewQuestion.text = question.question
         textViewProgress.text = getString(R.string.quiz_question_counter, questionNumber, totalQuestions)
         textViewScore.text = getString(R.string.quiz_score, totalScore)
@@ -308,20 +339,39 @@ class QuizActivity : AppCompatActivity() {
         // Inform ViewModel about the submitted answer (to keep repository results consistent)
         viewModel.submitAnswer(selectedAnswer)
 
-        // Calculate score based on time
+        // Calculate score based on time using ScoreCalculator
         val pointsEarned = if (isCorrect) {
             val multiplier = ScoreCalculator.getScoreMultiplier(timeToAnswer)
-            (100 * multiplier).toInt() // Assuming max score of 100 per question
+            (100 * multiplier) // Keep as double for accuracy
         } else {
-            0
+            0.0
         }
         
-        totalScore += pointsEarned
+        totalScore += pointsEarned.toInt()
         
-        // Submit answer to backend if we have a quiz model with question IDs
-        // For now, we'll use a placeholder - ideally you'd get the question ID from the question object
-        val questionId = "q_${question.question.hashCode()}" // Temporary ID generation
-        submitAnswerToBackend(questionId, selectedAnswer, timeToAnswer)
+        // Get the actual question ID from the quiz model if available
+        val questionId = currentQuizModel?.questions?.getOrNull(currentQuestionIndex)?.id
+        
+        // Store answer locally
+        if (questionId != null) {
+            // Format answer for backend submission
+            val formattedAnswer = formatAnswerForBackend(selectedAnswer, currentQuizModel?.questions?.getOrNull(currentQuestionIndex))
+            
+            localAnswers.add(
+                LocalAnswer(
+                    questionId = questionId,
+                    answer = formattedAnswer,
+                    timeToAnswer = timeToAnswer,
+                    isCorrect = isCorrect,
+                    pointsEarned = pointsEarned
+                )
+            )
+            
+            // Submit answer to backend immediately
+            submitAnswerToBackend(questionId, formattedAnswer, timeToAnswer)
+        } else {
+            Log.w(TAG, "Question ID not available - answer not submitted to backend")
+        }
         
         // Highlight correct/incorrect answer and disable visible buttons
         answerButtons.forEach { button ->
@@ -391,20 +441,51 @@ class QuizActivity : AppCompatActivity() {
     }
     
     /**
+     * Format answer for backend submission according to API specification
+     * - True/False questions: "true" or "false" (lowercase)
+     * - Multiple Choice: "0", "1", "2", "3" (option index as string)
+     */
+    private fun formatAnswerForBackend(selectedAnswer: String, questionModel: QuestionModel?): String {
+        if (questionModel == null) return selectedAnswer
+        
+        return when (questionModel.type) {
+            QuestionType.TRUE_FALSE -> {
+                // Convert to lowercase string for backend
+                selectedAnswer.lowercase()
+            }
+            QuestionType.MULTIPLE_CHOICE -> {
+                // Find the index of the selected answer in the options list
+                val index = questionModel.options.indexOfFirst { option ->
+                    option.trim().equals(selectedAnswer.trim(), ignoreCase = true) 
+                }
+                if (index >= 0) {
+                    index.toString()
+                } else {
+                    // Fallback: try to find it in the shuffled display order
+                    Log.w(TAG, "Could not find answer '$selectedAnswer' in options, using fallback")
+                    "0" // Default to first option if not found
+                }
+            }
+        }
+    }
+    
+    /**
      * Start a quiz attempt on the backend
      */
     private fun startBackendAttempt(quizId: String) {
         lifecycleScope.launch {
             Log.d(TAG, "Starting backend attempt for quiz: $quizId")
             quizStartTime = System.currentTimeMillis()
-            
+
             val result = attemptRepository.startAttempt(quizId)
-            
+
             result.onSuccess { attempt ->
                 currentAttemptId = attempt.id
                 Log.d(TAG, "Backend attempt started successfully: ${attempt.id}")
+                // Enable answer buttons now that we have a real attempt ID
+                setAnswerButtonsEnabled(true)
             }
-            
+
             result.onFailure { error ->
                 Log.e(TAG, "Failed to start backend attempt: ${error.message}", error)
                 // Continue with local quiz even if backend fails
@@ -413,6 +494,7 @@ class QuizActivity : AppCompatActivity() {
                     "Note: Quiz will run in offline mode",
                     Toast.LENGTH_SHORT
                 ).show()
+                setAnswerButtonsEnabled(true)
             }
         }
     }
@@ -424,13 +506,15 @@ class QuizActivity : AppCompatActivity() {
         val attemptId = currentAttemptId ?: return
         
         lifecycleScope.launch {
-            Log.d(TAG, "Submitting answer - Attempt: $attemptId, Question: $questionId, Answer: $answer, Time: $timeToAnswer")
+            // Ensure timeToAnswer is at least 1 (backend requires non-zero value)
+            val validTimeToAnswer = if (timeToAnswer <= 0) 1 else timeToAnswer
+            Log.d(TAG, "Submitting answer - Attempt: $attemptId, Question: $questionId, Answer: $answer, Time: $validTimeToAnswer")
             
             val result = attemptRepository.submitAnswer(
                 attemptId = attemptId,
                 questionId = questionId,
                 answer = answer,
-                timeToAnswer = timeToAnswer
+                timeToAnswer = validTimeToAnswer
             )
             
             result.onSuccess { response ->
@@ -460,38 +544,61 @@ class QuizActivity : AppCompatActivity() {
         
         lifecycleScope.launch {
             Log.d(TAG, "Completing backend attempt: $attemptId")
+            Log.d(TAG, "Total answers stored locally: ${localAnswers.size}")
             
+            // All answers have been submitted during the quiz via submitAnswerToBackend
+            // Now just mark the attempt as complete
             val result = attemptRepository.completeAttempt(attemptId)
             
             result.onSuccess { completedAttempt ->
                 Log.d(TAG, "Backend attempt completed successfully")
                 Log.d(TAG, "Score: ${completedAttempt.totalScore}/${completedAttempt.maxScore}")
                 Log.d(TAG, "XP Earned: ${completedAttempt.xpEarned}")
+                val correctCount = completedAttempt.answers?.count { it.isCorrect } ?: 0
+                val totalAnswers = completedAttempt.answers?.size ?: 0
+                Log.d(TAG, "Correct answers: $correctCount/$totalAnswers")
+                // Small delay to ensure backend fully processes completion before XP fetch
+                kotlinx.coroutines.delay(500)
+                Log.d(TAG, "Proceeding to navigation after completion")
+                // Only navigate after successful completion
                 onComplete(attemptId)
             }
             
             result.onFailure { error ->
                 Log.e(TAG, "Failed to complete backend attempt: ${error.message}", error)
-                // Still navigate to results with local data
-                onComplete(attemptId)
+                // Show error but still allow navigation with local data
+                Toast.makeText(
+                    this@QuizActivity,
+                    "Failed to sync results with server. Showing local results.",
+                    Toast.LENGTH_SHORT
+                ).show()
+                // Navigate with null to indicate offline/local mode
+                onComplete(null)
             }
         }
     }
     
     private fun navigateToResults(score: Int, totalQuestions: Int, category: QuizCategory, difficulty: QuizDifficulty) {
         // Complete backend attempt first, then navigate
-        completeBackendAttempt { attemptId ->
+        completeBackendAttempt { completedAttemptId ->
+            Log.d(TAG, "Navigate callback received with ID: $completedAttemptId")
+            
+            val realAttemptId = completedAttemptId ?: currentAttemptId // Use callback ID or fallback to current
             val totalTimeTaken = if (quizStartTime > 0) {
                 ((System.currentTimeMillis() - quizStartTime) / 1000).toInt()
             } else {
                 300 // Default fallback
             }
+            // Calculate max score: 100 points per question
+            val maxScore = totalQuestions * 100
+            
+            Log.d(TAG, "Navigating to rewards with attempt ID: $realAttemptId")
             
             // Navigate to QuizRewardsActivity with real attempt ID from backend
-            val intent = Intent(this, com.example.quizmaster.ui.quiz.QuizRewardsActivity::class.java).apply {
-                putExtra("ATTEMPT_ID", attemptId ?: "local_attempt") // Use real ID or fallback
+            val intent = Intent(this@QuizActivity, QuizRewardsActivity::class.java).apply {
+                putExtra("ATTEMPT_ID", realAttemptId ?: "local_attempt")
                 putExtra("SCORE", score)
-                putExtra("MAX_SCORE", totalQuestions * 10) // Assuming 10 points per question
+                putExtra("MAX_SCORE", maxScore)
                 putExtra("TIME_TAKEN", totalTimeTaken)
                 putExtra("CATEGORY", category.name)
                 putExtra("DIFFICULTY", difficulty.name)

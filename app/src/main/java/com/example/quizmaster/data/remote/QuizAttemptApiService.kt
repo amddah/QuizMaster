@@ -33,6 +33,33 @@ data class CompleteAttemptRequest(
 )
 
 /**
+ * Response wrapper for start attempt endpoint
+ * Backend returns: {"attempt": {...}, "quiz": {...}}
+ */
+data class StartAttemptResponse(
+    @SerializedName("attempt")
+    val attempt: QuizAttempt,
+    
+    @SerializedName("quiz")
+    val quiz: Any? = null // We don't need quiz data here
+)
+
+/**
+ * Response wrapper for complete attempt endpoint
+ * Backend returns: {"attempt": {...}, "new_badges": [...], "xp_reward": {...}}
+ */
+data class CompleteAttemptResponse(
+    @SerializedName("attempt")
+    val attempt: QuizAttempt,
+    
+    @SerializedName("new_badges")
+    val newBadges: List<Any>? = null,
+    
+    @SerializedName("xp_reward")
+    val xpReward: Any? = null
+)
+
+/**
  * Response models for leaderboards
  */
 data class LeaderboardEntry(
@@ -78,7 +105,7 @@ interface QuizAttemptApiService {
     @POST("attempts/start")
     suspend fun startAttempt(
         @Body request: StartAttemptRequest
-    ): Response<QuizAttempt>
+    ): Response<StartAttemptResponse>
     
     /**
      * POST /attempts/answer - Submit an answer for a specific question
@@ -97,13 +124,13 @@ interface QuizAttemptApiService {
     ): Response<QuizAttempt>
     
     /**
-     * PUT /attempts/complete - Complete a quiz attempt
-     * Note: Uses request body, not path parameter
+     * PUT /attempts/{id}/complete - Complete a quiz attempt
+     * Note: Uses path parameter, returns nested response
      */
-    @PUT("attempts/complete")
+    @PUT("attempts/{id}/complete")
     suspend fun completeAttempt(
-        @Body request: CompleteAttemptRequest
-    ): Response<QuizAttempt>
+        @Path("id") attemptId: String
+    ): Response<CompleteAttemptResponse>
     
     /**
      * GET /attempts/{id}/xp - Get detailed XP breakdown for an attempt

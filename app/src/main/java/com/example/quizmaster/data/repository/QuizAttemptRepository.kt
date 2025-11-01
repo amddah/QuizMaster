@@ -2,7 +2,6 @@ package com.example.quizmaster.data.repository
 
 import com.example.quizmaster.data.model.QuizAttempt
 import com.example.quizmaster.data.remote.ApiClient
-import com.example.quizmaster.data.remote.CompleteAttemptRequest
 import com.example.quizmaster.data.remote.LeaderboardEntry
 import com.example.quizmaster.data.remote.StartAttemptRequest
 import com.example.quizmaster.data.remote.SubmitAnswerRequest
@@ -27,7 +26,9 @@ class QuizAttemptRepository {
             val response = quizAttemptApiService.startAttempt(request)
             
             if (response.isSuccessful && response.body() != null) {
-                Result.success(response.body()!!)
+                // Extract attempt from the wrapper response
+                val attempt = response.body()!!.attempt
+                Result.success(attempt)
             } else {
                 val errorMsg = response.errorBody()?.string() ?: "Unknown error"
                 Result.failure(Exception("Failed to start attempt: ${response.code()} - $errorMsg"))
@@ -69,15 +70,16 @@ class QuizAttemptRepository {
     
     /**
      * Complete a quiz attempt and calculate final score
-     * PUT /attempts/complete
+     * PUT /attempts/{id}/complete
+     * Returns nested response: {"attempt": {...}, "new_badges": [...], "xp_reward": {...}}
      */
     suspend fun completeAttempt(attemptId: String): Result<QuizAttempt> = withContext(Dispatchers.IO) {
         try {
-            val request = CompleteAttemptRequest(id = attemptId)
-            val response = quizAttemptApiService.completeAttempt(request)
+            val response = quizAttemptApiService.completeAttempt(attemptId)
             
             if (response.isSuccessful && response.body() != null) {
-                Result.success(response.body()!!)
+                // Extract the attempt from the nested response
+                Result.success(response.body()!!.attempt)
             } else {
                 val errorMsg = response.errorBody()?.string() ?: "Unknown error"
                 Result.failure(Exception("Failed to complete attempt: ${response.code()} - $errorMsg"))

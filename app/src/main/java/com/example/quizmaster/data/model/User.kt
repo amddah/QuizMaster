@@ -38,11 +38,26 @@ data class User(
     val totalQuizzesCompleted: Int = 0,
     
     @SerializedName("badges")
-    val badges: List<String> = emptyList(),
+       val badges: List<Badge> = emptyList(),
     
     @SerializedName("department")
     val department: String? = null
 ) {
+    /**
+     * Badge model matching backend response
+     */
+    data class Badge(
+       @SerializedName("name")
+       val name: String,
+       @SerializedName("description")
+       val description: String? = null,
+       @SerializedName("icon")
+       val icon: String? = null,
+       @SerializedName("type")
+       val type: String? = null,
+       @SerializedName("earned_at")
+       val earnedAt: String? = null
+    )
     fun isStudent(): Boolean = role == UserRole.STUDENT
     fun isProfessor(): Boolean = role == UserRole.PROFESSOR
     

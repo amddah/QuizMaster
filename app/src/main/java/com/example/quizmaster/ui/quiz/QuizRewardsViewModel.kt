@@ -40,11 +40,13 @@ class QuizRewardsViewModel(application: Application) : AndroidViewModel(applicat
     fun loadRewards(attemptId: String) {
         viewModelScope.launch {
             try {
-                // Load attempt details
-                // This would use your QuizAttemptRepository
-                // For now, we'll focus on XP and badges
+                // Skip backend XP call if attempt is local/offline
+                if (attemptId == "local_attempt" || attemptId.isBlank()) {
+                    _errorMessage.value = "Quiz completed in offline mode. XP and badges not available."
+                    return@launch
+                }
 
-                // Load XP gain
+                // Load XP gain from backend
                 val xpResult = gamificationRepository.getAttemptXp(attemptId)
                 xpResult.onSuccess { xpGain ->
                     _xpGain.value = xpGain
