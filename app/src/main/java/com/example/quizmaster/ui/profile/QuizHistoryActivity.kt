@@ -66,9 +66,9 @@ class QuizHistoryActivity : AppCompatActivity() {
     }
 
     private fun setupRecyclerView() {
-        historyAdapter = QuizHistoryAdapter { attempt ->
-            // Show attempt details
-            Toast.makeText(this, "Score: ${attempt.totalScore}/${attempt.maxScore}", Toast.LENGTH_SHORT).show()
+        historyAdapter = QuizHistoryAdapter { attemptWithQuiz ->
+            // Navigate to review activity
+            navigateToReview(attemptWithQuiz)
         }
         
         recyclerView.apply {
@@ -76,15 +76,27 @@ class QuizHistoryActivity : AppCompatActivity() {
             adapter = historyAdapter
         }
     }
+    
+    private fun navigateToReview(attemptWithQuiz: QuizAttemptWithQuiz) {
+        val intent = android.content.Intent(this, QuizReviewActivity::class.java).apply {
+            putExtra("ATTEMPT_ID", attemptWithQuiz.attempt.id)
+            putExtra("QUIZ_ID", attemptWithQuiz.attempt.quizId)
+            putExtra("QUIZ_TITLE", attemptWithQuiz.quiz?.title ?: "Quiz")
+        }
+        startActivity(intent)
+    }
 
     private fun observeViewModel() {
         // Observe quiz history
         viewModel.quizHistory.observe(this) { history ->
-            if (history.isNotEmpty()) {
+            android.util.Log.d("QuizHistoryActivity", "Received ${history?.size ?: 0} history items")
+            if (history != null && history.isNotEmpty()) {
+                android.util.Log.d("QuizHistoryActivity", "Showing history list")
                 recyclerView.visibility = View.VISIBLE
                 emptyView.visibility = View.GONE
                 historyAdapter.submitList(history)
             } else {
+                android.util.Log.d("QuizHistoryActivity", "Showing empty view")
                 recyclerView.visibility = View.GONE
                 emptyView.visibility = View.VISIBLE
             }
@@ -105,7 +117,8 @@ class QuizHistoryActivity : AppCompatActivity() {
         // Observe errors
         viewModel.errorMessage.observe(this) { error ->
             error?.let {
-                Toast.makeText(this, it, Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, it, Toast.LENGTH_LONG).show()
+                android.util.Log.e("QuizHistoryActivity", "Error: $it")
             }
         }
     }

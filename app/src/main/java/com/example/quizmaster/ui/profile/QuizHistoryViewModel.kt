@@ -43,12 +43,16 @@ class QuizHistoryViewModel(application: Application) : AndroidViewModel(applicat
             _errorMessage.value = null
 
             try {
+                android.util.Log.d("QuizHistoryViewModel", "Starting to load quiz history")
                 // Get all attempts
                 val attemptsResult = attemptRepository.getMyAttempts()
                 
                 attemptsResult.onSuccess { attempts ->
+                    android.util.Log.d("QuizHistoryViewModel", "Loaded ${attempts.size} attempts")
+                    
                     // Load quiz info for each attempt
                     val attemptsWithQuiz = attempts.map { attempt ->
+                        android.util.Log.d("QuizHistoryViewModel", "Loading quiz for attempt ${attempt.id}, quiz_id: ${attempt.quizId}")
                         val quizResult = quizRepository.getQuizById(attempt.quizId)
                         QuizAttemptWithQuiz(
                             attempt = attempt,
@@ -61,16 +65,19 @@ class QuizHistoryViewModel(application: Application) : AndroidViewModel(applicat
                         it.attempt.completedAt ?: it.attempt.startedAt
                     }
                     
+                    android.util.Log.d("QuizHistoryViewModel", "Setting ${sortedAttempts.size} sorted attempts to LiveData")
                     _quizHistory.value = sortedAttempts
                     
                     // Calculate statistics
                     calculateStatistics(attempts)
                     
                 }.onFailure { error ->
+                    android.util.Log.e("QuizHistoryViewModel", "Failed to load attempts", error)
                     _errorMessage.value = "Failed to load quiz history: ${error.message}"
                 }
 
             } catch (e: Exception) {
+                android.util.Log.e("QuizHistoryViewModel", "Exception loading quiz history", e)
                 _errorMessage.value = "Error loading quiz history: ${e.message}"
             } finally {
                 _isLoading.value = false
@@ -79,23 +86,28 @@ class QuizHistoryViewModel(application: Application) : AndroidViewModel(applicat
     }
 
     private fun calculateStatistics(attempts: List<com.example.quizmaster.data.model.QuizAttempt>) {
-        val totalQuizzes = attempts.size
-        val totalXp = attempts.sumOf { it.xpEarned }
-        
-        val averageScore = if (attempts.isNotEmpty()) {
-            val totalPercentage = attempts.sumOf { attempt ->
-                if (attempt.maxScore > 0) {
-                    (attempt.totalScore / attempt.maxScore * 100).toInt()
-                } else 0
-            }
-            totalPercentage / attempts.size
-        } else 0
+        try {
+            val totalQuizzes = attempts.size
+            val totalXp = attempts.sumOf { it.xpEarned.toInt() }
+            
+            val averageScore = if (attempts.isNotEmpty()) {
+                val totalPercentage = attempts.sumOf { attempt ->
+                    if (attempt.maxScore > 0) {
+                        (attempt.totalScore / attempt.maxScore * 100).toInt()
+                    } else 0
+                }
+                totalPercentage / attempts.size
+            } else 0
 
-        _statistics.value = QuizStatistics(
-            totalQuizzes = totalQuizzes,
-            averageScore = averageScore,
-            totalXp = totalXp
-        )
+            android.util.Log.d("QuizHistoryViewModel", "Statistics: quizzes=$totalQuizzes, avgScore=$averageScore, totalXp=$totalXp")
+            _statistics.value = QuizStatistics(
+                totalQuizzes = totalQuizzes,
+                averageScore = averageScore,
+                totalXp = totalXp
+            )
+        } catch (e: Exception) {
+            android.util.Log.e("QuizHistoryViewModel", "Error calculating statistics", e)
+        }
     }
 }
 

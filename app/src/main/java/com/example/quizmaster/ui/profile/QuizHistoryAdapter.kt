@@ -17,13 +17,13 @@ import java.util.*
  * Adapter for displaying quiz attempt history
  */
 class QuizHistoryAdapter(
-    private val onAttemptClick: (QuizAttempt) -> Unit
+    private val onReviewClick: (QuizAttemptWithQuiz) -> Unit
 ) : ListAdapter<QuizAttemptWithQuiz, QuizHistoryAdapter.AttemptViewHolder>(AttemptDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AttemptViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_quiz_history, parent, false)
-        return AttemptViewHolder(view, onAttemptClick)
+        return AttemptViewHolder(view, onReviewClick)
     }
 
     override fun onBindViewHolder(holder: AttemptViewHolder, position: Int) {
@@ -32,7 +32,7 @@ class QuizHistoryAdapter(
 
     class AttemptViewHolder(
         itemView: View,
-        private val onAttemptClick: (QuizAttempt) -> Unit
+        private val onReviewClick: (QuizAttemptWithQuiz) -> Unit
     ) : RecyclerView.ViewHolder(itemView) {
         
         private val card: MaterialCardView = itemView.findViewById(R.id.attemptCard)
@@ -43,6 +43,7 @@ class QuizHistoryAdapter(
         private val dateText: TextView = itemView.findViewById(R.id.dateText)
         private val timeTaken: TextView = itemView.findViewById(R.id.timeTaken)
         private val accuracyText: TextView = itemView.findViewById(R.id.accuracyText)
+        private val reviewButton: View = itemView.findViewById(R.id.reviewButton)
 
         fun bind(attemptWithQuiz: QuizAttemptWithQuiz) {
             val attempt = attemptWithQuiz.attempt
@@ -99,9 +100,9 @@ class QuizHistoryAdapter(
             } else 0
             accuracyText.text = "$correctAnswers/$totalAnswers correct ($accuracy%)"
             
-            // Click listener
-            card.setOnClickListener {
-                onAttemptClick(attempt)
+            // Review button click listener
+            reviewButton.setOnClickListener {
+                onReviewClick(attemptWithQuiz)
             }
         }
     }
