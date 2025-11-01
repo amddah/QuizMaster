@@ -50,11 +50,10 @@ class QuizRewardsViewModel(application: Application) : AndroidViewModel(applicat
                 val xpResult = gamificationRepository.getAttemptXp(attemptId)
                 xpResult.onSuccess { xpGain ->
                     _xpGain.value = xpGain
-
-                    // Load new badges if any were unlocked
-                    if (xpGain.new_badges.isNotEmpty()) {
-                        loadNewBadges()
-                    }
+                    
+                    // Note: New badges should come from the complete attempt response
+                    // For now, we can load achievements to show them
+                    loadNewBadges()
                 }.onFailure { error ->
                     _errorMessage.value = "Failed to load XP info: ${error.message}"
                 }

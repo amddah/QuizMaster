@@ -8,12 +8,21 @@ import retrofit2.http.*
 /**
  * Request/Response models for gamification
  */
-data class XpGainResponse(
-    val xp_gained: Int,
+data class XpDetails(
+    val base_xp: Int,
+    val speed_bonus: Int,
+    val accuracy_bonus: Int,
+    val streak_bonus: Int,
+    val difficulty_bonus: Int,
     val total_xp: Int,
-    val level: Int,
-    val level_up: Boolean,
-    val new_badges: List<String> = emptyList()
+    val new_level: Int,
+    val leveled_up: Boolean
+)
+
+data class XpGainResponse(
+    val attempt_id: String,
+    val xp_details: XpDetails,
+    val xp_earned: Int
 )
 
 data class BadgeUnlockResponse(

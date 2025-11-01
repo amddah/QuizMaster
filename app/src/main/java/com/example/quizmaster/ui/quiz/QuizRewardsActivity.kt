@@ -61,10 +61,29 @@ class QuizRewardsActivity : AppCompatActivity() {
         initializeViews()
         setupRecyclerView()
         setupButtons()
+        
+        // Display score from intent immediately
+        displayScoreFromIntent()
+        
         observeViewModel()
 
-        // Load rewards data
+        // Load rewards data from backend
         attemptId?.let { viewModel.loadRewards(it) }
+    }
+    
+    private fun displayScoreFromIntent() {
+        val score = intent.getIntExtra("SCORE", 0)
+        val maxScore = intent.getIntExtra("MAX_SCORE", 100)
+        
+        val percentage = if (maxScore > 0) {
+            (score.toDouble() / maxScore) * 100
+        } else 0.0
+
+        // Update performance tier immediately
+        val tier = PerformanceTier.fromPercentage(percentage)
+        tierEmoji.text = tier.emoji
+        performanceMessage.text = tier.message
+        scorePercentage.text = "${String.format("%.0f", percentage)}%"
     }
 
     private fun initializeViews() {
@@ -136,7 +155,7 @@ class QuizRewardsActivity : AppCompatActivity() {
         // Observe XP gain
         viewModel.xpGain.observe(this) { xpGain ->
             xpGain?.let {
-                animateXpGain(it.xp_gained, it.level_up, it.level)
+                animateXpGain(it.xp_details)
             }
         }
 
@@ -150,40 +169,44 @@ class QuizRewardsActivity : AppCompatActivity() {
         }
     }
 
-    private fun animateXpGain(xpGained: Int, leveledUp: Boolean, newLevel: Int) {
+    private fun animateXpGain(xpDetails: com.example.quizmaster.data.remote.XpDetails) {
         lifecycleScope.launch {
+            val totalXp = xpDetails.total_xp
+            
             // Animate XP value counting up
             var currentXp = 0
-            val increment = if (xpGained > 100) 5 else 1
-            val delayMs = if (xpGained > 100) 10L else 20L
+            val increment = if (totalXp > 100) 5 else 1
+            val delayMs = if (totalXp > 100) 10L else 20L
 
-            while (currentXp < xpGained) {
-                currentXp = minOf(currentXp + increment, xpGained)
+            while (currentXp < totalXp) {
+                currentXp = minOf(currentXp + increment, totalXp)
                 xpEarnedValue.text = "+$currentXp XP"
                 delay(delayMs)
             }
 
-            // Show XP breakdown
+            // Show XP breakdown from backend
             delay(300)
-            baseXpValue.text = "+${(xpGained * 0.8).toInt()} XP" // Simplified
+            baseXpValue.text = "+${xpDetails.base_xp} XP"
 
             // Show speed bonus if earned
-            if (xpGained > 80) { // Simplified check
+            if (xpDetails.speed_bonus > 0) {
                 delay(200)
                 speedBonusRow.visibility = View.VISIBLE
-                speedBonusValue.text = "+${(xpGained * 0.15).toInt()} XP"
+                speedBonusValue.text = "+${xpDetails.speed_bonus} XP"
             }
 
             // Show perfect score bonus if applicable
-            if (scorePercentage.text.toString().startsWith("100")) {
+            if (xpDetails.accuracy_bonus > 0) {
                 delay(200)
                 perfectScoreRow.visibility = View.VISIBLE
+                val accuracyBonusValue = findViewById<TextView>(R.id.perfectScoreValue)
+                accuracyBonusValue?.text = "+${xpDetails.accuracy_bonus} XP"
             }
 
             // Show level up animation
-            if (leveledUp) {
+            if (xpDetails.leveled_up) {
                 delay(500)
-                showLevelUp(newLevel)
+                showLevelUp(xpDetails.new_level)
             }
         }
     }
@@ -209,7 +232,7 @@ class QuizRewardsActivity : AppCompatActivity() {
             (attempt.totalScore / attempt.maxScore) * 100
         } else 0.0
 
-        val xpGain = viewModel.xpGain.value?.xp_gained ?: 0
+        val xpGain = viewModel.xpGain.value?.xp_earned ?: 0
         val tier = PerformanceTier.fromPercentage(percentage)
 
         val shareText = """
