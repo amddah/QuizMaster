@@ -34,7 +34,7 @@ class ProfileActivity : AppCompatActivity() {
     private lateinit var levelText: TextView
     private lateinit var xpText: TextView
     private lateinit var badgesGrid: RecyclerView
-    private lateinit var logoutButton: Button
+    private lateinit var logoutBottomButton: Button
     private var loadingProgress: ProgressBar? = null
     private var totalQuizzesText: TextView? = null
     private var streakText: TextView? = null
@@ -76,7 +76,8 @@ class ProfileActivity : AppCompatActivity() {
         levelText = findViewById(R.id.levelText)
         xpText = findViewById(R.id.xpText)
         badgesGrid = findViewById(R.id.badgesGrid)
-        logoutButton = findViewById(R.id.logoutButton)
+        // Bottom logout button (moved into bottom menu)
+        logoutBottomButton = findViewById(R.id.logoutBottomButton)
         
         // Optional views
         loadingProgress = findViewById(R.id.loadingProgress)
@@ -158,14 +159,18 @@ class ProfileActivity : AppCompatActivity() {
             startActivity(Intent(this, QuizHistoryActivity::class.java))
         }
         
-        logoutButton.setOnClickListener {
-            lifecycleScope.launch {
-                sessionManager.clearSession()
-                // Remove token from ApiClient
-                ApiClient.setAuthToken(null)
-                startActivity(Intent(this@ProfileActivity, LoginActivity::class.java))
-                finish()
-            }
+        // Wire bottom logout if present
+        logoutBottomButton.setOnClickListener {
+            performLogout()
+        }
+    }
+
+    private fun performLogout() {
+        lifecycleScope.launch {
+            sessionManager.clearSession()
+            ApiClient.setAuthToken(null)
+            startActivity(Intent(this@ProfileActivity, LoginActivity::class.java))
+            finish()
         }
     }
 }

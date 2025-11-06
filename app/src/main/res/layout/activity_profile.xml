@@ -36,7 +36,8 @@
     <!-- Scrollable Content -->
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="0dp"
+        android:layout_weight="1">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -295,68 +296,46 @@
                 android:layout_height="200dp"
                 android:layout_marginBottom="16dp" />
 
-            <!-- Quiz History Section -->
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="4dp"
-                app:cardBackgroundColor="#F1F8E9">
+            <!-- Quiz History removed from content; View All button will be in the bottom menu bar -->
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginBottom="12dp"
-                        android:gravity="center_vertical">
-                        
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="📚 Quiz History"
-                            android:textSize="18sp"
-                            android:textStyle="bold"
-                            android:textColor="#33691E" />
-                        
-                        <Button
-                            android:id="@+id/viewHistoryButton"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="View All"
-                            android:textSize="13sp"
-                            android:textColor="@color/white"
-                            android:background="@drawable/button_primary"
-                            android:paddingStart="16dp"
-                            android:paddingEnd="16dp"
-                            style="@style/Widget.Material3.Button" />
-                    </LinearLayout>
-
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/quizHistoryRecycler"
-                        android:layout_width="match_parent"
-                        android:layout_height="300dp"
-                        android:background="@color/white"
-                        android:padding="8dp" />
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- Logout Button -->
-            <Button
-                android:id="@+id/logoutButton"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:text="@string/logout"
-                android:textColor="@color/white"
-                android:background="@drawable/button_primary"
-                android:layout_marginTop="16dp" />
+            <!-- (Logout button moved to bottom menu) -->
         </LinearLayout>
     </ScrollView>
+
+    <!-- Bottom menu bar with View All button -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="72dp"
+        android:orientation="horizontal"
+        android:padding="12dp"
+        android:background="@drawable/bottom_menu_bg"
+        android:gravity="center"
+        android:elevation="8dp">
+
+        <Button
+            android:id="@+id/viewHistoryButton"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:text="Quiz History"
+            android:textSize="14sp"
+            android:textColor="@color/white"
+            android:background="@drawable/button_primary"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            android:layout_marginEnd="8dp" />
+
+        <Button
+            android:id="@+id/logoutBottomButton"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:text="Logout"
+            android:textSize="14sp"
+            android:textColor="@color/green_primary"
+            android:background="@drawable/button_outline_green"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp" />
+
+    </LinearLayout>
+
 </LinearLayout>
