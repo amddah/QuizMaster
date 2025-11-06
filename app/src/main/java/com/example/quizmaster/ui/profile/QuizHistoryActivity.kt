@@ -56,10 +56,19 @@ class QuizHistoryActivity : AppCompatActivity() {
     }
 
     private fun setupToolbar() {
-        setSupportActionBar(toolbar)
+        // Only set toolbar as support action bar if the window does not already provide one
+        try {
+            if (supportActionBar == null) {
+                setSupportActionBar(toolbar)
+            }
+        } catch (e: IllegalStateException) {
+            // Some themes may already provide an ActionBar from the window decor.
+            // In that case, skip setting the toolbar to avoid crash.
+        }
+
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.title = "Quiz History"
-        
+
         toolbar.setNavigationOnClickListener {
             finish()
         }

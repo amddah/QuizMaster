@@ -90,7 +90,7 @@
         <activity
             android:name=".ui.profile.ProfileActivity"
             android:exported="false"
-            android:theme="@style/Theme.MyApplication" />
+            android:theme="@style/Theme.MyApplication.NoActionBar" />
 
         <!-- History Activity -->
         <activity
@@ -103,7 +103,7 @@
             android:name=".ui.profile.QuizHistoryActivity"
             android:exported="false"
             android:parentActivityName=".ui.profile.ProfileActivity"
-            android:theme="@style/Theme.MyApplication" />
+            android:theme="@style/Theme.MyApplication.NoActionBar" />
 
         <!-- Quiz Review Activity -->
         <activity

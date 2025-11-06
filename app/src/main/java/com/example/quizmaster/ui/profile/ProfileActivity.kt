@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
@@ -26,6 +27,7 @@ class ProfileActivity : AppCompatActivity() {
     private lateinit var viewModel: ProfileViewModel
     private lateinit var badgesAdapter: SimpleBadgesAdapter
     
+    private lateinit var toolbar: Toolbar
     private lateinit var userNameText: TextView
     private lateinit var userEmailText: TextView
     private lateinit var userRoleText: TextView
@@ -44,6 +46,7 @@ class ProfileActivity : AppCompatActivity() {
         sessionManager = UserSessionManager.getInstance(this)
         viewModel = ViewModelProvider(this)[ProfileViewModel::class.java]
         
+        setupToolbar()
         initViews()
         setupRecyclerView()
         observeViewModel()
@@ -51,6 +54,19 @@ class ProfileActivity : AppCompatActivity() {
         
         // Load profile data from backend
         viewModel.loadUserProfile()
+    }
+    
+    private fun setupToolbar() {
+        toolbar = findViewById(R.id.toolbar)
+        // Only set toolbar as support action bar if the window does not already provide one
+        try {
+            if (supportActionBar == null) {
+                setSupportActionBar(toolbar)
+                supportActionBar?.setDisplayShowTitleEnabled(false) // Hide default title
+            }
+        } catch (e: IllegalStateException) {
+            // Skip if theme already has ActionBar
+        }
     }
     
     private fun initViews() {

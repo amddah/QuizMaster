@@ -6,6 +6,33 @@
     android:orientation="vertical"
     android:background="@color/white">
 
+    <!-- Custom Toolbar -->
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/green_primary"
+        app:elevation="4dp">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@color/green_primary"
+            app:titleTextColor="@color/white">
+
+            <TextView
+                android:id="@+id/toolbarTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="QuizMaster"
+                android:textColor="#FFD700"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                android:fontFamily="sans-serif-medium" />
+        </androidx.appcompat.widget.Toolbar>
+    </com.google.android.material.appbar.AppBarLayout>
+
     <!-- Scrollable Content -->
     <ScrollView
         android:layout_width="match_parent"
@@ -23,23 +50,24 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
                 app:cardCornerRadius="12dp"
-                app:cardElevation="4dp"
-                app:cardBackgroundColor="@color/white">
+                app:cardElevation="6dp"
+                app:cardBackgroundColor="#E8F5E9">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="20dp">
+                    android:padding="20dp"
+                    android:background="@drawable/gradient_profile_header">
 
                     <TextView
                         android:id="@+id/userNameText"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="John Doe"
-                        android:textSize="24sp"
+                        android:textSize="26sp"
                         android:textStyle="bold"
-                        android:textColor="@color/black" />
+                        android:textColor="#1B5E20" />
 
                     <TextView
                         android:id="@+id/userEmailText"
@@ -47,7 +75,7 @@
                         android:layout_height="wrap_content"
                         android:text="student@example.com"
                         android:textSize="14sp"
-                        android:textColor="@color/gray_600"
+                        android:textColor="#2E7D32"
                         android:layout_marginTop="4dp" />
 
                     <TextView
@@ -57,7 +85,7 @@
                         android:text="👨‍🎓 Student"
                         android:textSize="14sp"
                         android:textColor="@color/white"
-                        android:background="@color/green_primary"
+                        android:background="#4CAF50"
                         android:paddingStart="12dp"
                         android:paddingEnd="12dp"
                         android:paddingTop="6dp"
@@ -86,35 +114,37 @@
 
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="120dp"
                     android:layout_weight="1"
                     android:layout_marginEnd="6dp"
-                    app:cardCornerRadius="8dp"
-                    app:cardElevation="2dp"
-                    app:cardBackgroundColor="@color/primary">
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="8dp"
+                    app:cardBackgroundColor="#7C4DFF"
+                    app:strokeWidth="0dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="match_parent"
                         android:orientation="vertical"
-                        android:padding="12dp"
+                        android:padding="16dp"
                         android:gravity="center">
 
                         <TextView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:text="Level"
-                            android:textSize="11sp"
+                            android:textSize="13sp"
                             android:textColor="@color/white"
-                            android:alpha="0.8"
-                            android:gravity="center" />
+                            android:alpha="0.95"
+                            android:gravity="center"
+                            android:textStyle="bold" />
 
                         <TextView
                             android:id="@+id/levelText"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:text="3"
-                            android:textSize="24sp"
+                            android:textSize="32sp"
                             android:textStyle="bold"
                             android:textColor="@color/white"
                             android:gravity="center"
@@ -124,35 +154,37 @@
 
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="120dp"
                     android:layout_weight="1"
                     android:layout_marginStart="6dp"
-                    app:cardCornerRadius="8dp"
-                    app:cardElevation="2dp"
-                    app:cardBackgroundColor="@color/orange_500">
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="8dp"
+                    app:cardBackgroundColor="#FF6F00"
+                    app:strokeWidth="0dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="match_parent"
                         android:orientation="vertical"
-                        android:padding="12dp"
+                        android:padding="16dp"
                         android:gravity="center">
 
                         <TextView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:text="XP"
-                            android:textSize="11sp"
+                            android:textSize="13sp"
                             android:textColor="@color/white"
-                            android:alpha="0.8"
-                            android:gravity="center" />
+                            android:alpha="0.95"
+                            android:gravity="center"
+                            android:textStyle="bold" />
 
                         <TextView
                             android:id="@+id/xpText"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:text="650"
-                            android:textSize="24sp"
+                            android:textSize="32sp"
                             android:textStyle="bold"
                             android:textColor="@color/white"
                             android:gravity="center"
@@ -170,35 +202,38 @@
 
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="120dp"
                     android:layout_weight="1"
                     android:layout_marginEnd="6dp"
-                    app:cardCornerRadius="8dp"
-                    app:cardElevation="2dp">
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="8dp"
+                    app:cardBackgroundColor="#00ACC1"
+                    app:strokeWidth="0dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="match_parent"
                         android:orientation="vertical"
-                        android:padding="12dp"
+                        android:padding="16dp"
                         android:gravity="center">
 
                         <TextView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:text="📊 Quizzes"
-                            android:textSize="11sp"
-                            android:textColor="@color/gray"
-                            android:gravity="center" />
+                            android:textSize="13sp"
+                            android:textColor="@color/white"
+                            android:gravity="center"
+                            android:textStyle="bold" />
 
                         <TextView
                             android:id="@+id/totalQuizzesText"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:text="5"
-                            android:textSize="20sp"
+                            android:textSize="32sp"
                             android:textStyle="bold"
-                            android:textColor="@color/green_primary"
+                            android:textColor="@color/white"
                             android:gravity="center"
                             android:layout_marginTop="4dp" />
                     </LinearLayout>
@@ -206,35 +241,38 @@
 
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="120dp"
                     android:layout_weight="1"
                     android:layout_marginStart="6dp"
-                    app:cardCornerRadius="8dp"
-                    app:cardElevation="2dp">
+                    app:cardCornerRadius="16dp"
+                    app:cardElevation="8dp"
+                    app:cardBackgroundColor="#FF5252"
+                    app:strokeWidth="0dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="match_parent"
                         android:orientation="vertical"
-                        android:padding="12dp"
+                        android:padding="16dp"
                         android:gravity="center">
 
                         <TextView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:text="🔥 Streak"
-                            android:textSize="11sp"
-                            android:textColor="@color/gray"
-                            android:gravity="center" />
+                            android:textSize="13sp"
+                            android:textColor="@color/white"
+                            android:gravity="center"
+                            android:textStyle="bold" />
 
                         <TextView
                             android:id="@+id/streakText"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:text="2 days"
-                            android:textSize="20sp"
+                            android:textSize="32sp"
                             android:textStyle="bold"
-                            android:textColor="@color/green_primary"
+                            android:textColor="@color/white"
                             android:gravity="center"
                             android:layout_marginTop="4dp" />
                     </LinearLayout>
@@ -258,35 +296,57 @@
                 android:layout_marginBottom="16dp" />
 
             <!-- Quiz History Section -->
-            <LinearLayout
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginBottom="12dp">
-                
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/quiz_history"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/black" />
-                
-                <Button
-                    android:id="@+id/viewHistoryButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="View All"
-                    android:textSize="12sp"
-                    style="@style/Widget.Material3.Button.TextButton" />
-            </LinearLayout>
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="4dp"
+                app:cardBackgroundColor="#F1F8E9">
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/quizHistoryRecycler"
-                android:layout_width="match_parent"
-                android:layout_height="300dp"
-                android:layout_marginBottom="16dp" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="12dp"
+                        android:gravity="center_vertical">
+                        
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="📚 Quiz History"
+                            android:textSize="18sp"
+                            android:textStyle="bold"
+                            android:textColor="#33691E" />
+                        
+                        <Button
+                            android:id="@+id/viewHistoryButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="View All"
+                            android:textSize="13sp"
+                            android:textColor="@color/white"
+                            android:background="@drawable/button_primary"
+                            android:paddingStart="16dp"
+                            android:paddingEnd="16dp"
+                            style="@style/Widget.Material3.Button" />
+                    </LinearLayout>
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/quizHistoryRecycler"
+                        android:layout_width="match_parent"
+                        android:layout_height="300dp"
+                        android:background="@color/white"
+                        android:padding="8dp" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
             <!-- Logout Button -->
             <Button
