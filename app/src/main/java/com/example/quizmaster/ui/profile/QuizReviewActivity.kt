@@ -21,7 +21,7 @@ class QuizReviewActivity : AppCompatActivity() {
     private lateinit var viewModel: QuizReviewViewModel
     private lateinit var reviewAdapter: QuizReviewAdapter
     
-    private lateinit var toolbar: MaterialToolbar
+    private var toolbar: MaterialToolbar? = null
     private lateinit var recyclerView: RecyclerView
     private lateinit var loadingProgress: ProgressBar
     private lateinit var scoreText: TextView
@@ -55,13 +55,19 @@ class QuizReviewActivity : AppCompatActivity() {
     }
 
     private fun setupToolbar(title: String) {
-        setSupportActionBar(toolbar)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.title = title
-        supportActionBar?.subtitle = "Review"
-        
-        toolbar.setNavigationOnClickListener {
-            finish()
+        toolbar?.let { tb ->
+            try {
+                setSupportActionBar(tb)
+                supportActionBar?.setDisplayHomeAsUpEnabled(true)
+                supportActionBar?.title = title
+                supportActionBar?.subtitle = "Review"
+
+                tb.setNavigationOnClickListener {
+                    finish()
+                }
+            } catch (e: IllegalStateException) {
+                // Activity already has an ActionBar from theme; skip setting toolbar
+            }
         }
     }
 
