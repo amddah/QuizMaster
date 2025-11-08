@@ -296,6 +296,24 @@
                 android:layout_height="200dp"
                 android:layout_marginBottom="16dp" />
 
+            <!-- Student created quizzes status -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="My Created Quizzes"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="@color/black"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/myQuizzesStatusRecycler"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false"
+                android:layout_marginBottom="12dp" />
+
             <!-- Quiz History removed from content; View All button will be in the bottom menu bar -->
 
             <!-- (Logout button moved to bottom menu) -->

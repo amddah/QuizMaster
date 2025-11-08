@@ -9,6 +9,7 @@ import androidx.appcompat.widget.Toolbar
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
+import android.util.Log
 import androidx.recyclerview.widget.RecyclerView
 import com.example.quizmaster.R
 import com.example.quizmaster.data.local.UserSessionManager
@@ -35,6 +36,8 @@ class ProfileActivity : AppCompatActivity() {
     private lateinit var xpText: TextView
     private lateinit var badgesGrid: RecyclerView
     private lateinit var logoutBottomButton: Button
+    private lateinit var myQuizzesRecycler: RecyclerView
+    private lateinit var quizStatusAdapter: QuizStatusAdapter
     private var loadingProgress: ProgressBar? = null
     private var totalQuizzesText: TextView? = null
     private var streakText: TextView? = null
@@ -78,6 +81,7 @@ class ProfileActivity : AppCompatActivity() {
         badgesGrid = findViewById(R.id.badgesGrid)
         // Bottom logout button (moved into bottom menu)
         logoutBottomButton = findViewById(R.id.logoutBottomButton)
+    myQuizzesRecycler = findViewById(R.id.myQuizzesStatusRecycler)
         
         // Optional views
         loadingProgress = findViewById(R.id.loadingProgress)
@@ -90,6 +94,16 @@ class ProfileActivity : AppCompatActivity() {
         badgesGrid.apply {
             layoutManager = GridLayoutManager(this@ProfileActivity, 3)
             adapter = badgesAdapter
+        }
+
+        // quizzes status list
+        quizStatusAdapter = QuizStatusAdapter()
+        myQuizzesRecycler.apply {
+            layoutManager = androidx.recyclerview.widget.LinearLayoutManager(this@ProfileActivity)
+            adapter = quizStatusAdapter
+            // allow proper measuring inside ScrollView
+            isNestedScrollingEnabled = false
+            visibility = View.GONE
         }
     }
     
@@ -132,6 +146,22 @@ class ProfileActivity : AppCompatActivity() {
         // Observe badges
         viewModel.badges.observe(this) { badges ->
             badgesAdapter.submitList(badges)
+        }
+
+        // Observe created quizzes status
+        viewModel.myQuizzesStatus.observe(this) { quizzes ->
+            Log.d("ProfileActivity", "myQuizzesStatus observed: size=${quizzes?.size}")
+            quizStatusAdapter.submitList(quizzes) { // callback when diff is applied
+                // run on UI thread after list is committed
+                myQuizzesRecycler.post {
+                    val count = quizStatusAdapter.itemCount
+                    Log.d("ProfileActivity", "quizStatusAdapter.itemCount=$count")
+                    // Temporary visible confirmation for debugging — shows number of quizzes received
+                    Toast.makeText(this@ProfileActivity, "Created quizzes: $count", Toast.LENGTH_SHORT).show()
+                    myQuizzesRecycler.visibility = if (count > 0) View.VISIBLE else View.GONE
+                    myQuizzesRecycler.requestLayout()
+                }
+            }
         }
         
         // Observe total badges count  

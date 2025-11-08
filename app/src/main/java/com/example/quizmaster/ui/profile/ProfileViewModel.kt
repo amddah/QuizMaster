@@ -6,6 +6,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.quizmaster.data.model.User
+import com.example.quizmaster.data.model.toQuizModel
 import com.example.quizmaster.data.remote.ApiClient
 import com.example.quizmaster.data.remote.BadgeData
 import com.example.quizmaster.repository.GamificationRepository
@@ -42,6 +43,9 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
     private val _errorMessage = MutableLiveData<String?>()
     val errorMessage: LiveData<String?> = _errorMessage
 
+    private val _myQuizzesStatus = MutableLiveData<List<com.example.quizmaster.data.model.QuizModel>>()
+    val myQuizzesStatus: LiveData<List<com.example.quizmaster.data.model.QuizModel>> = _myQuizzesStatus
+
     /**
      * Load user profile from backend
      */
@@ -58,11 +62,31 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
                 // Load achievements (badges)
                 loadAchievements()
 
+                // Load student's created quizzes status
+                loadMyQuizzesStatus()
+
             } catch (e: Exception) {
                 _errorMessage.value = "Failed to load profile: ${e.message}"
             } finally {
                 _isLoading.value = false
             }
+        }
+    }
+
+    private suspend fun loadMyQuizzesStatus() {
+        try {
+            val response = authService.getMyQuizzesStatus()
+            if (response.isSuccessful && response.body() != null) {
+                val list = response.body()!!.map { wrapper ->
+                    // Convert inner quiz then prefer the wrapper.status if provided
+                    val baseQuiz = wrapper.quiz.toQuizModel()
+                    val statusFromWrapper = com.example.quizmaster.data.model.ApprovalStatus.fromString(wrapper.status)
+                    if (statusFromWrapper != null) baseQuiz.copy(approvalStatus = statusFromWrapper) else baseQuiz
+                }
+                _myQuizzesStatus.value = list
+            }
+        } catch (e: Exception) {
+            _errorMessage.value = "Failed to load quizzes status: ${e.message}"
         }
     }
 

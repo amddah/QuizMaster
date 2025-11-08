@@ -26,4 +26,8 @@ interface AuthApiService {
     
     @GET("users/profile")
     suspend fun getCurrentUser(): Response<User>
+
+    @GET("users/quizzes-status")
+    suspend fun getMyQuizzesStatus(): Response<List<MyQuizStatusApiModel>>
 }
+
