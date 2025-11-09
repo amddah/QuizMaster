@@ -75,17 +75,31 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
 
     private suspend fun loadMyQuizzesStatus() {
         try {
+            android.util.Log.d("ProfileViewModel", "Calling getMyQuizzesStatus()...")
             val response = authService.getMyQuizzesStatus()
+            android.util.Log.d("ProfileViewModel", "Response code=${response.code()} isSuccessful=${response.isSuccessful}")
             if (response.isSuccessful && response.body() != null) {
-                val list = response.body()!!.map { wrapper ->
+                val raw = response.body()!!
+                android.util.Log.d("ProfileViewModel", "Raw response body size=${raw.size}")
+                raw.forEachIndexed { index, wrapper ->
+                    android.util.Log.d("ProfileViewModel", "[$index] quiz.id=${wrapper.quiz.id} quiz.title=${wrapper.quiz.title} status=${wrapper.status}")
+                }
+                val list = raw.map { wrapper ->
                     // Convert inner quiz then prefer the wrapper.status if provided
                     val baseQuiz = wrapper.quiz.toQuizModel()
                     val statusFromWrapper = com.example.quizmaster.data.model.ApprovalStatus.fromString(wrapper.status)
                     if (statusFromWrapper != null) baseQuiz.copy(approvalStatus = statusFromWrapper) else baseQuiz
                 }
+                android.util.Log.d("ProfileViewModel", "Mapped quizzes: size=${list.size}")
+                list.forEachIndexed { index, quiz ->
+                    android.util.Log.d("ProfileViewModel", "[$index] mapped quiz.id=${quiz.id} quiz.title=${quiz.title} approvalStatus=${quiz.approvalStatus}")
+                }
                 _myQuizzesStatus.value = list
+            } else {
+                android.util.Log.e("ProfileViewModel", "Response unsuccessful or body is null")
             }
         } catch (e: Exception) {
+            android.util.Log.e("ProfileViewModel", "Exception loading quizzes status", e)
             _errorMessage.value = "Failed to load quizzes status: ${e.message}"
         }
     }

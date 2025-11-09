@@ -22,10 +22,20 @@ class QuizStatusAdapter : ListAdapter<QuizModel, QuizStatusAdapter.ViewHolder>(D
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         private val title: TextView = view.findViewById(R.id.quizTitle)
         private val status: TextView = view.findViewById(R.id.quizStatus)
+        private val subtitle: TextView? = view.findViewById(R.id.quizSubtitle)
+        private val meta: TextView? = view.findViewById(R.id.quizMeta)
 
         fun bind(item: QuizModel) {
             android.util.Log.d("QuizStatusAdapter", "bind quiz=${item.id} title=${item.title}")
             title.text = item.title
+            subtitle?.text = "${item.linkedCourseName} • ${item.difficulty.displayName}"
+            try {
+                val sdf = java.text.SimpleDateFormat("dd MMM yyyy", java.util.Locale.getDefault())
+                meta?.text = sdf.format(java.util.Date(item.createdAt))
+            } catch (e: Exception) {
+                // ignore formatting errors
+                meta?.text = ""
+            }
             when (item.approvalStatus) {
                 com.example.quizmaster.data.model.ApprovalStatus.APPROVED -> {
                     status.text = "Approved"

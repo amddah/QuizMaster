@@ -38,6 +38,7 @@ class ProfileActivity : AppCompatActivity() {
     private lateinit var logoutBottomButton: Button
     private lateinit var myQuizzesRecycler: RecyclerView
     private lateinit var quizStatusAdapter: QuizStatusAdapter
+    private var myQuizzesEmptyText: TextView? = null
     private var loadingProgress: ProgressBar? = null
     private var totalQuizzesText: TextView? = null
     private var streakText: TextView? = null
@@ -82,6 +83,7 @@ class ProfileActivity : AppCompatActivity() {
         // Bottom logout button (moved into bottom menu)
         logoutBottomButton = findViewById(R.id.logoutBottomButton)
     myQuizzesRecycler = findViewById(R.id.myQuizzesStatusRecycler)
+    myQuizzesEmptyText = findViewById(R.id.myQuizzesEmptyText)
         
         // Optional views
         loadingProgress = findViewById(R.id.loadingProgress)
@@ -103,8 +105,10 @@ class ProfileActivity : AppCompatActivity() {
             adapter = quizStatusAdapter
             // allow proper measuring inside ScrollView
             isNestedScrollingEnabled = false
-            visibility = View.GONE
+            // Force visible for debugging
+            visibility = View.VISIBLE
         }
+        Log.d("ProfileActivity", "setupRecyclerView: adapter set, layoutManager set, visibility=VISIBLE")
     }
     
     private fun observeViewModel() {
@@ -151,6 +155,13 @@ class ProfileActivity : AppCompatActivity() {
         // Observe created quizzes status
         viewModel.myQuizzesStatus.observe(this) { quizzes ->
             Log.d("ProfileActivity", "myQuizzesStatus observed: size=${quizzes?.size}")
+            // Log titles to help debug visibility and mapping issues
+            try {
+                val titles = quizzes?.map { it.title } ?: listOf()
+                Log.d("ProfileActivity", "myQuizzesStatus titles=${titles}")
+            } catch (e: Exception) {
+                Log.d("ProfileActivity", "Failed to log quiz titles: ${e.message}")
+            }
             quizStatusAdapter.submitList(quizzes) { // callback when diff is applied
                 // run on UI thread after list is committed
                 myQuizzesRecycler.post {
@@ -158,8 +169,14 @@ class ProfileActivity : AppCompatActivity() {
                     Log.d("ProfileActivity", "quizStatusAdapter.itemCount=$count")
                     // Temporary visible confirmation for debugging — shows number of quizzes received
                     Toast.makeText(this@ProfileActivity, "Created quizzes: $count", Toast.LENGTH_SHORT).show()
-                    myQuizzesRecycler.visibility = if (count > 0) View.VISIBLE else View.GONE
+                    val hasItems = count > 0
+                    myQuizzesRecycler.visibility = if (hasItems) View.VISIBLE else View.GONE
+                    myQuizzesEmptyText?.visibility = if (hasItems) View.GONE else View.VISIBLE
                     myQuizzesRecycler.requestLayout()
+                    if (!hasItems) {
+                        // extra log to help debugging server responses
+                        Log.d("ProfileActivity", "No created quizzes to display - check backend or auth token")
+                    }
                 }
             }
         }

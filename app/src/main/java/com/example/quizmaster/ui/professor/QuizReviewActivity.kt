@@ -113,7 +113,7 @@ class QuizReviewActivity : AppCompatActivity() {
                                 QuizReviewItem(
                                     questionText = q.questionText,
                                     options = q.options ?: emptyList(),
-                                    correctAnswer = q.correctAnswer
+                                    correctAnswer = q.correctAnswer ?: ""
                                 )
                             }
                             showList(items)

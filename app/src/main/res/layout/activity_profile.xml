@@ -34,10 +34,11 @@
     </com.google.android.material.appbar.AppBarLayout>
 
     <!-- Scrollable Content -->
-    <ScrollView
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1">
+        android:layout_weight="1"
+        android:fillViewport="true">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -314,11 +315,23 @@
                 android:nestedScrollingEnabled="false"
                 android:layout_marginBottom="12dp" />
 
+            <!-- Empty state for student-created quizzes -->
+            <TextView
+                android:id="@+id/myQuizzesEmptyText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="No created quizzes yet"
+                android:textSize="14sp"
+                android:textColor="@color/text_secondary"
+                android:gravity="center"
+                android:visibility="gone"
+                android:layout_marginBottom="12dp" />
+
             <!-- Quiz History removed from content; View All button will be in the bottom menu bar -->
 
             <!-- (Logout button moved to bottom menu) -->
         </LinearLayout>
-    </ScrollView>
+    </androidx.core.widget.NestedScrollView>
 
     <!-- Bottom menu bar with View All button -->
     <LinearLayout

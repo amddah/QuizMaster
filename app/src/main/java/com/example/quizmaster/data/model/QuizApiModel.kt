@@ -67,7 +67,7 @@ data class QuestionApiModel(
     val options: List<String>? = null,
     
     @SerializedName("correct_answer")
-    val correctAnswer: String,
+    val correctAnswer: String? = null,  // API returns null, so make it nullable
     
     @SerializedName("time_limit")
     val timeLimit: Int,
@@ -113,7 +113,7 @@ fun QuestionApiModel.toQuestionModel(): QuestionModel {
             "true_false" -> QuestionType.TRUE_FALSE
             else -> QuestionType.MULTIPLE_CHOICE
         },
-        correctAnswer = this.correctAnswer,
+        correctAnswer = this.correctAnswer ?: "",  // Use empty string if API returns null
         options = this.options ?: emptyList(),
         timeLimit = this.timeLimit,
         maxScore = this.points,
