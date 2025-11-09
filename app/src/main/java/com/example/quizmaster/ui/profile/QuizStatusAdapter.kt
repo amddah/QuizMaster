@@ -50,6 +50,20 @@ class QuizStatusAdapter : ListAdapter<QuizModel, QuizStatusAdapter.ViewHolder>(D
                     status.setBackgroundResource(R.drawable.status_chip_pending)
                 }
             }
+            // Open quiz review when clicking an item
+            itemView.setOnClickListener {
+                try {
+                    val ctx = itemView.context
+                    val intent = com.example.quizmaster.ui.professor.QuizReviewActivity.createIntent(
+                        ctx,
+                        item.id,
+                        item.description
+                    )
+                    ctx.startActivity(intent)
+                } catch (e: Exception) {
+                    android.util.Log.d("QuizStatusAdapter", "Failed to start QuizReviewActivity: ${e.message}")
+                }
+            }
         }
     }
 

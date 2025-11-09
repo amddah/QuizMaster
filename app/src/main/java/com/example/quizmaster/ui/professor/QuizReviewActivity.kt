@@ -97,6 +97,27 @@ class QuizReviewActivity : AppCompatActivity() {
                     if (response.isSuccessful) {
                         val body = response.body()
                         if (body != null) {
+                            // Check authorization: allow PROFESSOR or the quiz creator (student)
+                            try {
+                                val currentUser = sessionManager.currentUser.first()
+                                if (currentUser == null) {
+                                    showError(getString(R.string.error_unauthorized))
+                                    retryButton.visibility = View.GONE
+                                    return@launch
+                                }
+                                val isProfessor = currentUser.role == UserRole.PROFESSOR
+                                val isCreator = currentUser.id == body.creatorId
+                                if (!isProfessor && !isCreator) {
+                                    showError(getString(R.string.error_unauthorized))
+                                    retryButton.visibility = View.GONE
+                                    return@launch
+                                }
+                            } catch (e: Exception) {
+                                showError(getString(R.string.error_network_generic_short))
+                                retryButton.visibility = View.GONE
+                                return@launch
+                            }
+
                             // Update header with quiz title (preferred) and description from API
                             if (body.title.isNotBlank()) {
                                 quizIdText.text = body.title
@@ -131,25 +152,11 @@ class QuizReviewActivity : AppCompatActivity() {
             }
         }
 
-        // Check user role: only PROFESSOR may view quiz review
-        lifecycleScope.launch {
-            try {
-                val currentUser = sessionManager.currentUser.first()
-                if (currentUser == null || currentUser.role != UserRole.PROFESSOR) {
-                    // Show unauthorized error and prevent loading
-                    showError(getString(R.string.error_unauthorized))
-                    retryButton.visibility = View.GONE
-                    return@launch
-                }
-            } catch (_: Exception) {
-                showError(getString(R.string.error_network_generic_short))
-                retryButton.visibility = View.GONE
-                return@launch
-            }
-            // If authorized, proceed to set up retry and initial load
-            retryButton.setOnClickListener { loadQuiz() }
-            loadQuiz()
-        }
+        // Allow professors or the quiz creator to review the quiz.
+        // We'll attempt to load the quiz and then check authorization (so we can compare creator id).
+        retryButton.setOnClickListener { loadQuiz() }
+        // Initial load
+        loadQuiz()
     }
 
     companion object {
