@@ -16,6 +16,7 @@ import com.example.quizmaster.R
 import com.example.quizmaster.data.local.UserSessionManager
 import com.example.quizmaster.data.model.UserRole
 import com.example.quizmaster.ui.auth.LoginActivity
+import com.example.quizmaster.ui.professor.ProfessorQuizzesActivity
 import com.example.quizmaster.data.remote.ApiClient
 import kotlinx.coroutines.launch
 
@@ -223,8 +224,7 @@ class ProfileActivity : AppCompatActivity() {
         
         // View student attempts button (for professors)
         viewStudentAttemptsButton?.setOnClickListener {
-            // TODO: Navigate to student attempts activity
-            Toast.makeText(this, "View Student Attempts - Coming Soon", Toast.LENGTH_SHORT).show()
+            startActivity(Intent(this, ProfessorQuizzesActivity::class.java))
         }
         
         // Contact buttons

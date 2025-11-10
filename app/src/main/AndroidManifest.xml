@@ -136,6 +136,20 @@
             android:exported="false"
             android:theme="@style/Theme.MyApplication" />
 
+        <!-- Professor Quizzes Activity -->
+        <activity
+            android:name=".ui.professor.ProfessorQuizzesActivity"
+            android:exported="false"
+            android:parentActivityName=".ui.profile.ProfileActivity"
+            android:theme="@style/Theme.MyApplication.NoActionBar" />
+
+        <!-- Quiz Leaderboard Activity -->
+        <activity
+            android:name=".ui.professor.QuizLeaderboardActivity"
+            android:exported="false"
+            android:parentActivityName=".ui.professor.ProfessorQuizzesActivity"
+            android:theme="@style/Theme.MyApplication.NoActionBar" />
+
     </application>
 
 </manifest>
