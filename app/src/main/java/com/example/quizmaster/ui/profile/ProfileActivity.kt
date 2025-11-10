@@ -8,9 +8,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.GridLayoutManager
 import android.util.Log
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.quizmaster.R
 import com.example.quizmaster.data.local.UserSessionManager
 import com.example.quizmaster.data.model.UserRole
@@ -26,22 +27,36 @@ class ProfileActivity : AppCompatActivity() {
     
     private lateinit var sessionManager: UserSessionManager
     private lateinit var viewModel: ProfileViewModel
-    private lateinit var badgesAdapter: SimpleBadgesAdapter
-    
     private lateinit var toolbar: Toolbar
     private lateinit var userNameText: TextView
     private lateinit var userEmailText: TextView
     private lateinit var userRoleText: TextView
-    private lateinit var levelText: TextView
-    private lateinit var xpText: TextView
-    private lateinit var badgesGrid: RecyclerView
-    private lateinit var logoutBottomButton: Button
+    
+    // Student-specific views
+    private var studentSection: LinearLayout? = null
+    private var levelText: TextView? = null
+    private var xpText: TextView? = null
+    private var totalQuizzesText: TextView? = null
+    private var streakText: TextView? = null
+    private var badgesGrid: RecyclerView? = null
+    private lateinit var badgesAdapter: SimpleBadgesAdapter
+    
+    // Professor-specific views
+    private var professorSection: LinearLayout? = null
+    private var departmentText: TextView? = null
+    private var officeHoursText: TextView? = null
+    private var bioText: TextView? = null
+    private var contactEmailButton: ImageButton? = null
+    private var contactMessageButton: ImageButton? = null
+    
+    // Common views
     private lateinit var myQuizzesRecycler: RecyclerView
+    private lateinit var logoutBottomButton: Button
     private lateinit var quizStatusAdapter: QuizStatusAdapter
     private var myQuizzesEmptyText: TextView? = null
     private var loadingProgress: ProgressBar? = null
-    private var totalQuizzesText: TextView? = null
-    private var streakText: TextView? = null
+    private var viewHistoryButton: Button? = null
+    private var viewStudentAttemptsButton: Button? = null
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -77,35 +92,48 @@ class ProfileActivity : AppCompatActivity() {
         userNameText = findViewById(R.id.userNameText)
         userEmailText = findViewById(R.id.userEmailText)
         userRoleText = findViewById(R.id.userRoleText)
+        
+        // Student section and views
+        studentSection = findViewById(R.id.studentSection)
         levelText = findViewById(R.id.levelText)
         xpText = findViewById(R.id.xpText)
-        badgesGrid = findViewById(R.id.badgesGrid)
-        // Bottom logout button (moved into bottom menu)
-        logoutBottomButton = findViewById(R.id.logoutBottomButton)
-    myQuizzesRecycler = findViewById(R.id.myQuizzesStatusRecycler)
-    myQuizzesEmptyText = findViewById(R.id.myQuizzesEmptyText)
-        
-        // Optional views
-        loadingProgress = findViewById(R.id.loadingProgress)
         totalQuizzesText = findViewById(R.id.totalQuizzesText)
         streakText = findViewById(R.id.streakText)
+        badgesGrid = findViewById(R.id.badgesGrid)
+        
+        // Professor section and views
+        professorSection = findViewById(R.id.professorSection)
+        departmentText = findViewById(R.id.departmentText)
+        officeHoursText = findViewById(R.id.officeHoursText)
+        bioText = findViewById(R.id.bioText)
+        contactEmailButton = findViewById(R.id.contactEmailButton)
+        contactMessageButton = findViewById(R.id.contactMessageButton)
+        
+        // Bottom buttons
+        logoutBottomButton = findViewById(R.id.logoutBottomButton)
+        viewHistoryButton = findViewById(R.id.viewHistoryButton)
+        viewStudentAttemptsButton = findViewById(R.id.viewStudentAttemptsButton)
+        
+        // Common views
+        myQuizzesRecycler = findViewById(R.id.myQuizzesRecycler)
+        myQuizzesEmptyText = findViewById(R.id.myQuizzesEmptyText)
+        loadingProgress = findViewById(R.id.loadingProgress)
     }
     
     private fun setupRecyclerView() {
+        // Student badges
         badgesAdapter = SimpleBadgesAdapter()
-        badgesGrid.apply {
+        badgesGrid?.apply {
             layoutManager = GridLayoutManager(this@ProfileActivity, 3)
             adapter = badgesAdapter
         }
-
-        // quizzes status list
+        
+        // Quizzes status list
         quizStatusAdapter = QuizStatusAdapter()
         myQuizzesRecycler.apply {
-            layoutManager = androidx.recyclerview.widget.LinearLayoutManager(this@ProfileActivity)
+            layoutManager = LinearLayoutManager(this@ProfileActivity)
             adapter = quizStatusAdapter
-            // allow proper measuring inside ScrollView
             isNestedScrollingEnabled = false
-            // Force visible for debugging
             visibility = View.VISIBLE
         }
         Log.d("ProfileActivity", "setupRecyclerView: adapter set, layoutManager set, visibility=VISIBLE")
@@ -125,29 +153,30 @@ class ProfileActivity : AppCompatActivity() {
                 // Display role with emoji
                 userRoleText.text = if (it.role == UserRole.PROFESSOR) "👨‍🏫 Professor" else "👨‍🎓 Student"
                 
-                // Display total quizzes
+                // Display student-specific data
                 totalQuizzesText?.text = "${it.totalQuizzes ?: 0}"
-                
-                // Display streak
                 it.streak?.let { streak ->
                     streakText?.text = "${streak.currentStreak} days"
                 }
+                
+                // Show/hide sections based on role
+                updateUIBasedOnRole(it.role)
             }
         }
         
-        // Observe level from achievements
+        // Observe level from achievements (student only)
         viewModel.level.observe(this) { level ->
-            levelText.text = "Level $level"
+            levelText?.text = "$level"
         }
         
-        // Observe XP from achievements
+        // Observe XP from achievements (student only)
         viewModel.xp.observe(this) { xp ->
             val xpToNextLevel = (viewModel.level.value ?: 1) * 100
             val currentXpInLevel = xp % xpToNextLevel
-            xpText.text = "$currentXpInLevel / $xpToNextLevel XP"
+            xpText?.text = "$currentXpInLevel / $xpToNextLevel"
         }
         
-        // Observe badges
+        // Observe badges (student only)
         viewModel.badges.observe(this) { badges ->
             badgesAdapter.submitList(badges)
         }
@@ -155,36 +184,22 @@ class ProfileActivity : AppCompatActivity() {
         // Observe created quizzes status
         viewModel.myQuizzesStatus.observe(this) { quizzes ->
             Log.d("ProfileActivity", "myQuizzesStatus observed: size=${quizzes?.size}")
-            // Log titles to help debug visibility and mapping issues
             try {
                 val titles = quizzes?.map { it.title } ?: listOf()
                 Log.d("ProfileActivity", "myQuizzesStatus titles=${titles}")
             } catch (e: Exception) {
                 Log.d("ProfileActivity", "Failed to log quiz titles: ${e.message}")
             }
-            quizStatusAdapter.submitList(quizzes) { // callback when diff is applied
-                // run on UI thread after list is committed
+            quizStatusAdapter.submitList(quizzes) {
                 myQuizzesRecycler.post {
                     val count = quizStatusAdapter.itemCount
                     Log.d("ProfileActivity", "quizStatusAdapter.itemCount=$count")
-                    // Temporary visible confirmation for debugging — shows number of quizzes received
-                    Toast.makeText(this@ProfileActivity, "Created quizzes: $count", Toast.LENGTH_SHORT).show()
                     val hasItems = count > 0
                     myQuizzesRecycler.visibility = if (hasItems) View.VISIBLE else View.GONE
                     myQuizzesEmptyText?.visibility = if (hasItems) View.GONE else View.VISIBLE
                     myQuizzesRecycler.requestLayout()
-                    if (!hasItems) {
-                        // extra log to help debugging server responses
-                        Log.d("ProfileActivity", "No created quizzes to display - check backend or auth token")
-                    }
                 }
             }
-        }
-        
-        // Observe total badges count  
-        viewModel.totalBadges.observe(this) { count ->
-            // Update title or other view if needed
-            supportActionBar?.subtitle = "$count Badges Earned"
         }
         
         // Observe loading state
@@ -201,14 +216,50 @@ class ProfileActivity : AppCompatActivity() {
     }
 
     private fun setupClickListeners() {
-        // Quiz history button
-        findViewById<View>(R.id.viewHistoryButton)?.setOnClickListener {
+        // Quiz history button (for students)
+        viewHistoryButton?.setOnClickListener {
             startActivity(Intent(this, QuizHistoryActivity::class.java))
+        }
+        
+        // View student attempts button (for professors)
+        viewStudentAttemptsButton?.setOnClickListener {
+            // TODO: Navigate to student attempts activity
+            Toast.makeText(this, "View Student Attempts - Coming Soon", Toast.LENGTH_SHORT).show()
+        }
+        
+        // Contact buttons
+        contactEmailButton?.setOnClickListener {
+            // TODO: Launch email intent
+            Toast.makeText(this, "Email contact - Coming Soon", Toast.LENGTH_SHORT).show()
+        }
+        
+        contactMessageButton?.setOnClickListener {
+            // TODO: Launch messaging
+            Toast.makeText(this, "Message contact - Coming Soon", Toast.LENGTH_SHORT).show()
         }
         
         // Wire bottom logout if present
         logoutBottomButton.setOnClickListener {
             performLogout()
+        }
+    }
+    
+    private fun updateUIBasedOnRole(role: UserRole) {
+        when (role) {
+            UserRole.STUDENT -> {
+                // Show student-specific UI
+                studentSection?.visibility = View.VISIBLE
+                professorSection?.visibility = View.GONE
+                viewHistoryButton?.visibility = View.VISIBLE
+                viewStudentAttemptsButton?.visibility = View.GONE
+            }
+            UserRole.PROFESSOR -> {
+                // Show professor-specific UI
+                studentSection?.visibility = View.GONE
+                professorSection?.visibility = View.VISIBLE
+                viewHistoryButton?.visibility = View.GONE
+                viewStudentAttemptsButton?.visibility = View.VISIBLE
+            }
         }
     }
 
