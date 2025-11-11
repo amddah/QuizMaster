@@ -12,7 +12,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.quizmaster.R
 import com.example.quizmaster.data.local.UserSessionManager
 import com.example.quizmaster.data.remote.ApiClient
-import com.example.quizmaster.data.remote.LeaderboardEntry
+import com.example.quizmaster.data.model.LeaderboardEntry
 import com.google.android.material.tabs.TabLayout
 import kotlinx.coroutines.launch
 
@@ -85,7 +85,8 @@ class LeaderboardActivity : AppCompatActivity() {
         currentQuizId?.let { quizId ->
             val response = ApiClient.quizAttemptApiService.getQuizLeaderboard(quizId)
             if (response.isSuccessful) {
-                val entries = response.body() ?: emptyList()
+                val wrapper = response.body()
+                val entries = wrapper?.leaderboard ?: emptyList()
                 if (entries.isNotEmpty()) {
                     adapter.updateEntries(entries)
                     recyclerView.visibility = View.VISIBLE

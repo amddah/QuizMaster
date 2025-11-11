@@ -11,6 +11,10 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.quizmaster.data.repository.QuizAttemptRepository
+import com.example.quizmaster.ui.profile.LeaderboardAdapter
+import android.widget.ImageButton
+import android.widget.Toast
 import com.example.quizmaster.R
 import com.example.quizmaster.data.model.PerformanceTier
 import com.example.quizmaster.data.model.XpConstants
@@ -41,10 +45,17 @@ class QuizRewardsActivity : AppCompatActivity() {
     private lateinit var newLevelText: TextView
     private lateinit var newBadgesContainer: LinearLayout
     private lateinit var newBadgesRecyclerView: RecyclerView
+    private lateinit var leaderboardRecycler: RecyclerView
+    private lateinit var leaderboardCard: com.google.android.material.card.MaterialCardView
+    private lateinit var firstPlaceText: TextView
+    private lateinit var secondPlaceText: TextView
+    private lateinit var thirdPlaceText: TextView
+    private lateinit var shareIconButton: ImageButton
     private lateinit var continueButton: MaterialButton
-    private lateinit var shareButton: MaterialButton
 
     private var attemptId: String? = null
+    private val attemptRepository = QuizAttemptRepository()
+    private lateinit var leaderboardAdapter: LeaderboardAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -69,6 +80,9 @@ class QuizRewardsActivity : AppCompatActivity() {
 
         // Load rewards data from backend
         attemptId?.let { viewModel.loadRewards(it) }
+
+        // Also load attempt details and quiz leaderboard
+        attemptId?.let { loadAttemptAndLeaderboard(it) }
     }
     
     private fun displayScoreFromIntent() {
@@ -108,9 +122,8 @@ class QuizRewardsActivity : AppCompatActivity() {
         newBadgesContainer = findViewById(R.id.newBadgesContainer)
         newBadgesRecyclerView = findViewById(R.id.newBadgesRecyclerView)
 
-        // Buttons
-        continueButton = findViewById(R.id.continueButton)
-        shareButton = findViewById(R.id.shareButton)
+    // Buttons
+    continueButton = findViewById(R.id.continueButton)
     }
 
     private fun setupRecyclerView() {
@@ -123,6 +136,14 @@ class QuizRewardsActivity : AppCompatActivity() {
             )
             adapter = badgesAdapter
         }
+
+        // Leaderboard recycler
+        leaderboardAdapter = LeaderboardAdapter()
+        leaderboardRecycler = findViewById(R.id.leaderboardRecycler)
+        leaderboardRecycler.apply {
+            layoutManager = LinearLayoutManager(this@QuizRewardsActivity)
+            adapter = leaderboardAdapter
+        }
     }
 
     private fun setupButtons() {
@@ -131,7 +152,9 @@ class QuizRewardsActivity : AppCompatActivity() {
             finish()
         }
 
-        shareButton.setOnClickListener {
+        // small icon-based share button inside leaderboard card
+        shareIconButton = findViewById(R.id.shareIconButton)
+        shareIconButton.setOnClickListener {
             shareResults()
         }
     }
@@ -165,6 +188,69 @@ class QuizRewardsActivity : AppCompatActivity() {
                 newBadgesContainer.visibility = View.VISIBLE
                 badgesAdapter.submitList(badges)
                 animateNewBadges()
+            }
+        }
+
+        // Observe attempt LiveData - if set, we can use quizId to fetch leaderboard
+        viewModel.attempt.observe(this) { attempt ->
+            attempt?.let {
+                // attempt includes quizId
+                loadLeaderboardForQuiz(it.quizId)
+            }
+        }
+    }
+
+    private fun loadAttemptAndLeaderboard(attemptId: String) {
+        // Fetch attempt details to obtain quizId, then fetch leaderboard
+        lifecycleScope.launch {
+            val result = attemptRepository.getAttemptById(attemptId)
+            result.onSuccess { attempt ->
+                // set attempt in viewModel so other observers pick it up
+                viewModel.setAttempt(attempt)
+                loadLeaderboardForQuiz(attempt.quizId)
+            }.onFailure { error ->
+                // Could be local attempt - just show toast and skip leaderboard
+                Toast.makeText(this@QuizRewardsActivity, "Leaderboard unavailable: ${error.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun loadLeaderboardForQuiz(quizId: String) {
+        lifecycleScope.launch {
+            val result = attemptRepository.getQuizLeaderboard(quizId)
+            result.onSuccess { leaderboardList ->
+                if (leaderboardList.isEmpty()) {
+                    findViewById<TextView>(R.id.leaderboardEmptyText).visibility = View.VISIBLE
+                    findViewById<com.google.android.material.card.MaterialCardView>(R.id.quizLeaderboardCard).visibility = View.GONE
+                    return@onSuccess
+                }
+
+                // Show card
+                leaderboardCard = findViewById(R.id.quizLeaderboardCard)
+                leaderboardCard.visibility = View.VISIBLE
+
+                // Update podium placeholders for top 3
+                firstPlaceText = findViewById(R.id.firstPlaceText)
+                secondPlaceText = findViewById(R.id.secondPlaceText)
+                thirdPlaceText = findViewById(R.id.thirdPlaceText)
+
+                if (leaderboardList.size > 0) firstPlaceText.text = "🥇 ${leaderboardList[0].studentName} — ${leaderboardList[0].percentage.toInt()}%"
+                if (leaderboardList.size > 1) secondPlaceText.text = "🥈 ${leaderboardList[1].studentName} — ${leaderboardList[1].percentage.toInt()}%"
+                if (leaderboardList.size > 2) thirdPlaceText.text = "🥉 ${leaderboardList[2].studentName} — ${leaderboardList[2].percentage.toInt()}%"
+
+                // For 1-3 entries, show podium only; for >3, show podium + list
+                val listForAdapter = if (leaderboardList.size > 3) leaderboardList.drop(3) else emptyList()
+                leaderboardAdapter.submitList(listForAdapter)
+                leaderboardRecycler.visibility = if (listForAdapter.isNotEmpty()) View.VISIBLE else View.GONE
+
+                // Animate appearance
+                val anim = AnimationUtils.loadAnimation(this@QuizRewardsActivity, android.R.anim.fade_in)
+                leaderboardCard.startAnimation(anim)
+                leaderboardRecycler.startAnimation(AnimationUtils.loadAnimation(this@QuizRewardsActivity, android.R.anim.slide_in_left))
+            }.onFailure { error ->
+                // Show empty state
+                findViewById<TextView>(R.id.leaderboardEmptyText).visibility = View.VISIBLE
+                Toast.makeText(this@QuizRewardsActivity, "Failed to load leaderboard: ${error.message}", Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -228,9 +314,7 @@ class QuizRewardsActivity : AppCompatActivity() {
 
     private fun shareResults() {
         val attempt = viewModel.attempt.value ?: return
-        val percentage = if (attempt.maxScore > 0) {
-            (attempt.totalScore / attempt.maxScore) * 100
-        } else 0.0
+        val percentage = if (attempt.maxScore > 0) (attempt.totalScore / attempt.maxScore) * 100 else 0.0
 
         val xpGain = viewModel.xpGain.value?.xp_earned ?: 0
         val tier = PerformanceTier.fromPercentage(percentage)

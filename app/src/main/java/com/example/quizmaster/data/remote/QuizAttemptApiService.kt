@@ -1,6 +1,8 @@
 package com.example.quizmaster.data.remote
 
+import com.example.quizmaster.data.model.LeaderboardEntry
 import com.example.quizmaster.data.model.QuizAttempt
+import com.example.quizmaster.data.model.QuizLeaderboardResponse
 import com.google.gson.annotations.SerializedName
 import retrofit2.Response
 import retrofit2.http.*
@@ -59,34 +61,7 @@ data class CompleteAttemptResponse(
     val xpReward: Any? = null
 )
 
-/**
- * Response models for leaderboards
- */
-data class LeaderboardEntry(
-    @SerializedName("student_id")
-    val studentId: String,
-    
-    @SerializedName("student_name")
-    val studentName: String,
-    
-    @SerializedName("score")
-    val score: Double,
-    
-    @SerializedName("max_score")
-    val maxScore: Double,
-    
-    @SerializedName("percentage")
-    val percentage: Double,
-    
-    @SerializedName("time_taken")
-    val timeTaken: Int,
-    
-    @SerializedName("rank")
-    val rank: Int,
-    
-    @SerializedName("completed_at")
-    val completedAt: String
-)
+/* Leaderboard models are defined in data.model.QuizLeaderboardResponse and LeaderboardEntry */
 
 /**
  * API service for quiz attempts and leaderboards matching Swagger spec
@@ -152,7 +127,7 @@ interface QuizAttemptApiService {
     @GET("leaderboards/quiz/{quiz_id}")
     suspend fun getQuizLeaderboard(
         @Path("quiz_id") quizId: String
-    ): Response<List<LeaderboardEntry>>
+    ): Response<QuizLeaderboardResponse>
     
     /**
      * GET /leaderboards/quiz/{quiz_id}/my-rank - Get authenticated student's rank

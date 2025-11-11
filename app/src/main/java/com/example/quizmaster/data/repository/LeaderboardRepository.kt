@@ -1,7 +1,8 @@
 package com.example.quizmaster.data.repository
 
 import com.example.quizmaster.data.model.QuizAttempt
-import com.example.quizmaster.data.remote.LeaderboardEntry
+import com.example.quizmaster.data.model.LeaderboardEntry
+import com.example.quizmaster.data.model.QuizLeaderboardResponse
 import com.example.quizmaster.data.remote.QuizAttemptApiService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -55,7 +56,8 @@ class LeaderboardRepository(
         try {
             val response = attemptApiService.getQuizLeaderboard(quizId)
             if (response.isSuccessful && response.body() != null) {
-                Result.success(response.body()!!)
+                val wrapper = response.body() as? QuizLeaderboardResponse
+                if (wrapper != null) Result.success(wrapper.leaderboard) else Result.failure(Exception("Malformed leaderboard response"))
             } else {
                 Result.failure(Exception("Failed to fetch leaderboard: ${response.message()}"))
             }

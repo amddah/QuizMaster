@@ -1,8 +1,10 @@
 package com.example.quizmaster.data.repository
 
+import com.example.quizmaster.data.model.QuizLeaderboardResponse
+
 import com.example.quizmaster.data.model.QuizAttempt
 import com.example.quizmaster.data.remote.ApiClient
-import com.example.quizmaster.data.remote.LeaderboardEntry
+import com.example.quizmaster.data.model.LeaderboardEntry
 import com.example.quizmaster.data.remote.StartAttemptRequest
 import com.example.quizmaster.data.remote.SubmitAnswerRequest
 import kotlinx.coroutines.Dispatchers
@@ -172,9 +174,13 @@ class QuizAttemptRepository {
     suspend fun getQuizLeaderboard(quizId: String): Result<List<LeaderboardEntry>> = withContext(Dispatchers.IO) {
         try {
             val response = quizAttemptApiService.getQuizLeaderboard(quizId)
-            
             if (response.isSuccessful && response.body() != null) {
-                Result.success(response.body()!!)
+                val wrapper = response.body() as? QuizLeaderboardResponse
+                if (wrapper != null) {
+                    Result.success(wrapper.leaderboard)
+                } else {
+                    Result.failure(Exception("Malformed leaderboard response"))
+                }
             } else {
                 val errorMsg = response.errorBody()?.string() ?: "Unknown error"
                 Result.failure(Exception("Failed to get leaderboard: ${response.code()} - $errorMsg"))
