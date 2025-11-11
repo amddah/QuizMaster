@@ -24,4 +24,11 @@
         <item name="colorOnSecondary">@color/black</item>
         <item name="android:statusBarColor">#388E3C</item>
     </style>
+
+    <!-- Label style for TextInputLayout hints (floating labels) -->
+    <style name="TextInputLabel" parent="TextAppearance.MaterialComponents.Caption">
+        <!-- Use a higher-contrast color so labels remain visible against input backgrounds -->
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textSize">12sp</item>
+    </style>
 </resources>

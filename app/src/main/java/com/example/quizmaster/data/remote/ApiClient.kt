@@ -46,8 +46,11 @@ object ApiClient {
         .writeTimeout(30, TimeUnit.SECONDS)
         .build()
     
-    // Custom Gson with UserRole deserializer to handle lowercase values from API
+    // Custom Gson with UserRole serializer/deserializer to handle lowercase values for API
     private val gson = GsonBuilder()
+        // Ensure enums are serialized as lowercase (e.g. "student") when sending requests
+        .registerTypeAdapter(UserRole::class.java, com.example.quizmaster.data.model.UserRoleSerializer())
+        // And deserialize lowercase values from responses
         .registerTypeAdapter(UserRole::class.java, UserRoleDeserializer())
         .create()
 

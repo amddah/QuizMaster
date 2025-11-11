@@ -33,12 +33,21 @@
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:hint="@string/first_name"
             android:layout_marginBottom="16dp"
-            app:boxBackgroundColor="@color/input_background"
-            app:boxCornerRadiusBottomEnd="8dp"
-            app:boxCornerRadiusBottomStart="8dp"
-            app:boxCornerRadiusTopEnd="8dp"
-            app:boxCornerRadiusTopStart="8dp">
+            app:boxBackgroundColor="@android:color/transparent"
+            app:boxBackgroundMode="outline"
+            app:boxCornerRadiusBottomEnd="12dp"
+            app:boxCornerRadiusBottomStart="12dp"
+            app:boxCornerRadiusTopEnd="12dp"
+            app:boxCornerRadiusTopStart="12dp"
+            app:boxStrokeColor="@color/primary_green"
+            app:boxStrokeWidth="2dp"
+            app:boxStrokeWidthFocused="2dp"
+            app:boxCollapsedPaddingTop="14dp"
+            app:hintTextAppearance="@style/TextInputLabel"
+            app:hintEnabled="true"
+            app:expandedHintEnabled="true">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/firstNameInput"
@@ -47,19 +56,31 @@
                 android:hint="@string/first_name"
                 android:inputType="text"
                 android:textColor="@color/black"
-                android:textColorHint="@color/text_secondary" />
+                android:textColorHint="@color/text_secondary"
+                android:background="@null"
+                android:padding="12dp"
+                android:includeFontPadding="false" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <!-- Last Name -->
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:hint="@string/last_name"
             android:layout_marginBottom="16dp"
-            app:boxBackgroundColor="@color/input_background"
-            app:boxCornerRadiusBottomEnd="8dp"
-            app:boxCornerRadiusBottomStart="8dp"
-            app:boxCornerRadiusTopEnd="8dp"
-            app:boxCornerRadiusTopStart="8dp">
+            app:boxBackgroundColor="@android:color/transparent"
+            app:boxBackgroundMode="outline"
+            app:boxCornerRadiusBottomEnd="12dp"
+            app:boxCornerRadiusBottomStart="12dp"
+            app:boxCornerRadiusTopEnd="12dp"
+            app:boxCornerRadiusTopStart="12dp"
+            app:boxStrokeColor="@color/primary_green"
+            app:boxStrokeWidth="2dp"
+            app:boxStrokeWidthFocused="2dp"
+            app:boxCollapsedPaddingTop="14dp"
+            app:hintTextAppearance="@style/TextInputLabel"
+            app:hintEnabled="true"
+            app:expandedHintEnabled="true">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/lastNameInput"
@@ -68,19 +89,31 @@
                 android:hint="@string/last_name"
                 android:inputType="text"
                 android:textColor="@color/black"
-                android:textColorHint="@color/text_secondary" />
+                android:textColorHint="@color/text_secondary"
+                android:background="@null"
+                android:padding="12dp"
+                android:includeFontPadding="false" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <!-- Email -->
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:hint="@string/email"
             android:layout_marginBottom="16dp"
-            app:boxBackgroundColor="@color/input_background"
-            app:boxCornerRadiusBottomEnd="8dp"
-            app:boxCornerRadiusBottomStart="8dp"
-            app:boxCornerRadiusTopEnd="8dp"
-            app:boxCornerRadiusTopStart="8dp">
+            app:boxBackgroundColor="@android:color/transparent"
+            app:boxBackgroundMode="outline"
+            app:boxCornerRadiusBottomEnd="12dp"
+            app:boxCornerRadiusBottomStart="12dp"
+            app:boxCornerRadiusTopEnd="12dp"
+            app:boxCornerRadiusTopStart="12dp"
+            app:boxStrokeColor="@color/primary_green"
+            app:boxStrokeWidth="2dp"
+            app:boxStrokeWidthFocused="2dp"
+            app:boxCollapsedPaddingTop="14dp"
+            app:hintTextAppearance="@style/TextInputLabel"
+            app:hintEnabled="true"
+            app:expandedHintEnabled="true">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/emailInput"
@@ -89,20 +122,32 @@
                 android:hint="@string/email"
                 android:inputType="textEmailAddress"
                 android:textColor="@color/black"
-                android:textColorHint="@color/text_secondary" />
+                android:textColorHint="@color/text_secondary"
+                android:background="@null"
+                android:padding="12dp"
+                android:includeFontPadding="false" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <!-- Password -->
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:hint="@string/password"
             android:layout_marginBottom="16dp"
-            app:boxBackgroundColor="@color/input_background"
-            app:boxCornerRadiusBottomEnd="8dp"
-            app:boxCornerRadiusBottomStart="8dp"
-            app:boxCornerRadiusTopEnd="8dp"
-            app:boxCornerRadiusTopStart="8dp"
-            app:passwordToggleEnabled="true">
+            app:boxBackgroundColor="@android:color/transparent"
+            app:boxBackgroundMode="outline"
+            app:boxCornerRadiusBottomEnd="12dp"
+            app:boxCornerRadiusBottomStart="12dp"
+            app:boxCornerRadiusTopEnd="12dp"
+            app:boxCornerRadiusTopStart="12dp"
+            app:passwordToggleEnabled="true"
+            app:boxStrokeColor="@color/primary_green"
+            app:boxStrokeWidth="2dp"
+            app:boxStrokeWidthFocused="2dp"
+            app:boxCollapsedPaddingTop="14dp"
+            app:hintTextAppearance="@style/TextInputLabel"
+            app:hintEnabled="true"
+            app:expandedHintEnabled="true">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/passwordInput"
@@ -111,20 +156,32 @@
                 android:hint="@string/password"
                 android:inputType="textPassword"
                 android:textColor="@color/black"
-                android:textColorHint="@color/text_secondary" />
+                android:textColorHint="@color/text_secondary"
+                android:background="@null"
+                android:padding="12dp"
+                android:includeFontPadding="false" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <!-- Confirm Password -->
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:hint="@string/confirm_password"
             android:layout_marginBottom="16dp"
-            app:boxBackgroundColor="@color/input_background"
-            app:boxCornerRadiusBottomEnd="8dp"
-            app:boxCornerRadiusBottomStart="8dp"
-            app:boxCornerRadiusTopEnd="8dp"
-            app:boxCornerRadiusTopStart="8dp"
-            app:passwordToggleEnabled="true">
+            app:boxBackgroundColor="@android:color/transparent"
+            app:boxBackgroundMode="outline"
+            app:boxCornerRadiusBottomEnd="12dp"
+            app:boxCornerRadiusBottomStart="12dp"
+            app:boxCornerRadiusTopEnd="12dp"
+            app:boxCornerRadiusTopStart="12dp"
+            app:passwordToggleEnabled="true"
+            app:boxStrokeColor="@color/primary_green"
+            app:boxStrokeWidth="2dp"
+            app:boxStrokeWidthFocused="2dp"
+            app:boxCollapsedPaddingTop="14dp"
+            app:hintTextAppearance="@style/TextInputLabel"
+            app:hintEnabled="true"
+            app:expandedHintEnabled="true">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/confirmPasswordInput"
@@ -133,26 +190,45 @@
                 android:hint="@string/confirm_password"
                 android:inputType="textPassword"
                 android:textColor="@color/black"
-                android:textColorHint="@color/text_secondary" />
+                android:textColorHint="@color/text_secondary"
+                android:background="@null"
+                android:padding="12dp"
+                android:includeFontPadding="false" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Role Selection -->
-        <TextView
+        <!-- Student ID (fake input) -->
+        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/select_role"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            android:textColor="@color/text_primary"
-            android:layout_marginBottom="12dp" />
-
-        <Spinner
-            android:id="@+id/roleSpinner"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
+            android:hint="Student ID"
             android:layout_marginBottom="16dp"
-            android:background="@drawable/spinner_background"
-            android:padding="12dp" />
+            app:boxBackgroundColor="@android:color/transparent"
+            app:boxBackgroundMode="outline"
+            app:boxCornerRadiusBottomEnd="12dp"
+            app:boxCornerRadiusBottomStart="12dp"
+            app:boxCornerRadiusTopEnd="12dp"
+            app:boxCornerRadiusTopStart="12dp"
+            app:boxStrokeColor="@color/primary_green"
+            app:boxStrokeWidth="2dp"
+            app:boxStrokeWidthFocused="2dp"
+            app:boxCollapsedPaddingTop="10dp"
+            app:hintTextAppearance="@style/TextInputLabel">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/studentIdInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Student ID"
+                android:inputType="text"
+                android:textColor="@color/black"
+                android:textColorHint="@color/text_secondary"
+                android:background="@null"
+                android:padding="12dp"
+                android:includeFontPadding="false" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Role is now fixed to Student by default; role selection removed from UI -->
 
         <!-- Error Message -->
         <TextView

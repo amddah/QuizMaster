@@ -22,7 +22,7 @@ interface AuthApiService {
     @POST("auth/register")
     suspend fun register(
         @Body request: RegisterRequest
-    ): Response<User>
+    ): Response<AuthResponse>
     
     @GET("users/profile")
     suspend fun getCurrentUser(): Response<User>

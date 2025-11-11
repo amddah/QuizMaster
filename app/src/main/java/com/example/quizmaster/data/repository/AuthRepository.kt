@@ -46,20 +46,21 @@ class AuthRepository(
     suspend fun register(
         email: String,
         firstName: String,
-        lastName: String, 
+        lastName: String,
         password: String,
         role: UserRole
     ): Result<User> {
         return try {
             val request = RegisterRequest(email, firstName, lastName, password, role)
             val response = authApiService.register(request)
-            
+
             if (response.isSuccessful) {
-                val user = response.body()
-                if (user != null) {
-                    // For registration, we might not get a token back immediately
-                    // In that case, we'd need to login after registration
-                    Result.success(user)
+                val authResponse = response.body()
+                if (authResponse != null) {
+                    // Save token and user session (backend returns token + user on register)
+                    sessionManager.saveSession(authResponse.token, authResponse.user)
+                    ApiClient.setAuthToken(authResponse.token)
+                    Result.success(authResponse.user)
                 } else {
                     Result.failure(Exception("Empty response from server"))
                 }

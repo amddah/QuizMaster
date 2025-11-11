@@ -22,7 +22,7 @@ class RegisterActivity : AppCompatActivity() {
     private lateinit var emailInput: EditText
     private lateinit var passwordInput: EditText
     private lateinit var confirmPasswordInput: EditText
-    private lateinit var roleSpinner: Spinner
+    private lateinit var studentIdInput: EditText
     private lateinit var registerButton: Button
     private lateinit var loginLink: TextView
     private lateinit var progressBar: ProgressBar
@@ -39,8 +39,7 @@ class RegisterActivity : AppCompatActivity() {
         sessionManager = UserSessionManager.getInstance(this)
         authRepository = AuthRepository(ApiClient.authApiService, sessionManager)
         
-        initViews()
-        setupRoleSpinner()
+    initViews()
         setupClickListeners()
     }
     
@@ -50,19 +49,13 @@ class RegisterActivity : AppCompatActivity() {
         emailInput = findViewById(R.id.emailInput)
         passwordInput = findViewById(R.id.passwordInput)
         confirmPasswordInput = findViewById(R.id.confirmPasswordInput)
-        roleSpinner = findViewById(R.id.roleSpinner)
+        studentIdInput = findViewById(R.id.studentIdInput)
         registerButton = findViewById(R.id.registerButton)
         loginLink = findViewById(R.id.loginLink)
         progressBar = findViewById(R.id.progressBar)
         errorText = findViewById(R.id.errorText)
     }
     
-    private fun setupRoleSpinner() {
-        val roles = arrayOf("Student", "Professor")
-        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, roles)
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        roleSpinner.adapter = adapter
-    }
     
     private fun setupClickListeners() {
         registerButton.setOnClickListener {
@@ -81,7 +74,10 @@ class RegisterActivity : AppCompatActivity() {
         val email = emailInput.text.toString().trim()
         val password = passwordInput.text.toString()
         val confirmPassword = confirmPasswordInput.text.toString()
-        val selectedRole = if (roleSpinner.selectedItemPosition == 0) UserRole.STUDENT else UserRole.PROFESSOR
+    // Role input removed from UI; default to STUDENT
+    val selectedRole = UserRole.STUDENT
+    // Read student ID (fake input). Do not send it to backend.
+    val studentId = studentIdInput.text.toString().trim()
         
         // Validation
         if (firstName.isBlank() || lastName.isBlank() || email.isBlank() || password.isBlank()) {
@@ -140,9 +136,9 @@ class RegisterActivity : AppCompatActivity() {
         emailInput.isEnabled = !isLoading
         passwordInput.isEnabled = !isLoading
         confirmPasswordInput.isEnabled = !isLoading
-        roleSpinner.isEnabled = !isLoading
+        studentIdInput.isEnabled = !isLoading
     }
-    
+
     private fun showError(message: String) {
         errorText.text = message
         errorText.visibility = View.VISIBLE
