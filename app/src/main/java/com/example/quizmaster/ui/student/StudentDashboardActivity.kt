@@ -63,7 +63,8 @@ class StudentDashboardActivity : AppCompatActivity() {
         profileButton = findViewById(R.id.profileButton)
 
         // Setup category spinner with proper text colors
-        val categories = listOf("All", "Programming", "Math", "Science", "History", "Literature")
+        // Added "Technology" so users can filter quizzes in the Technology category from the home page
+        val categories = listOf("All", "Programming", "Math", "Science", "History", "Literature", "Technology")
         val adapter = object : ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, categories) {
             override fun getView(position: Int, convertView: View?, parent: android.view.ViewGroup): View {
                 val view = super.getView(position, convertView, parent) as TextView
