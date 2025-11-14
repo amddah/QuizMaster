@@ -143,8 +143,8 @@ fun QuizModel.toApiModel(): QuizApiModel {
         id = this.id,
         title = this.title,
         description = this.description,
-        // Use API-specific values (apiValue) when available so the backend receives expected tokens
-        category = this.category.apiValue,
+        // Send the category name (lowercase) instead of numeric/string id so backend receives the category name
+        category = this.category.name.lowercase(),
         difficultyLevel = this.difficulty.apiValue,
         courseId = this.linkedCourseId,
         creatorId = this.creatorId,
